@@ -120,7 +120,7 @@ export default function AdminUsersPage() {
                 <td className="py-3.5 pl-0 pr-3">
                   <span className="display text-[15px]">{item.name}</span>
                   {item.email === sessionUser?.email ? (
-                    <span className="ml-2 text-[9px] uppercase tracking-[0.12em] text-sage-600 dark:text-sage-100">
+                    <span className="ml-2 text-[9px] uppercase tracking-[0.12em] text-sage-700 dark:text-sage-100">
                       vous
                     </span>
                   ) : null}

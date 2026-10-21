@@ -36,7 +36,7 @@ export function SiteHeader() {
           <span className="display text-[27px] leading-none">Whispers</span>
           <span
             aria-hidden
-            className="mb-0.5 size-[5px] rounded-full bg-sage-300 transition-transform duration-300 group-hover:scale-125"
+            className="mb-0.5 size-[5px] rounded-full bg-sage-500 transition-transform duration-300 group-hover:scale-125"
           />
         </Link>
 
@@ -64,7 +64,7 @@ export function SiteHeader() {
 
           <Link
             href="/catalogue"
-            className="link-underline hidden text-[11px] uppercase tracking-[0.16em] text-sage-600 sm:block dark:text-sage-100"
+            className="link-underline hidden text-[11px] uppercase tracking-[0.16em] text-sage-700 sm:block dark:text-sage-100"
           >
             Proposer une citation
           </Link>

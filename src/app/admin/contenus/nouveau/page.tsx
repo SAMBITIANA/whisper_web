@@ -145,7 +145,7 @@ export default function NouveauContenuPage() {
                       {mediaKindLabels[value]}
                     </span>
                     {kind === value ? (
-                      <Check className="size-3.5 text-sage-600 dark:text-sage-100" />
+                      <Check className="size-3.5 text-sage-700 dark:text-sage-100" />
                     ) : null}
                   </span>
                   <span className="mt-1 block text-[11px] leading-relaxed text-foreground/45">
@@ -364,7 +364,7 @@ export default function NouveauContenuPage() {
                 onChange={(event) =>
                   setStatus(event.target.checked ? "PUBLIE" : "BROUILLON")
                 }
-                className="size-3.5 accent-[var(--color-sage-600)]"
+                className="size-3.5 accent-[var(--color-sage-700)]"
               />
               Publier immédiatement
             </label>

@@ -25,11 +25,13 @@ Copier `.env.example` vers `.env.local` :
   `src/components/ui` et appartiennent au projet.
 - **Direction éditoriale « papier & encre »** : filets fins au lieu de cartes,
   grille asymétrique, petit grain de papier, aucune ombre portée lourde.
-- **Palette sage** appliquée aux tokens shadcn en OKLCH (`--primary` = encre,
-  `--secondary`/`--accent` = papiers et lavis de sauge, `--muted-foreground`
-  neutre) + utilitaires bruts `--color-sage-100/300/600/900`,
-  `--color-paper`, `--color-paper-deep`, `--color-ink`, `--rule`. Thème clair
-  et thème sombre (nuit d'encre).
+- **Palette sage** appliquée aux tokens shadcn en OKLCH (`--primary` = vert
+  d'encre `#3F4D3A`, `--secondary`/`--accent` = lavis de sauge, `--muted-foreground`
+  sauge sourde) + utilitaires bruts `--color-sage-100/300/500/700/900`,
+  `--color-paper`, `--color-paper-deep`, `--color-ink`, `--rule`. Bandes, footer
+  et panneau d'authentification en sauge claire (`#D2DCB6`), cadres photo et
+  corps du lecteur en sauge moyenne (`#A1BC98`). Thème clair et thème sombre
+  (nuit verte).
 - **Typographie auto-hébergée** (`src/fonts/`, `next/font/local`, aucune requête
   Google au runtime) : **Fraunces** variable pour les citations et titres,
   **Instrument Sans** pour l'interface, **Geist Mono** pour les chiffres.

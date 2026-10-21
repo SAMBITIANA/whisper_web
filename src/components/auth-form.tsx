@@ -146,7 +146,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       {magicSent ? (
         <div className="mt-8 border-y border-[var(--rule)] py-6">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-700 dark:text-sage-100">
             <Mail className="size-4" />
             Lien envoyé
           </div>

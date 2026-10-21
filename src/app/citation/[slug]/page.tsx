@@ -184,7 +184,7 @@ export default async function CitationPage({
             <div className="border-t border-[var(--rule)] pt-5">
               <Link
                 href={`/source/${item.source.slug}`}
-                className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
+                className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-700 dark:text-sage-100"
               >
                 <span className="link-underline">Voir la source</span>
                 <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />

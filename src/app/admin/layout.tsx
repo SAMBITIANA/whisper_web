@@ -114,7 +114,7 @@ export default function AdminLayout({
                   <item.icon
                     className={cn(
                       "size-3.5",
-                      active ? "text-sage-600 dark:text-sage-100" : "",
+                      active ? "text-sage-700 dark:text-sage-100" : "",
                     )}
                   />
                   {item.label}

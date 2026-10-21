@@ -179,7 +179,7 @@ export default function AdminContenusPage() {
                   <span
                     className={
                       row.status === "Publié"
-                        ? "text-[10px] uppercase tracking-[0.12em] text-sage-600 dark:text-sage-100"
+                        ? "text-[10px] uppercase tracking-[0.12em] text-sage-700 dark:text-sage-100"
                         : "text-[10px] uppercase tracking-[0.12em] text-foreground/35"
                     }
                   >
