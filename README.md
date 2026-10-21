@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# whispers_web
 
-## Getting Started
+Front Next.js 16 (App Router) du projet Whispers. Il consomme l'API
+NestJS + Fastify de `../whispers_server` (Prisma 8, cluster Node.js).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript
+- Tailwind CSS 4, ESLint (`eslint-config-next`)
+- Axios (REST), Socket.IO client (temps réel), Zod (validation)
+- Vitest + Testing Library (jsdom)
+
+## Variables d'environnement
+
+Copier `.env.example` vers `.env.local` :
+
+| Variable | Défaut | Rôle |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:3200` | Origine du serveur Nest : cible du proxy `/api` et des appels côté serveur |
+| `NEXT_PUBLIC_SOCKET_URL` | `http://localhost:3200` | Origine du serveur Socket.IO (le WebSocket n'est pas proxyfiable par Next) |
+
+## Scripts
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev        # serveur de dev (turbopack) sur http://localhost:3000
+npm run build      # build de production
+npm run start      # sert le build
+npm run lint       # ESLint
+npm run typecheck  # tsc --noEmit
+npm test           # Vitest
+npm run test:watch # Vitest en watch
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API et temps réel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Requêtes REST : `src/lib/api.ts` (instance Axios). Côté navigateur la base
+  est relative (`/api`) et passe par le rewrite Next
+  (`next.config.ts` → `${NEXT_PUBLIC_API_BASE_URL}/api/:path*`), donc même
+  origine et pas de CORS. Côté serveur (RSC / route handlers) la base est
+  absolue.
+- Socket.IO : `src/lib/socket.ts`. Connexion sur le path `/api/socket.io`
+  (identique à l'adapter du serveur) en transport `websocket` uniquement :
+  en cluster, le polling long-polling casse le routage entre workers sans
+  sticky-session.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Backend
 
-## Learn More
+```bash
+cd ../whispers_server
+npm run build
+npm run start:cluster   # cluster Node.js, 1 worker par cœur
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Variables côté serveur : `CLUSTER_ENABLED` (auto en production),
+`CLUSTER_WORKERS`, `PORT` (3200).

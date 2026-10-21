@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+const apiBaseUrl = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3200"
+).replace(/\/+$/, "");
+
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -11,6 +14,17 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  images: {
+    unoptimized: true,
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiBaseUrl}/api/:path*`,
+      },
+    ];
   },
 };
 
