@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -9,6 +10,7 @@ import { typography } from "@/lib/format";
 import {
   getMediaBySource,
   getSource,
+  getSourcePoster,
   sourceLabels,
   sources,
 } from "@/lib/fake-data";
@@ -59,38 +61,58 @@ export default async function SourcePage({
           Retour au catalogue
         </Link>
 
-        <header className="mt-8 grid gap-8 border-b border-[var(--rule)] pb-9 md:grid-cols-[1.4fr_1fr] md:items-end">
-          <div>
-            <p className="eyebrow">Source · {sourceLabels[source.kind]}</p>
-            <h1 className="display mt-4 text-[clamp(2.2rem,4.6vw,3.5rem)] leading-[1.02] text-balance">
-              {typography(source.title)}
-            </h1>
-          </div>
+        <header className="mt-8 border-b border-[var(--rule)] pb-9">
+          <div className="grid gap-10 md:grid-cols-[1.35fr_1fr] md:items-start">
+            <div>
+              <p className="eyebrow">Source · {sourceLabels[source.kind]}</p>
+              <h1 className="display mt-4 text-[clamp(2.2rem,4.6vw,3.5rem)] leading-[1.02] text-balance">
+                {typography(source.title)}
+              </h1>
 
-          <dl className="grid gap-2 text-[13px] text-foreground/55">
-            <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
-              <dt className="eyebrow">Auteur</dt>
-              <dd className="font-serif italic">
-                {source.author ?? "Non renseigné"}
-              </dd>
+              <dl className="mt-9 grid gap-x-10 gap-y-3 text-[13px] text-foreground/55 sm:grid-cols-2">
+                <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
+                  <dt className="eyebrow">Auteur</dt>
+                  <dd className="font-serif italic">
+                    {source.author ?? "Non renseigné"}
+                  </dd>
+                </div>
+                {source.year ? (
+                  <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
+                    <dt className="eyebrow">Année</dt>
+                    <dd className="font-mono text-[12px]">{source.year}</dd>
+                  </div>
+                ) : null}
+                {source.character ? (
+                  <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
+                    <dt className="eyebrow">Personnage</dt>
+                    <dd className="font-serif italic">{source.character}</dd>
+                  </div>
+                ) : null}
+                <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
+                  <dt className="eyebrow">Citations</dt>
+                  <dd className="font-mono text-[12px]">{quotes.length}</dd>
+                </div>
+              </dl>
             </div>
-            {source.year ? (
-              <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
-                <dt className="eyebrow">Année</dt>
-                <dd className="font-mono text-[12px]">{source.year}</dd>
+
+            <figure>
+              <div className="paper-frame">
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <Image
+                    src={getSourcePoster(source.slug) ?? "/media/carnet-riviere.jpg"}
+                    alt={`Visuel d’illustration pour ${source.title}`}
+                    fill
+                    sizes="(min-width: 768px) 38vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               </div>
-            ) : null}
-            {source.character ? (
-              <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
-                <dt className="eyebrow">Personnage</dt>
-                <dd className="font-serif italic">{source.character}</dd>
-              </div>
-            ) : null}
-            <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
-              <dt className="eyebrow">Citations</dt>
-              <dd className="font-mono text-[12px]">{quotes.length}</dd>
-            </div>
-          </dl>
+              <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-2">
+                <span className="eyebrow">Visuel d’illustration</span>
+                <span className="eyebrow">Aucun extrait de l’œuvre</span>
+              </figcaption>
+            </figure>
+          </div>
         </header>
 
         <aside className="mt-10 grid gap-8 border-b border-[var(--rule)] pb-9 md:grid-cols-[6rem_1fr] md:gap-14">

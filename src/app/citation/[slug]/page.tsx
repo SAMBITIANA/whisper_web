@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { FakePlayer } from "@/components/fake-player";
 import { MediaCard } from "@/components/media-card";
 import { SectionHeading } from "@/components/section-heading";
@@ -8,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import {
   getMedia,
+  getSourcePoster,
   media,
   mediaKindLabels,
   sourceLabels,
@@ -48,13 +50,36 @@ export default async function CitationPage({
     notFound();
   }
 
-  const related = media
+  const matches = media
     .filter(
       (candidate) =>
         candidate.slug !== item.slug &&
-        candidate.topics.some((topic) => item.topics.includes(topic)),
+        (candidate.mood === item.mood ||
+          candidate.topics.some((topic) => item.topics.includes(topic))),
     )
-    .slice(0, 3);
+    .sort((a, b) => {
+      const score = (candidate: typeof item) =>
+        candidate.topics.filter((topic) => item.topics.includes(topic)).length *
+          10 +
+        (candidate.mood === item.mood ? 1 : 0);
+
+      return score(b) - score(a) || b.views - a.views;
+    });
+
+  const related = matches.slice(0, 3);
+  const broadened = related.length < 3;
+
+  if (broadened) {
+    related.push(
+      ...media
+        .filter(
+          (candidate) =>
+            candidate.slug !== item.slug && !related.includes(candidate),
+        )
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 3 - related.length),
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -103,6 +128,24 @@ export default async function CitationPage({
               </p>
             </div>
 
+            <figure>
+              <div className="paper-frame">
+                <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <Image
+                    src={getSourcePoster(item.source.slug) ?? item.poster}
+                    alt={`Visuel d’illustration pour ${item.source.title}`}
+                    fill
+                    sizes="(min-width: 1024px) 30vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+              <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-2">
+                <span className="eyebrow">Image d’illustration</span>
+                <span className="eyebrow">Aucun extrait de l’œuvre</span>
+              </figcaption>
+            </figure>
+
             <dl className="flex flex-wrap gap-x-8 gap-y-4 border-t border-[var(--rule)] pt-5">
               {[
                 [`${formatViews(item.views)}`, "vues"],
@@ -144,7 +187,7 @@ export default async function CitationPage({
                 className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
               >
                 <span className="link-underline">Voir la source</span>
-                <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </Link>
             </div>
           </aside>
@@ -164,7 +207,7 @@ export default async function CitationPage({
           <section className="mt-16">
             <SectionHeading
               title="Citations liées"
-              note="Dans les mêmes sujets"
+              note={broadened ? "À lire ensuite" : "Dans les mêmes sujets"}
             />
             <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((candidate) => (

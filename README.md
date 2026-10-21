@@ -47,16 +47,51 @@ Copier `.env.example` vers `.env.local` :
 | `/catalogue` | Recherche, filtres (format, sujet, humeur) et tri, sur `src/lib/fake-data.ts` |
 | `/citation/[slug]` | Lecteur, source, statistiques, citations liées |
 | `/source/[slug]` | Toutes les citations issues d'une source |
+| `/connexion`, `/inscription` | Authentification simulée (mot de passe, lien magique, Google) et comptes de démonstration |
+| `/compte` | Espace membre : profil, propositions, médias enregistrés, préférences |
+| `/admin` | Tableau de bord de l'équipe (KPI, file de modération, activité, pipeline) |
+| `/admin/moderation`, `/admin/contenus` | Modération des propositions, liste des médias et des brouillons |
+| `/admin/contenus/nouveau` | Création d'un contenu des 4 formats avec aperçu de la couche de texte |
+| `/admin/sources`, `/admin/utilisateurs` | Catalogue des sources, comptes et rôles (utilisateurs réservé aux administrateurs) |
 
 `src/lib/fake-data.ts` contient le catalogue de démonstration (13 médias, 13
 sources, citations en français et en anglais). Il remplacera l'API NestJS
 lorsque le backend exposera `/api`.
 
 Les visuels sont **des images réelles téléchargées en local** dans
-`public/media/` (photos libres issues de picsum.photos, licence Unsplash) :
+`public/media/` (34 photos libres issues de picsum.photos, licence Unsplash) :
 elles simulent la diffusion future par Backblaze B2 + Cloudflare, sans
-dépendance réseau à l'exécution. Pour remplacer par le vrai CDN, il suffit de
-changer le champ `poster` de `FakeMedia` par l'URL Cloudflare.
+dépendance réseau à l'exécution. `public/media/sources/` contient un visuel de
+dossier par source (page `/source/[slug]`), distinct des affiches des
+citations. Les pages d'authentification et le « carnet de repérages » de
+l'accueil utilisent les photos `auth-*.jpg` et `carnet-*.jpg`. Pour remplacer
+par le vrai CDN, il suffit de changer les champs `poster` de `FakeMedia` /
+`FakeSource` par les URL Cloudflare.
+
+## Espaces et rôles (maquette)
+
+L'authentification est **simulée** : la session est un cookie JSON en base64
+(`whispers_session`, 7 jours, **non `httpOnly`**) lu par `SessionProvider`,
+avec des gardes de route côté client (`src/lib/use-required-session.ts`). Ce
+n'est pas une implémentation de sécurité — l'API NestJS devra poser un cookie
+`httpOnly` (ou un JWT court + refresh), OAuth + PKCE et des guards serveur.
+
+| Rôle | Libellé | Droits |
+| --- | --- | --- |
+| Visiteur | — | Catalogue, citations, sources |
+| `USER` | Membre | Proposer, enregistrer, préférences, compte |
+| `EDITOR` | Éditeur | Modération, contenus, sources, tableau de bord |
+| `ADMIN` | Administrateur | + comptes et rôles |
+
+Comptes de démonstration (mot de passe `whispers`) : `julien@whispers.app`
+(administrateur), `lea@whispers.app` (éditeur), `sam@whispers.app` (membre).
+Les comptes créés via `/inscription` sont conservés dans
+`localStorage["whispers_local_accounts"]`.
+
+Les modifications de la maquette persistent par navigateur :
+`whispers_proposals` (modération), `whispers_contents` (contenus et
+brouillons), `whispers_sources`, `whispers_users` (rôles/statuts). Le lien
+magique et Google sont simulés par un toast.
 
 ## Scripts
 

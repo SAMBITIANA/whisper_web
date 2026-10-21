@@ -18,6 +18,7 @@ export type FakeSource = {
   slug: string;
   kind: SourceKind;
   title: string;
+  poster?: string;
   year?: number;
   author?: string;
   character?: string;
@@ -79,6 +80,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "dernier-train-de-minuit",
+      poster: "/media/sources/dernier-train-de-minuit.jpg",
       kind: "FILM",
       title: "Le dernier train de minuit",
       year: 1998,
@@ -107,6 +109,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "horizon-des-mots",
+      poster: "/media/sources/horizon-des-mots.jpg",
       kind: "BOOK",
       title: "L'horizon des mots",
       year: 2011,
@@ -133,6 +136,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "etoiles-de-niora",
+      poster: "/media/sources/etoiles-de-niora.jpg",
       kind: "CARTOON",
       title: "Les étoiles de Niora",
       year: 2019,
@@ -162,6 +166,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "la-derniere-vague",
+      poster: "/media/sources/la-derniere-vague.jpg",
       kind: "SONG",
       title: "La dernière vague",
       year: 2024,
@@ -216,6 +221,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "proverbe-du-vent",
+      poster: "/media/sources/proverbe-du-vent.jpg",
       kind: "PROVERB",
       title: "Proverbe du vent",
     },
@@ -239,6 +245,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "lettre-a-majala",
+      poster: "/media/sources/lettre-a-majala.jpg",
       kind: "BOOK",
       title: "Lettre à Majala",
       year: 2018,
@@ -266,6 +273,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "les-veilleurs-de-la-ville",
+      poster: "/media/sources/les-veilleurs-de-la-ville.jpg",
       kind: "SERIES",
       title: "Les veilleurs de la ville",
       year: 2021,
@@ -294,6 +302,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "discours-de-la-renaissance",
+      poster: "/media/sources/discours-de-la-renaissance.jpg",
       kind: "SPEECH",
       title: "Discours de la renaissance",
       year: 1994,
@@ -319,6 +328,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "ma-citation-de-ce-matin",
+      poster: "/media/sources/ma-citation-de-ce-matin.jpg",
       kind: "PERSONAL",
       title: "Ma citation de ce matin",
     },
@@ -343,6 +353,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "le-garcon-de-la-pluie",
+      poster: "/media/sources/le-garcon-de-la-pluie.jpg",
       kind: "CARTOON",
       title: "Le garçon de la pluie",
       year: 2015,
@@ -371,6 +382,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "carnet-de-bord",
+      poster: "/media/sources/carnet-de-bord.jpg",
       kind: "SONG",
       title: "Carnet de bord",
       year: 2025,
@@ -398,6 +410,7 @@ export const media: FakeMedia[] = [
     },
     source: {
       slug: "oiseau-de-pierre",
+      poster: "/media/sources/oiseau-de-pierre.jpg",
       kind: "FILM",
       title: "L'oiseau de pierre",
       year: 2003,
@@ -414,6 +427,59 @@ export const media: FakeMedia[] = [
     publishedAt: "2026-10-09",
     poster: "/media/oiseau-de-pierre.jpg",
   gradient: "from-[#2B5748] via-[#618764] to-[#9CB080]",
+  },
+  {
+    slug: "veilleuse",
+    kind: "IMAGE",
+    title: "La veilleuse",
+    quote: {
+      fr: "La nuit, les mots se relisent à voix basse.",
+      en: "At night, words are reread in a whisper.",
+    },
+    source: {
+      slug: "horizon-des-mots",
+      poster: "/media/sources/horizon-des-mots.jpg",
+      kind: "BOOK",
+      title: "L'horizon des mots",
+      year: 2011,
+      author: "Velomanitra R.",
+      locator: "p. 112",
+    },
+    topics: ["Lecture", "Nuit"],
+    mood: "Réfléchi",
+    durationSec: 0,
+    views: 4210,
+    likes: 640,
+    comments: 12,
+    publishedAt: "2026-10-19",
+    poster: "/media/veilleuse.jpg",
+  gradient: "from-[#273338] via-[#2B5748] to-[#618764]",
+    community: true,
+  },
+  {
+    slug: "la-route-rouge",
+    kind: "IMAGE",
+    title: "La route rouge",
+    quote: {
+      fr: "On ne traverse pas un désert, on apprend à marcher avec lui.",
+      en: "You do not cross a desert, you learn to walk with it.",
+    },
+    source: {
+      slug: "proverbe-du-vent",
+      poster: "/media/sources/proverbe-du-vent.jpg",
+      kind: "PROVERB",
+      title: "Proverbe du vent",
+    },
+    topics: ["Voyage", "Persévérance"],
+    mood: "Contemplatif",
+    durationSec: 0,
+    views: 3180,
+    likes: 470,
+    comments: 9,
+    publishedAt: "2026-10-17",
+    poster: "/media/la-route-rouge.jpg",
+  gradient: "from-[#B4653A] via-[#9A5A3C] to-[#273338]",
+    community: true,
   },
 ];
 
@@ -437,6 +503,12 @@ export function getSource(slug: string): FakeSource | undefined {
 
 export function getMediaBySource(sourceSlug: string): FakeMedia[] {
   return media.filter((item) => item.source.slug === sourceSlug);
+}
+
+export function getSourcePoster(sourceSlug: string): string | undefined {
+  return (
+    getSource(sourceSlug)?.poster ?? getMediaBySource(sourceSlug)[0]?.poster
+  );
 }
 
 export function getQuote(
