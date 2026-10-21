@@ -56,11 +56,12 @@ function FilterButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "link-underline text-[13px] transition-colors",
+        "-mx-2 px-2 py-1 text-[13px] transition-colors",
         active
-          ? "text-foreground [background-size:100%_1px]"
-          : "text-foreground/50 hover:text-foreground",
+          ? "bg-sage-600 font-medium text-paper"
+          : "text-foreground/50 hover:bg-sage-100/40 hover:text-foreground",
       )}
     >
       {children}
@@ -168,11 +169,14 @@ export function CatalogueBrowser({
             onClick={() => setFiltersOpen((open) => !open)}
             aria-expanded={filtersOpen}
             aria-controls="catalogue-filtres"
-            className="h-9 gap-2 rounded-none border-[var(--rule-strong)] bg-transparent px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 hover:border-sage-300 hover:bg-transparent hover:text-foreground"
+            className={cn(
+              "h-9 gap-2 rounded-none border-[var(--rule-strong)] bg-transparent px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 hover:border-sage-300 hover:bg-transparent hover:text-foreground",
+              filtersOpen ? "border-sage-300 bg-sage-600/10 text-foreground" : "",
+            )}
           >
             Filtres
             {chips.length > 0 ? (
-              <span className="font-mono text-[10px] text-sage-600">
+              <span className="bg-sage-600 px-1.5 py-0.5 font-mono text-[10px] text-paper">
                 {String(chips.length).padStart(2, "0")}
               </span>
             ) : null}
@@ -267,7 +271,7 @@ export function CatalogueBrowser({
             key={chip.key}
             type="button"
             onClick={chip.clear}
-            className="inline-flex items-center gap-1.5 border border-[var(--rule-strong)] px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
+            className="inline-flex items-center gap-1.5 border border-sage-300 bg-sage-100/45 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-sage-900 transition-colors hover:border-sage-600 hover:bg-sage-100/70"
           >
             {chip.label}
             <X className="size-3" />
