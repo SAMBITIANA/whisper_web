@@ -51,7 +51,7 @@ export default function CataloguePage({
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-12 sm:px-8">
-        <header className="mb-12 border-b border-[var(--rule)] pb-8">
+        <header className="mb-8 border-b border-[var(--rule)] pb-6">
           <p className="eyebrow">Catalogue</p>
           <h1 className="display mt-4 text-[clamp(2.4rem,5vw,3.75rem)] leading-[1.02]">
             Toutes les citations

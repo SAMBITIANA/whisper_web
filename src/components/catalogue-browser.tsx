@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import { cn } from "cn";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaCard } from "@/components/media-card";
 import {
@@ -22,6 +23,8 @@ const sortLabels: Record<SortKey, string> = {
   popular: "Plus aimées",
   discussed: "Plus commentées",
 };
+
+const TOPIC_PREVIEW = 8;
 
 function FilterRow({
   label,
@@ -81,6 +84,10 @@ export function CatalogueBrowser({
   const [topic, setTopic] = useState<string | null>(initialTopic ?? null);
   const [mood, setMood] = useState<string | null>(initialMood ?? null);
   const [sort, setSort] = useState<SortKey>(initialSort ?? "recent");
+  const [filtersOpen, setFiltersOpen] = useState(
+    Boolean(initialTopic || initialMood || initialKind),
+  );
+  const [allTopics, setAllTopics] = useState(false);
 
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -112,11 +119,37 @@ export function CatalogueBrowser({
     });
   }, [query, kind, topic, mood, sort]);
 
-  const hasFilters = Boolean(query || kind || topic || mood);
+  const chips = [
+    query.trim()
+      ? { key: "query", label: `« ${query.trim()} »`, clear: () => setQuery("") }
+      : null,
+    kind
+      ? {
+          key: "kind",
+          label: mediaKindLabels[kind],
+          clear: () => setKind(null),
+        }
+      : null,
+    topic
+      ? { key: "topic", label: topic, clear: () => setTopic(null) }
+      : null,
+    mood ? { key: "mood", label: mood, clear: () => setMood(null) } : null,
+  ].filter((chip): chip is { key: string; label: string; clear: () => void } =>
+    Boolean(chip),
+  );
+
+  const reset = () => {
+    setQuery("");
+    setKind(null);
+    setTopic(null);
+    setMood(null);
+  };
+
+  const visibleTopics = allTopics ? topics : topics.slice(0, TOPIC_PREVIEW);
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 border-b border-[var(--rule)] pb-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full max-w-md">
           <Search className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-foreground/35" />
           <Input
@@ -128,78 +161,123 @@ export function CatalogueBrowser({
           />
         </div>
 
-        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-          <span className="eyebrow">Trier</span>
-          {(Object.keys(sortLabels) as SortKey[]).map((key) => (
-            <FilterButton
-              key={key}
-              active={sort === key}
-              onClick={() => setSort(key)}
-            >
-              {sortLabels[key]}
-            </FilterButton>
-          ))}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setFiltersOpen((open) => !open)}
+            aria-expanded={filtersOpen}
+            aria-controls="catalogue-filtres"
+            className="h-9 gap-2 rounded-none border-[var(--rule-strong)] bg-transparent px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 hover:border-sage-300 hover:bg-transparent hover:text-foreground"
+          >
+            Filtres
+            {chips.length > 0 ? (
+              <span className="font-mono text-[10px] text-sage-600">
+                {String(chips.length).padStart(2, "0")}
+              </span>
+            ) : null}
+            <ChevronDown
+              className={cn(
+                "size-3.5 transition-transform duration-300",
+                filtersOpen ? "rotate-180" : "",
+              )}
+            />
+          </Button>
+
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+            <span className="eyebrow">Trier</span>
+            {(Object.keys(sortLabels) as SortKey[]).map((key) => (
+              <FilterButton
+                key={key}
+                active={sort === key}
+                onClick={() => setSort(key)}
+              >
+                {sortLabels[key]}
+              </FilterButton>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div>
-        <FilterRow label="Format">
-          {kinds.map((value) => (
-            <FilterButton
-              key={value}
-              active={kind === value}
-              onClick={() =>
-                setKind((current) => (current === value ? null : value))
-              }
-            >
-              {mediaKindLabels[value]}
-            </FilterButton>
-          ))}
-        </FilterRow>
+      {filtersOpen ? (
+        <div id="catalogue-filtres">
+          <FilterRow label="Format">
+            {kinds.map((value) => (
+              <FilterButton
+                key={value}
+                active={kind === value}
+                onClick={() =>
+                  setKind((current) => (current === value ? null : value))
+                }
+              >
+                {mediaKindLabels[value]}
+              </FilterButton>
+            ))}
+          </FilterRow>
 
-        <FilterRow label="Sujet">
-          {topics.map((value) => (
-            <FilterButton
-              key={value}
-              active={topic === value}
-              onClick={() =>
-                setTopic((current) => (current === value ? null : value))
-              }
-            >
-              {value}
-            </FilterButton>
-          ))}
-        </FilterRow>
+          <FilterRow label="Sujet">
+            {visibleTopics.map((value) => (
+              <FilterButton
+                key={value}
+                active={topic === value}
+                onClick={() =>
+                  setTopic((current) => (current === value ? null : value))
+                }
+              >
+                {value}
+              </FilterButton>
+            ))}
+            {topics.length > TOPIC_PREVIEW ? (
+              <button
+                type="button"
+                onClick={() => setAllTopics((open) => !open)}
+                className="link-underline text-[12px] text-foreground/50 transition-colors hover:text-foreground"
+              >
+                {allTopics
+                  ? "Réduire"
+                  : `+ ${topics.length - TOPIC_PREVIEW} sujets`}
+              </button>
+            ) : null}
+          </FilterRow>
 
-        <FilterRow label="Humeur">
-          {moods.map((value) => (
-            <FilterButton
-              key={value}
-              active={mood === value}
-              onClick={() =>
-                setMood((current) => (current === value ? null : value))
-              }
-            >
-              {value}
-            </FilterButton>
-          ))}
-        </FilterRow>
-      </div>
+          <FilterRow label="Humeur">
+            {moods.map((value) => (
+              <FilterButton
+                key={value}
+                active={mood === value}
+                onClick={() =>
+                  setMood((current) => (current === value ? null : value))
+                }
+              >
+                {value}
+              </FilterButton>
+            ))}
+          </FilterRow>
+        </div>
+      ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--rule)] pt-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="eyebrow">
           {results.length} citation{results.length > 1 ? "s" : ""}
-          {hasFilters ? " après filtrage" : ""}
+          {chips.length > 0 ? " après filtrage" : ""}
         </p>
-        {hasFilters ? (
+
+        {chips.map((chip) => (
+          <button
+            key={chip.key}
+            type="button"
+            onClick={chip.clear}
+            className="inline-flex items-center gap-1.5 border border-[var(--rule-strong)] px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
+          >
+            {chip.label}
+            <X className="size-3" />
+          </button>
+        ))}
+
+        {chips.length > 0 ? (
           <button
             type="button"
-            onClick={() => {
-              setQuery("");
-              setKind(null);
-              setTopic(null);
-              setMood(null);
-            }}
+            onClick={reset}
             className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-foreground/50 transition-colors hover:text-foreground"
           >
             <X className="size-3" />

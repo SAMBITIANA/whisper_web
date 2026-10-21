@@ -25,6 +25,7 @@ describe("CatalogueBrowser", () => {
     render(<CatalogueBrowser />);
 
     const trackCount = media.filter((item) => item.kind === "TRACK").length;
+    await user.click(screen.getByRole("button", { name: "Filtres" }));
     await user.click(screen.getByRole("button", { name: "Chanson" }));
 
     expect(
