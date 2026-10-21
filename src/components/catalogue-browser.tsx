@@ -56,7 +56,7 @@ function FilterButton({
       className={cn(
         "link-underline text-[13px] transition-colors",
         active
-          ? "text-foreground [background-size:100%_1px]"
+          ? "active-underline text-foreground"
           : "text-foreground/50 hover:text-foreground",
       )}
     >

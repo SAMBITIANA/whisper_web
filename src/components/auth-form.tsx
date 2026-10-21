@@ -134,7 +134,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               }}
               className={
                 method === value
-                  ? "-mb-px border-b-2 border-foreground pb-2.5 text-[12px] uppercase tracking-[0.14em] text-foreground"
+                  ? "-mb-px border-b-2 border-primary pb-2.5 text-[12px] uppercase tracking-[0.14em] text-foreground"
                   : "-mb-px border-b-2 border-transparent pb-2.5 text-[12px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground/70"
               }
             >

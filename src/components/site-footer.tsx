@@ -9,7 +9,7 @@ const explore = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-28 border-t border-[var(--rule)] bg-paper-deep dark:bg-card">
+    <footer className="mt-28 border-t border-gold/70 bg-paper-deep dark:border-gold/40 dark:bg-card">
       <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
         <div className="grid gap-10 py-14 md:grid-cols-[1.6fr_1fr_1.2fr]">
           <div>
