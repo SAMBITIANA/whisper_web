@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
           <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
             <Link
               href="/admin/contenus/nouveau"
-              className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-700 dark:text-sage-100"
+              className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
             >
               <span className="link-underline">Créer un contenu</span>
               <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />

@@ -154,7 +154,7 @@ export default function ModerationPage() {
                   <span
                     className={
                       proposal.status === "APPROVED"
-                        ? "text-[10px] uppercase tracking-[0.14em] text-sage-700 dark:text-sage-100"
+                        ? "text-[10px] uppercase tracking-[0.14em] text-sage-600 dark:text-sage-100"
                         : proposal.status === "REJECTED"
                           ? "text-[10px] uppercase tracking-[0.14em] text-foreground/30"
                           : "text-[10px] uppercase tracking-[0.14em] text-foreground/55"
@@ -177,7 +177,7 @@ export default function ModerationPage() {
                     <button
                       type="button"
                       onClick={() => setStatus(proposal.id, "APPROVED")}
-                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-sage-700 dark:text-sage-100"
+                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-sage-600 dark:text-sage-100"
                     >
                       Approuver
                     </button>

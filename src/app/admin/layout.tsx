@@ -107,14 +107,14 @@ export default function AdminLayout({
                   className={cn(
                     "flex shrink-0 items-center gap-2.5 whitespace-nowrap py-2 text-[12px] transition-colors lg:border-t lg:border-[var(--rule)] lg:py-3",
                     active
-                      ? "bg-gold/15 text-foreground"
+                      ? "text-foreground"
                       : "text-foreground/45 hover:text-foreground",
                   )}
                 >
                   <item.icon
                     className={cn(
                       "size-3.5",
-                      active ? "text-gold" : "text-foreground/40",
+                      active ? "text-sage-600 dark:text-sage-100" : "",
                     )}
                   />
                   {item.label}
@@ -178,7 +178,7 @@ function AdminTopBar({ role }: { role?: string }) {
         </Link>
         <span aria-hidden className="h-4 w-px bg-[var(--rule-strong)]" />
         <span className="eyebrow">Administration</span>
-        <span className="hidden bg-gold px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground sm:inline-block">
+        <span className="hidden border border-[var(--rule-strong)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground/45 sm:inline-block">
           Maquette
         </span>
 

@@ -97,7 +97,7 @@ export default function ComptePage() {
                       <span
                         className={
                           proposal.status === "APPROVED"
-                            ? "text-[10px] uppercase tracking-[0.14em] text-sage-700 dark:text-sage-100"
+                            ? "text-[10px] uppercase tracking-[0.14em] text-sage-600 dark:text-sage-100"
                             : "text-[10px] uppercase tracking-[0.14em] text-foreground/40"
                         }
                       >
@@ -160,7 +160,7 @@ export default function ComptePage() {
               {canEditContent(user.role) ? (
                 <Link
                   href="/admin"
-                  className="group mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-700 dark:text-sage-100"
+                  className="group mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
                 >
                   <span className="link-underline">Ouvrir l’administration</span>
                   <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />

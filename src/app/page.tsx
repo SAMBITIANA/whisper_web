@@ -65,11 +65,11 @@ export default function HomePage() {
                   className="display hanging rise mt-7 text-[clamp(2.1rem,4.7vw,4rem)] leading-[1.03] text-balance"
                   style={delay(80)}
                 >
-                  <span className="text-sage-500">«</span>
+                  <span className="text-sage-300">«</span>
                   {"\u00a0"}
                   {getQuote(featured, "fr")}
                   {"\u00a0"}
-                  <span className="text-sage-500">»</span>
+                  <span className="text-sage-300">»</span>
                 </blockquote>
 
                 <div
@@ -101,7 +101,7 @@ export default function HomePage() {
                 >
                   <Link
                     href={`/citation/${featured.slug}`}
-                    className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-sage-700 dark:text-sage-100"
+                    className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
                   >
                     <span className="link-underline">Lire la citation</span>
                     <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -341,7 +341,7 @@ export default function HomePage() {
           </div>
         </aside>
 
-        <section className="mt-20 border-y border-gold/60 bg-paper-deep dark:border-gold/40 dark:bg-card">
+        <section className="mt-20 border-y border-[var(--rule)] bg-paper-deep dark:bg-card">
           <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1.25fr_1fr] md:items-center">
             <div>
               <p className="eyebrow">Proposition</p>
@@ -356,9 +356,9 @@ export default function HomePage() {
               </p>
               <Link
                 href="/catalogue"
-                className="group mt-8 inline-flex items-center gap-2 bg-primary px-4 py-2.5 text-[11px] uppercase tracking-[0.16em] text-primary-foreground transition-colors hover:bg-primary/85"
+                className="group mt-8 inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
               >
-                Proposer une citation
+                <span className="link-underline">Proposer une citation</span>
                 <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </Link>
             </div>

@@ -113,7 +113,7 @@ export default function AdminSourcesPage() {
                     {source.year ? ` · ${source.year}` : ""}
                   </p>
                 </div>
-                <span className="text-[9.5px] uppercase tracking-[0.13em] text-sage-700 dark:text-sage-100">
+                <span className="text-[9.5px] uppercase tracking-[0.13em] text-sage-600 dark:text-sage-100">
                   Nouvelle
                 </span>
               </li>
