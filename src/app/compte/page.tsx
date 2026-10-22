@@ -55,27 +55,29 @@ export default function ComptePage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-12 sm:px-8">
-        <header className="border-b border-[var(--rule)] pb-8">
-          <p className="eyebrow">Espace personnel</p>
-          <h1 className="display mt-4 text-[clamp(2.2rem,4.6vw,3.4rem)] leading-[1.03]">
-            Bonjour, {user.name.split(" ")[0]}.
-          </h1>
-          <p className="mt-3 max-w-xl font-serif text-[15px] italic leading-relaxed text-foreground/55">
+      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
+        <header className="border-b border-[var(--rule)] pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+            <p className="eyebrow">Espace personnel</p>
+            <h1 className="display text-[clamp(1.5rem,2.8vw,2.15rem)] leading-[1.08]">
+              Bonjour, {user.name.split(" ")[0]}.
+            </h1>
+          </div>
+          <p className="mt-1.5 max-w-xl text-[13.5px] leading-snug text-foreground/60">
             {account?.bio ??
               "Votre collection de citations, vos propositions et vos préférences de lecture."}
           </p>
         </header>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="space-y-16 lg:col-span-8">
+        <div className="mt-6 grid gap-10 lg:grid-cols-12 lg:gap-14">
+          <div className="space-y-12 lg:col-span-8">
             <section>
               <SectionHeading
                 title="Mes propositions"
                 note={`${myProposals.length} envoi${myProposals.length > 1 ? "s" : ""}`}
               />
               {myProposals.length === 0 ? (
-                <p className="border-y border-[var(--rule)] py-8 font-serif text-[15px] italic text-foreground/50">
+                <p className="border-y border-[var(--rule)] py-8 font-serif text-[15px] italic text-foreground/65">
                   Aucune proposition pour l’instant. Une phrase vous a marqué ?
                   Proposez-la depuis le catalogue.
                 </p>
@@ -128,8 +130,8 @@ export default function ComptePage() {
             </section>
           </div>
 
-          <aside className="space-y-8 lg:col-span-4">
-            <div className="border-y border-[var(--rule)] py-6">
+          <aside className="panel space-y-6 lg:col-span-4">
+            <div>
               <div className="flex items-center gap-4">
                 <span className="grid size-14 place-items-center rounded-full border border-[var(--rule-strong)] font-mono text-[14px] text-foreground/70">
                   {initialsOf(user.name)}
@@ -138,7 +140,7 @@ export default function ComptePage() {
                   <p className="display text-[20px] leading-none">
                     {user.name}
                   </p>
-                  <p className="mt-1.5 text-[12px] text-foreground/50">
+                  <p className="mt-1.5 text-[12px] text-foreground/65">
                     {user.email}
                   </p>
                 </div>
@@ -168,7 +170,7 @@ export default function ComptePage() {
               ) : null}
             </div>
 
-            <div>
+            <div className="border-t border-[var(--rule-strong)] pt-5">
               <p className="eyebrow">Préférences de lecture</p>
 
               <div className="mt-4 space-y-4">
@@ -205,8 +207,8 @@ export default function ComptePage() {
                         onClick={() => setTheme(theme)}
                         className={
                           resolvedTheme === theme
-                            ? "text-[11px] uppercase tracking-[0.14em] text-foreground [background-size:100%_1px]"
-                            : "link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground"
+                            ? "bg-left-bottom bg-no-repeat font-medium text-[11px] uppercase tracking-[0.14em] text-foreground [background-image:linear-gradient(var(--color-sage-600),var(--color-sage-600))] [background-size:100%_1px] dark:[background-image:linear-gradient(var(--color-sage-300),var(--color-sage-300))]"
+                            : "link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground"
                         }
                       >
                         {theme === "light" ? "Clair" : "Sombre"}
@@ -246,7 +248,7 @@ export default function ComptePage() {
                   signOut();
                   router.push("/");
                 }}
-                className="h-9 rounded-none px-0 text-[11px] uppercase tracking-[0.16em] text-foreground/55 hover:bg-transparent hover:text-foreground"
+                className="h-9 rounded-none px-0 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:bg-transparent hover:text-foreground"
               >
                 <LogOut className="size-3.5" />
                 Se déconnecter

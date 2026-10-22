@@ -25,13 +25,13 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-14">
-      <header className="border-b border-[var(--rule)] pb-7">
+    <div className="space-y-8">
+      <header className="border-b border-[var(--rule)] pb-4">
         <p className="eyebrow">Administration</p>
-        <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+        <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
           Tableau de bord
         </h1>
-        <p className="mt-3 font-serif text-[14.5px] italic text-foreground/55">
+        <p className="mt-1.5 font-serif text-[13.5px] italic text-foreground/65">
           Semaine du 19 octobre — données de démonstration.
         </p>
       </header>
@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
                     {job.note}
                   </p>
                 </div>
-                <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-foreground/45">
+                <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-foreground/60">
                   <span
                     aria-hidden
                     className={
@@ -165,7 +165,7 @@ export default function AdminDashboardPage() {
             </Link>
             <Link
               href="/admin/sources"
-              className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/55"
+              className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65"
             >
               <span className="link-underline">Ajouter une source</span>
               <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />

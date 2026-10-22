@@ -52,24 +52,24 @@ export default async function SourcePage({
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-10 sm:px-8">
+      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
         <Link
           href="/catalogue"
-          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/45 transition-colors hover:text-foreground"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
           Retour au catalogue
         </Link>
 
-        <header className="mt-8 border-b border-[var(--rule)] pb-9">
-          <div className="grid gap-10 md:grid-cols-[1.35fr_1fr] md:items-start">
+        <header className="mt-4 border-b border-[var(--rule)] pb-5">
+          <div className="grid gap-6 md:grid-cols-[1.35fr_1fr] md:items-start">
             <div>
               <p className="eyebrow">Source · {sourceLabels[source.kind]}</p>
-              <h1 className="display mt-4 text-[clamp(2.2rem,4.6vw,3.5rem)] leading-[1.02] text-balance">
+              <h1 className="display mt-1.5 text-[clamp(1.5rem,2.8vw,2.15rem)] leading-[1.08] text-balance">
                 {typography(source.title)}
               </h1>
 
-              <dl className="mt-9 grid gap-x-10 gap-y-3 text-[13px] text-foreground/55 sm:grid-cols-2">
+              <dl className="mt-4 grid gap-x-10 gap-y-2 text-[13px] text-foreground/60 sm:grid-cols-2">
                 <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2">
                   <dt className="eyebrow">Auteur</dt>
                   <dd className="font-serif italic">

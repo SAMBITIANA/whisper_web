@@ -76,13 +76,13 @@ export default function AdminSourcesPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <header className="border-b border-[var(--rule)] pb-7">
+    <div className="space-y-6">
+      <header className="border-b border-[var(--rule)] pb-4">
         <p className="eyebrow">Administration</p>
-        <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+        <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
           Sources
         </h1>
-        <p className="mt-3 max-w-2xl font-serif text-[14.5px] italic leading-relaxed text-foreground/55">
+        <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
           Films, livres, discours, proverbes : chaque citation est rattachée à
           une source et à un emplacement exact.
         </p>
@@ -149,7 +149,7 @@ export default function AdminSourcesPage() {
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <form
             onSubmit={handleSubmit}
-            className="space-y-5 border-y border-[var(--rule)] py-6"
+            className="panel space-y-5"
           >
             <p className="eyebrow">Nouvelle source</p>
 

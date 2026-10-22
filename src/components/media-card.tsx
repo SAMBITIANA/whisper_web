@@ -29,7 +29,7 @@ export function MediaCard({
           className="aspect-[4/3] w-full"
         />
 
-        <div className="mt-4 flex items-center gap-2.5 text-[10px] uppercase tracking-[0.16em] text-foreground/45">
+        <div className="mt-4 flex items-center gap-2.5 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
           <span>{mediaKindLabels[item.kind]}</span>
           <span aria-hidden className="h-px w-3.5 bg-[var(--rule-strong)]" />
           <span>{item.mood}</span>
@@ -41,12 +41,12 @@ export function MediaCard({
           </span>
         </p>
 
-        <p className="mt-2 font-serif text-[13px] italic text-foreground/55">
+        <p className="mt-2 font-serif text-[13px] italic text-foreground/65">
           {typography(item.source.title)}
           {item.source.character ? `, ${typography(item.source.character)}` : ""}
         </p>
 
-        <p className="mt-1.5 font-mono text-[10.5px] tracking-wide text-foreground/35">
+        <p className="mt-1.5 font-mono text-[10.5px] tracking-wide text-foreground/65">
           {formatViews(item.views)} vues · {formatViews(item.likes)} réactions
         </p>
       </a>

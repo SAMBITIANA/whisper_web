@@ -9,7 +9,7 @@ const explore = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-28 border-t border-[var(--rule)]">
+    <footer className="mt-16 border-t border-[var(--rule)]">
       <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
         <div className="grid gap-10 py-14 md:grid-cols-[1.6fr_1fr_1.2fr]">
           <div>
@@ -39,7 +39,7 @@ export function SiteFooter() {
               Démonstration éditoriale — données fictives, visuels de banque
               d&apos;images.
             </p>
-            <p className="font-serif text-[13px] italic leading-relaxed text-foreground/50">
+            <p className="font-serif text-[13px] italic leading-relaxed text-foreground/65">
               Stockage Backblaze B2, diffusion Cloudflare, API NestJS + Fastify.
             </p>
           </div>

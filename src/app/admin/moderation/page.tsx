@@ -47,13 +47,13 @@ export default function ModerationPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <header className="border-b border-[var(--rule)] pb-7">
+    <div className="space-y-6">
+      <header className="border-b border-[var(--rule)] pb-4">
         <p className="eyebrow">Administration</p>
-        <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+        <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
           Modération
         </h1>
-        <p className="mt-3 max-w-2xl font-serif text-[14.5px] italic leading-relaxed text-foreground/55">
+        <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
           Chaque proposition est vérifiée avant publication : citation courte,
           attribution exacte, crédit et lien vers la source.
         </p>
@@ -73,11 +73,11 @@ export default function ModerationPage() {
               className={
                 filter === item.value
                   ? "text-[12px] uppercase tracking-[0.14em] text-foreground"
-                  : "text-[12px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground/70"
+                  : "text-[12px] uppercase tracking-[0.14em] text-foreground/60 transition-colors hover:text-foreground/70"
               }
             >
               {item.label}
-              <span className="ml-1.5 font-mono text-[10px] text-foreground/30">
+              <span className="ml-1.5 font-mono text-[10px] text-foreground/60">
                 {String(count).padStart(2, "0")}
               </span>
             </button>
@@ -86,7 +86,7 @@ export default function ModerationPage() {
       </div>
 
       {visible.length === 0 ? (
-        <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/45">
+        <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
           Rien à relire dans cette catégorie.
         </p>
       ) : (
@@ -101,7 +101,7 @@ export default function ModerationPage() {
               >
                 <div>
                   {editing ? (
-                    <div className="space-y-3">
+                    <div className="panel space-y-3">
                       <textarea
                         value={draft}
                         onChange={(event) => setDraft(event.target.value)}
@@ -132,7 +132,7 @@ export default function ModerationPage() {
                         <button
                           type="button"
                           onClick={() => setEditingId(null)}
-                          className="text-[11px] uppercase tracking-[0.14em] text-foreground/40"
+                          className="text-[11px] uppercase tracking-[0.14em] text-foreground/60"
                         >
                           Annuler
                         </button>
@@ -144,7 +144,7 @@ export default function ModerationPage() {
                     </p>
                   )}
 
-                  <p className="mt-2.5 text-[10.5px] uppercase tracking-[0.15em] text-foreground/40">
+                  <p className="mt-2.5 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">
                     {proposal.author} · {proposal.source} ·{" "}
                     {formatDate(proposal.submittedAt)}
                   </p>
@@ -156,8 +156,8 @@ export default function ModerationPage() {
                       proposal.status === "APPROVED"
                         ? "text-[10px] uppercase tracking-[0.14em] text-sage-600 dark:text-sage-100"
                         : proposal.status === "REJECTED"
-                          ? "text-[10px] uppercase tracking-[0.14em] text-foreground/30"
-                          : "text-[10px] uppercase tracking-[0.14em] text-foreground/55"
+                          ? "text-[10px] uppercase tracking-[0.14em] text-foreground/60"
+                          : "text-[10px] uppercase tracking-[0.14em] text-foreground/65"
                     }
                   >
                     {proposalStatusLabels[proposal.status]}
@@ -170,7 +170,7 @@ export default function ModerationPage() {
                         setEditingId(proposal.id);
                         setDraft(proposal.quote);
                       }}
-                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/50 transition-colors hover:text-foreground"
+                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/70 transition-colors hover:text-foreground"
                     >
                       Modifier
                     </button>
@@ -184,7 +184,7 @@ export default function ModerationPage() {
                     <button
                       type="button"
                       onClick={() => setStatus(proposal.id, "REJECTED")}
-                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground"
+                      className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/60 transition-colors hover:text-foreground"
                     >
                       Rejeter
                     </button>

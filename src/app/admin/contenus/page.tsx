@@ -54,14 +54,14 @@ export default function AdminContenusPage() {
   }, [drafts, kind, query]);
 
   return (
-    <div className="space-y-10">
-      <header className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--rule)] pb-7">
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--rule)] pb-4">
         <div>
           <p className="eyebrow">Administration</p>
-          <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+          <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
             Contenus
           </h1>
-          <p className="mt-3 font-serif text-[14.5px] italic text-foreground/55">
+          <p className="mt-1.5 font-serif text-[13.5px] italic text-foreground/65">
             Vidéos, images, galeries et chansons — {media.length + drafts.length}{" "}
             pièces.
           </p>
@@ -163,10 +163,10 @@ export default function AdminContenusPage() {
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3.5 text-[11px] uppercase tracking-[0.12em] text-foreground/45">
+                <td className="px-4 py-3.5 text-[11px] uppercase tracking-[0.12em] text-foreground/60">
                   {mediaKindLabels[row.kind]}
                 </td>
-                <td className="px-4 py-3.5 text-[12.5px] text-foreground/55">
+                <td className="px-4 py-3.5 text-[12.5px] text-foreground/65">
                   {row.source}
                 </td>
                 <td className="px-4 py-3.5 font-mono text-[10.5px] text-foreground/40">
@@ -193,7 +193,7 @@ export default function AdminContenusPage() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/45">
+        <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
           Aucun contenu ne correspond à cette recherche.
         </p>
       ) : null}

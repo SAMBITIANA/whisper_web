@@ -38,7 +38,7 @@ export default function AdminUsersPage() {
     return (
       <div className="border-y border-[var(--rule)] py-14 text-center">
         <p className="display text-[22px]">Accès réservé aux administrateurs.</p>
-        <p className="mt-2 text-[12.5px] text-foreground/50">
+        <p className="mt-2 text-[12.5px] text-foreground/65">
           Votre rôle ({roleLabels[user.role]}) permet la modération et l’édition
           des contenus, pas la gestion des comptes.
         </p>
@@ -73,13 +73,13 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <header className="border-b border-[var(--rule)] pb-7">
+    <div className="space-y-6">
+      <header className="border-b border-[var(--rule)] pb-4">
         <p className="eyebrow">Administration</p>
-        <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+        <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
           Utilisateurs
         </h1>
-        <p className="mt-3 max-w-2xl font-serif text-[14.5px] italic leading-relaxed text-foreground/55">
+        <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
           Comptes, rôles et accès. Un membre propose, un éditeur publie, un
           administrateur gère les comptes.
         </p>
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
                     </span>
                   ) : null}
                 </td>
-                <td className="px-3 py-3.5 text-[12.5px] text-foreground/55">
+                <td className="px-3 py-3.5 text-[12.5px] text-foreground/65">
                   {item.email}
                 </td>
                 <td className="px-3 py-3.5 font-mono text-[10.5px] text-foreground/40">
@@ -153,7 +153,7 @@ export default function AdminUsersPage() {
                     onClick={() => toggleStatus(item.email)}
                     className={
                       item.status === "Actif"
-                        ? "text-[10px] uppercase tracking-[0.13em] text-foreground/55 hover:text-foreground"
+                        ? "text-[10px] uppercase tracking-[0.13em] text-foreground/65 hover:text-foreground"
                         : "text-[10px] uppercase tracking-[0.13em] text-destructive"
                     }
                   >

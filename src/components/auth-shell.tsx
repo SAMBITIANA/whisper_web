@@ -22,7 +22,7 @@ export function AuthShell({
       <aside className="relative hidden flex-col border-r border-[var(--rule)] bg-paper-deep px-10 py-10 dark:bg-card lg:flex">
         <Link
           href="/"
-          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/50 transition-colors hover:text-foreground"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
           Retour au site
@@ -64,7 +64,7 @@ export function AuthShell({
           </figcaption>
         </figure>
 
-        <p className="mt-6 max-w-sm font-serif text-[12.5px] italic leading-relaxed text-foreground/45">
+        <p className="mt-6 max-w-sm font-serif text-[12.5px] italic leading-relaxed text-foreground/60">
           Les citations se lisent, s’écoutent et se traduisent. Le texte reste
           une couche — jamais incrusté dans l’image.
         </p>

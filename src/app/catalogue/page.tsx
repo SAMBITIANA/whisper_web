@@ -50,13 +50,15 @@ export default function CataloguePage({
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-12 sm:px-8">
-        <header className="mb-8 border-b border-[var(--rule)] pb-6">
-          <p className="eyebrow">Catalogue</p>
-          <h1 className="display mt-4 text-[clamp(2.4rem,5vw,3.75rem)] leading-[1.02]">
-            Toutes les citations
-          </h1>
-          <p className="mt-4 max-w-2xl font-serif text-[16px] italic leading-relaxed text-foreground/60">
+      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
+        <header className="mb-5 border-b border-[var(--rule)] pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+            <p className="eyebrow">Catalogue</p>
+            <h1 className="display text-[clamp(1.55rem,2.6vw,2.1rem)] leading-[1.08]">
+              Toutes les citations
+            </h1>
+          </div>
+          <p className="mt-1.5 max-w-2xl text-[13.5px] leading-snug text-foreground/60">
             Vidéos, images, galeries et chansons — chaque citation porte sa
             source, son sujet et sa traduction.
           </p>

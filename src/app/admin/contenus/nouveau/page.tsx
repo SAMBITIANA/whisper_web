@@ -100,21 +100,21 @@ export default function NouveauContenuPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <Link
         href="/admin/contenus"
-        className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/45 transition-colors hover:text-foreground"
+        className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
         Retour aux contenus
       </Link>
 
-      <header className="border-b border-[var(--rule)] pb-7">
+      <header className="border-b border-[var(--rule)] pb-4">
         <p className="eyebrow">Administration</p>
-        <h1 className="display mt-4 text-[clamp(2rem,4vw,2.9rem)] leading-[1.04]">
+        <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
           Nouveau contenu
         </h1>
-        <p className="mt-3 max-w-2xl font-serif text-[14.5px] italic leading-relaxed text-foreground/55">
+        <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
           Le texte reste une couche séparée : il sera saisi ici en français et
           en anglais, puis posé sur le média.
         </p>
@@ -122,9 +122,9 @@ export default function NouveauContenuPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="grid gap-12 lg:grid-cols-[1.35fr_1fr]"
+        className="panel grid gap-8 lg:grid-cols-[1.35fr_1fr]"
       >
-        <div className="space-y-10">
+        <div className="space-y-6">
           <fieldset>
             <legend className="eyebrow">Format</legend>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -136,8 +136,8 @@ export default function NouveauContenuPage() {
                   aria-pressed={kind === value}
                   className={
                     kind === value
-                      ? "border border-sage-300 p-3 text-left"
-                      : "border border-[var(--rule)] p-3 text-left transition-colors hover:border-[var(--rule-strong)]"
+                      ? "border border-sage-600 bg-sage-600/10 p-3 text-left ring-1 ring-sage-600 ring-inset dark:border-sage-300 dark:bg-sage-300/15 dark:ring-sage-300"
+                      : "border border-[var(--rule-strong)] p-3 text-left transition-colors hover:border-sage-600 hover:bg-sage-100/50 dark:hover:border-sage-300 dark:hover:bg-sage-300/10"
                   }
                 >
                   <span className="flex items-center justify-between gap-3">
@@ -148,7 +148,7 @@ export default function NouveauContenuPage() {
                       <Check className="size-3.5 text-sage-600 dark:text-sage-100" />
                     ) : null}
                   </span>
-                  <span className="mt-1 block text-[11px] leading-relaxed text-foreground/45">
+                  <span className="mt-1 block text-[11px] leading-relaxed text-foreground/60">
                     {kindDescriptions[value]}
                   </span>
                 </button>
@@ -328,7 +328,7 @@ export default function NouveauContenuPage() {
                     ? "Paroles synchronisées"
                     : "Piste de texte traduisible"}
                 </p>
-                <p className="mt-1 text-[11px] text-foreground/40">
+                <p className="mt-1 text-[11px] text-foreground/60">
                   Couche séparée, jamais incrustée dans le média.
                 </p>
               </div>
@@ -357,7 +357,7 @@ export default function NouveauContenuPage() {
               {status === "PUBLIE" ? "Publier" : "Enregistrer le brouillon"}
             </Button>
 
-            <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-foreground/50">
+            <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-foreground/65">
               <input
                 type="checkbox"
                 checked={status === "PUBLIE"}
@@ -395,7 +395,7 @@ export default function NouveauContenuPage() {
             </div>
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-[9.5px] uppercase tracking-[0.15em] text-foreground/40">
+              <span className="text-[9.5px] uppercase tracking-[0.15em] text-foreground/60">
                 {mediaKindLabels[kind]}
                 {kind !== "IMAGE" && duration ? ` · ${duration}` : ""}
               </span>
@@ -405,7 +405,7 @@ export default function NouveauContenuPage() {
             </div>
           </div>
 
-          <ul className="mt-6 space-y-2.5 border-t border-[var(--rule)] pt-5 text-[11.5px] leading-relaxed text-foreground/45">
+          <ul className="mt-6 space-y-2.5 border-t border-[var(--rule)] pt-5 text-[11.5px] leading-relaxed text-foreground/60">
             <li>Citation courte, crédit et lien vers la source obligatoires.</li>
             <li>Aucune image d’œuvre protégée par défaut (§5.4).</li>
             <li>La traduction anglaise peut rester vide à la création.</li>

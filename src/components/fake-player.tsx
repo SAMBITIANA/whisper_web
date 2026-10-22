@@ -103,7 +103,7 @@ export function FakePlayer({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-between font-mono text-[10.5px] text-foreground/45">
+          <div className="flex items-center justify-between font-mono text-[10.5px] text-foreground/60">
             <span>
               {formatDuration(elapsed)} / {formatDuration(item.durationSec)}
             </span>
@@ -120,19 +120,19 @@ export function FakePlayer({
         />
 
         <div className="ml-auto flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" aria-label="Réagir" className="rounded-full text-foreground/55 hover:bg-transparent hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label="Réagir" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Heart className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Enregistrer" className="rounded-full text-foreground/55 hover:bg-transparent hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label="Enregistrer" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Bookmark className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Copier la citation" className="rounded-full text-foreground/55 hover:bg-transparent hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label="Copier la citation" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Copy className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Partager" className="rounded-full text-foreground/55 hover:bg-transparent hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label="Partager" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Share2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Volume" className="rounded-full text-foreground/55 hover:bg-transparent hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label="Volume" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Volume2 className="size-4" />
           </Button>
         </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LayoutDashboard, LogOut, Moon, Search, Sun, User } from "lucide-react";
+import { cn } from "cn";
 import { useTheme } from "next-themes";
 import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
@@ -18,11 +20,64 @@ import { Input } from "@/components/ui/input";
 import { canEditContent, initialsOf, roleLabels } from "@/lib/session";
 
 const navigation = [
-  { href: "/catalogue", label: "Catalogue" },
-  { href: "/catalogue?type=VIDEO", label: "Vidéos" },
-  { href: "/catalogue?type=IMAGE", label: "Images" },
-  { href: "/catalogue?type=TRACK", label: "Chansons" },
+  { href: "/catalogue", label: "Catalogue", type: null },
+  { href: "/catalogue?type=VIDEO", label: "Vidéos", type: "VIDEO" },
+  { href: "/catalogue?type=IMAGE", label: "Images", type: "IMAGE" },
+  { href: "/catalogue?type=TRACK", label: "Chansons", type: "TRACK" },
 ];
+
+function NavLink({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "link-underline text-[11px] uppercase tracking-[0.16em] transition-colors",
+        active
+          ? "font-medium text-foreground [background-image:linear-gradient(var(--color-sage-600),var(--color-sage-600))] [background-size:100%_1px] dark:[background-image:linear-gradient(var(--color-sage-300),var(--color-sage-300))]"
+          : "text-foreground/70 hover:text-foreground",
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function SiteNav() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentType = searchParams.get("type");
+
+  return (
+    <nav className="hidden items-center gap-7 md:flex">
+      {navigation.map((item) => {
+        const active =
+          pathname === "/catalogue"
+            ? item.type
+              ? currentType === item.type
+              : !currentType
+            : item.type === null && pathname === item.href;
+
+        return (
+          <NavLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            active={active}
+          />
+        );
+      })}
+    </nav>
+  );
+}
 
 export function SiteHeader() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -40,17 +95,22 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="link-underline text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <Suspense
+          fallback={
+            <nav className="hidden items-center gap-7 md:flex">
+              {navigation.map((item) => (
+                <NavLink
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  active={false}
+                />
+              ))}
+            </nav>
+          }
+        >
+          <SiteNav />
+        </Suspense>
 
         <div className="ml-auto flex items-center gap-4">
           <div className="relative hidden lg:block">
@@ -72,7 +132,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="size-8 rounded-full text-foreground/60 hover:bg-transparent hover:text-foreground"
+            className="size-8 rounded-full border border-[var(--rule-strong)] text-foreground/80 hover:border-sage-300 hover:bg-muted hover:text-foreground"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             aria-label="Changer de thème"
           >
@@ -86,7 +146,7 @@ export function SiteHeader() {
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="flex size-8 items-center justify-center rounded-full border border-[var(--rule-strong)] font-mono text-[10px] tracking-wide text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
+                    className="flex size-8 items-center justify-center rounded-full border border-[var(--rule-strong)] font-mono text-[10px] tracking-wide text-foreground/80 transition-colors hover:border-sage-600 hover:bg-sage-600 hover:text-paper dark:hover:border-sage-300 dark:hover:bg-sage-300 dark:hover:text-sage-900"
                     aria-label={`Compte de ${user.name}`}
                   >
                     {initialsOf(user.name)}
@@ -97,7 +157,7 @@ export function SiteHeader() {
                     <span className="block text-[13px] font-normal text-foreground">
                       {user.name}
                     </span>
-                    <span className="block text-[10px] uppercase tracking-[0.14em] text-foreground/45">
+                    <span className="block text-[10px] uppercase tracking-[0.14em] text-foreground/60">
                       {roleLabels[user.role]}
                     </span>
                   </DropdownMenuLabel>
@@ -127,7 +187,7 @@ export function SiteHeader() {
             ) : (
               <Link
                 href="/connexion"
-                className="link-underline text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
+                className="link-underline text-[11px] uppercase tracking-[0.16em] text-foreground/75 transition-colors hover:text-foreground"
               >
                 Connexion
               </Link>

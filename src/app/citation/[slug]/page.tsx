@@ -85,25 +85,27 @@ export default async function CitationPage({
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-10 sm:px-8">
+      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
         <Link
           href="/catalogue"
-          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/45 transition-colors hover:text-foreground"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
           Retour au catalogue
         </Link>
 
-        <header className="mt-8 border-b border-[var(--rule)] pb-7">
-          <p className="eyebrow">
-            {mediaKindLabels[item.kind]} · {item.mood}
-          </p>
-          <h1 className="display mt-4 max-w-4xl text-[clamp(1.9rem,4.2vw,3.15rem)] leading-[1.06] text-balance">
-            {typography(item.title)}
-          </h1>
+        <header className="mt-4 border-b border-[var(--rule)] pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+            <p className="eyebrow">
+              {mediaKindLabels[item.kind]} · {item.mood}
+            </p>
+            <h1 className="display max-w-4xl text-[clamp(1.4rem,2.6vw,2.05rem)] leading-[1.1] text-balance">
+              {typography(item.title)}
+            </h1>
+          </div>
         </header>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:items-start">
+        <div className="mt-6 grid gap-10 lg:grid-cols-12 lg:items-start">
           <div className="lg:col-span-8">
             <FakePlayer item={item} />
           </div>
@@ -117,7 +119,7 @@ export default async function CitationPage({
               >
                 {typography(item.source.title)}
               </Link>
-              <p className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/50">
+              <p className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/65">
                 {sourceLabels[item.source.kind]}
                 {item.source.author ? ` · ${typography(item.source.author)}` : ""}
                 {item.source.character

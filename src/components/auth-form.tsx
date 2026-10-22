@@ -97,7 +97,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <div className="lg:hidden">
         <Link
           href="/"
-          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/50"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
           Retour au site
@@ -107,10 +107,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <p className="eyebrow mt-8 lg:mt-0">
         {isSignup ? "Créer un compte" : "Espace personnel"}
       </p>
-      <h1 className="display mt-4 text-[clamp(2rem,4vw,2.7rem)] leading-[1.04] text-balance">
+      <h1 className="display mt-1.5 text-[clamp(1.6rem,3vw,2.1rem)] leading-[1.08] text-balance">
         {isSignup ? "Rejoindre Whispers." : "Revenir à ses citations."}
       </h1>
-      <p className="mt-3 max-w-sm text-[13.5px] leading-relaxed text-foreground/55">
+      <p className="mt-3 max-w-sm text-[13.5px] leading-relaxed text-foreground/65">
         {isSignup
           ? "Un compte pour proposer des citations, garder vos favoris et suivre vos propositions."
           : "Retrouvez vos favoris, vos propositions et votre langue de lecture."}
@@ -134,8 +134,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
               }}
               className={
                 method === value
-                  ? "-mb-px border-b-2 border-sage-600 bg-sage-100 px-2 pb-2.5 pt-1.5 text-[12px] uppercase tracking-[0.14em] text-foreground"
-                  : "-mb-px border-b-2 border-transparent px-2 pb-2.5 pt-1.5 text-[12px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground/70"
+                  ? "-mb-px border-b-2 border-sage-600 bg-sage-100 px-2 pb-2.5 pt-1.5 text-[12px] font-medium uppercase tracking-[0.14em] text-sage-900 dark:border-sage-300 dark:bg-sage-300/20 dark:text-sage-100"
+                  : "-mb-px border-b-2 border-transparent px-2 pb-2.5 pt-1.5 text-[12px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground"
               }
             >
               {label}
@@ -145,7 +145,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       ) : null}
 
       {magicSent ? (
-        <div className="mt-8 border-y border-[var(--rule)] py-6">
+        <div className="panel mt-8">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100">
             <Mail className="size-4" />
             Lien envoyé
@@ -158,13 +158,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
           <button
             type="button"
             onClick={() => setMagicSent(false)}
-            className="link-underline mt-4 text-[11px] uppercase tracking-[0.16em] text-foreground/55"
+            className="link-underline mt-4 text-[11px] uppercase tracking-[0.16em] text-foreground/65"
           >
             Utiliser une autre adresse
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="panel mt-8 space-y-6">
           {isSignup ? (
             <div className="space-y-2">
               <Label htmlFor="name" className="eyebrow">
@@ -193,7 +193,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               autoComplete="email"
               required
               placeholder="vous@exemple.fr"
-              className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none placeholder:text-foreground/30 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
+              className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none placeholder:text-foreground/65 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
             />
           </div>
 
@@ -212,7 +212,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                           "Maquette : le parcours de récupération sera branché à l’API.",
                       })
                     }
-                    className="link-underline text-[10.5px] uppercase tracking-[0.14em] text-foreground/40 transition-colors hover:text-foreground"
+                    className="link-underline text-[10.5px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground"
                   >
                     Oublié ?
                   </button>
@@ -228,7 +228,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
               />
               {isSignup ? (
-                <p className="text-[11.5px] text-foreground/40">
+                <p className="text-[11.5px] text-foreground/65">
                   Six caractères minimum. Le stockage sécurisé arrivera avec
                   l’API.
                 </p>
@@ -285,7 +285,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {!isSignup ? (
         <div className="mt-10 border-t border-[var(--rule)] pt-6">
           <p className="eyebrow">Comptes de démonstration</p>
-          <p className="mt-2 text-[11.5px] leading-relaxed text-foreground/40">
+          <p className="mt-2 text-[11.5px] leading-relaxed text-foreground/65">
             Mot de passe commun : <span className="font-mono">whispers</span>
           </p>
           <div className="mt-4 space-y-1">
@@ -304,7 +304,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 <span className="text-[12.5px] text-foreground/70 group-hover:text-foreground">
                   {account.email}
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.14em] text-foreground/35">
+                <span className="text-[10px] uppercase tracking-[0.14em] text-foreground/65">
                   {roleLabels[account.role]}
                 </span>
               </button>
@@ -313,7 +313,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </div>
       ) : null}
 
-      <p className="mt-8 text-[12.5px] text-foreground/50">
+      <p className="mt-8 text-[12.5px] text-foreground/65">
         {isSignup ? (
           <>
             Déjà un compte ?{" "}

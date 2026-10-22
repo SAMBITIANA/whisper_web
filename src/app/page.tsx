@@ -57,12 +57,12 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-14 py-14 lg:grid-cols-12 lg:gap-16 lg:py-24">
+            <div className="grid gap-10 py-8 lg:grid-cols-12 lg:gap-14 lg:py-12">
               <div className="lg:col-span-7">
                 <p className="eyebrow rise">Le mot du jour</p>
 
                 <blockquote
-                  className="display hanging rise mt-7 text-[clamp(2.1rem,4.7vw,4rem)] leading-[1.03] text-balance"
+                  className="display hanging rise mt-4 text-[clamp(1.9rem,4vw,3.2rem)] leading-[1.05] text-balance"
                   style={delay(80)}
                 >
                   <span className="text-sage-300">«</span>
@@ -73,7 +73,7 @@ export default function HomePage() {
                 </blockquote>
 
                 <div
-                  className="rise mt-9 flex items-start gap-4"
+                  className="rise mt-5 flex items-start gap-4"
                   style={delay(160)}
                 >
                   <span aria-hidden className="mt-3 h-px w-10 bg-ink/30" />
@@ -85,7 +85,7 @@ export default function HomePage() {
                           "",
                       )}
                     </p>
-                    <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-foreground/45">
+                    <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-foreground/60">
                       {typography(featured.source.title)}
                       {featured.source.year ? ` · ${featured.source.year}` : ""}
                       {featured.source.locator
@@ -96,7 +96,7 @@ export default function HomePage() {
                 </div>
 
                 <div
-                  className="rise mt-10 flex flex-wrap items-center gap-x-8 gap-y-3"
+                  className="rise mt-6 flex flex-wrap items-center gap-x-8 gap-y-3"
                   style={delay(240)}
                 >
                   <Link
@@ -108,7 +108,7 @@ export default function HomePage() {
                   </Link>
                   <Link
                     href="/catalogue"
-                    className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-foreground/55 transition-colors hover:text-foreground"
+                    className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
                   >
                     <span className="link-underline">Explorer le catalogue</span>
                     <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -116,7 +116,7 @@ export default function HomePage() {
                 </div>
 
                 <dl
-                  className="rise mt-14 flex flex-wrap items-baseline gap-x-10 gap-y-4 border-t border-[var(--rule)] pt-6"
+                  className="rise mt-8 flex flex-wrap items-baseline gap-x-10 gap-y-4 border-t border-[var(--rule)] pt-6"
                   style={delay(320)}
                 >
                   {[
@@ -197,7 +197,7 @@ export default function HomePage() {
                         «&nbsp;{getQuote(item, "fr")}&nbsp;»
                       </span>
                     </p>
-                    <p className="mt-1.5 text-[10.5px] uppercase tracking-[0.15em] text-foreground/45">
+                    <p className="mt-1.5 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">
                       {typography(item.source.title)}
                       {item.source.character
                         ? ` · ${typography(item.source.character)}`
@@ -214,7 +214,7 @@ export default function HomePage() {
           </ol>
         </section>
 
-        <section className="mx-auto w-full max-w-[1180px] px-5 pt-20 sm:px-8">
+        <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <SectionHeading
             index="02"
             title="Par humeur"
@@ -233,7 +233,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--rule)] pt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--rule)] pt-6">
             <span className="eyebrow">Sujets</span>
             {topics.map((topic) => (
               <Link
@@ -247,13 +247,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[1180px] px-5 pt-20 sm:px-8">
+        <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--rule)] pb-3">
             <p className="eyebrow">Carnet de repérages</p>
             <p className="eyebrow">Images d’illustration</p>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-12 sm:items-start sm:gap-6">
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-12 sm:items-start sm:gap-6">
             <figure className="col-span-2 sm:col-span-5">
               <div className="paper-frame">
                 <div className="relative aspect-[4/5] w-full overflow-hidden">
@@ -267,7 +267,7 @@ export default function HomePage() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/45 sm:text-[11px] sm:tracking-[0.19em]">La rivière, 6 h 40</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">La rivière, 6 h 40</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">01</span>
               </figcaption>
             </figure>
@@ -285,7 +285,7 @@ export default function HomePage() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/45 sm:text-[11px] sm:tracking-[0.19em]">L’atelier, après-midi</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">L’atelier, après-midi</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">02</span>
               </figcaption>
             </figure>
@@ -303,14 +303,14 @@ export default function HomePage() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/45 sm:text-[11px] sm:tracking-[0.19em]">La vallée, fin d’été</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">La vallée, fin d’été</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">03</span>
               </figcaption>
             </figure>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[1180px] px-5 pt-20 sm:px-8">
+        <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <SectionHeading
             index="03"
             title="Dernières parutions"
@@ -329,8 +329,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <aside className="mx-auto mt-20 w-full max-w-[1180px] px-5 sm:px-8">
-          <div className="grid gap-10 border-y border-[var(--rule)] py-10 md:grid-cols-[6rem_1fr] md:gap-14">
+        <aside className="mx-auto mt-12 w-full max-w-[1180px] px-5 sm:px-8">
+          <div className="grid gap-8 border-y border-[var(--rule)] py-8 md:grid-cols-[6rem_1fr] md:gap-14">
             <p className="eyebrow md:pt-2">Note</p>
             <p className="font-serif text-[clamp(1.15rem,2vw,1.5rem)] leading-[1.5] text-pretty text-foreground/75">
               Le texte n’est jamais gravé dans l’image&nbsp;: il reste une couche
@@ -341,8 +341,8 @@ export default function HomePage() {
           </div>
         </aside>
 
-        <section className="mt-20 border-y border-[var(--rule)] bg-paper-deep dark:bg-card">
-          <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1.25fr_1fr] md:items-center">
+        <section className="mt-12 border-y border-[var(--rule)] bg-paper-deep dark:bg-card">
+          <div className="mx-auto grid w-full max-w-[1180px] gap-10 px-5 py-10 sm:px-8 md:grid-cols-[1.25fr_1fr] md:items-center">
             <div>
               <p className="eyebrow">Proposition</p>
               <h2 className="display mt-5 text-[clamp(1.8rem,3.4vw,2.75rem)] leading-[1.06] text-balance">
@@ -386,7 +386,7 @@ export default function HomePage() {
                       className="aspect-square w-full"
                     />
                   </div>
-                  <p className="mt-4 text-center font-serif text-[12.5px] italic text-foreground/55">
+                  <p className="mt-4 text-center font-serif text-[12.5px] italic text-foreground/65">
                     {typography(song.title)}
                   </p>
                 </Link>
@@ -395,7 +395,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[1180px] px-5 pt-20 sm:px-8">
+        <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <SectionHeading index="04" title="Quatre matières" note="Un même texte, quatre façons de le porter" />
 
           <dl className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -407,7 +407,7 @@ export default function HomePage() {
                 <dt className="display mt-3 text-[20px] leading-none">
                   {title}
                 </dt>
-                <dd className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/55">
+                <dd className="mt-2.5 text-[12.5px] leading-relaxed text-foreground/65">
                   {description}
                 </dd>
               </div>
@@ -416,7 +416,7 @@ export default function HomePage() {
         </section>
 
         {community.length > 0 ? (
-          <section className="mx-auto w-full max-w-[1180px] px-5 pt-20 sm:px-8">
+          <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
             <SectionHeading
               index="05"
               title="De la communauté"
@@ -444,7 +444,7 @@ export default function HomePage() {
                           «&nbsp;{getQuote(item, "fr")}&nbsp;»
                         </span>
                       </p>
-                      <p className="mt-2 text-[10.5px] uppercase tracking-[0.15em] text-foreground/45">
+                      <p className="mt-2 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">
                         {typography(item.source.title)} ·{" "}
                         {mediaKindLabels[item.kind]}
                       </p>

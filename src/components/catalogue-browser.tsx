@@ -34,7 +34,7 @@ function FilterRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-[var(--rule)] py-4">
+    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-[var(--rule)] py-2.5">
       <span className="eyebrow w-16 shrink-0">{label}</span>
       <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
         {children}
@@ -60,8 +60,8 @@ function FilterButton({
       className={cn(
         "-mx-2 px-2 py-1 text-[13px] transition-colors",
         active
-          ? "bg-sage-600 font-medium text-paper"
-          : "text-foreground/50 hover:bg-sage-100/40 hover:text-foreground",
+          ? "bg-sage-600 font-medium text-paper ring-1 ring-sage-600 ring-inset dark:bg-sage-300 dark:text-sage-900 dark:ring-sage-300"
+          : "text-foreground/70 hover:bg-sage-100/60 hover:text-foreground dark:hover:bg-sage-300/15",
       )}
     >
       {children}
@@ -149,15 +149,15 @@ export function CatalogueBrowser({
   const visibleTopics = allTopics ? topics : topics.slice(0, TOPIC_PREVIEW);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 border-b border-[var(--rule)] pb-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 border-b border-[var(--rule)] pb-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full max-w-md">
-          <Search className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-foreground/35" />
+          <Search className="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-foreground/65" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Rechercher une citation, une source, un personnage…"
-            className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent pl-6 text-[14px] shadow-none placeholder:text-foreground/35 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
+            className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent pl-6 text-[14px] shadow-none placeholder:text-foreground/65 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
             aria-label="Rechercher"
           />
         </div>
@@ -170,13 +170,22 @@ export function CatalogueBrowser({
             aria-expanded={filtersOpen}
             aria-controls="catalogue-filtres"
             className={cn(
-              "h-9 gap-2 rounded-none border-[var(--rule-strong)] bg-transparent px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/70 hover:border-sage-300 hover:bg-transparent hover:text-foreground",
-              filtersOpen ? "border-sage-300 bg-sage-600/10 text-foreground" : "",
+              "h-9 gap-2 rounded-none border-[var(--rule-strong)] bg-transparent px-3 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:border-sage-600 hover:bg-transparent hover:text-foreground dark:hover:border-sage-300",
+              filtersOpen
+                ? "border-sage-600 bg-sage-600 text-paper hover:border-sage-600 hover:text-paper dark:border-sage-300 dark:bg-sage-300 dark:text-sage-900 dark:hover:border-sage-300 dark:hover:text-sage-900"
+                : "",
             )}
           >
             Filtres
             {chips.length > 0 ? (
-              <span className="bg-sage-600 px-1.5 py-0.5 font-mono text-[10px] text-paper">
+              <span
+                className={cn(
+                  "px-1.5 py-0.5 font-mono text-[10px]",
+                  filtersOpen
+                    ? "bg-paper text-sage-900 dark:bg-sage-900 dark:text-sage-100"
+                    : "bg-sage-600 text-paper dark:bg-sage-300 dark:text-sage-900",
+                )}
+              >
                 {String(chips.length).padStart(2, "0")}
               </span>
             ) : null}
@@ -204,7 +213,7 @@ export function CatalogueBrowser({
       </div>
 
       {filtersOpen ? (
-        <div id="catalogue-filtres">
+        <div id="catalogue-filtres" className="panel">
           <FilterRow label="Format">
             {kinds.map((value) => (
               <FilterButton
@@ -235,7 +244,7 @@ export function CatalogueBrowser({
               <button
                 type="button"
                 onClick={() => setAllTopics((open) => !open)}
-                className="link-underline text-[12px] text-foreground/50 transition-colors hover:text-foreground"
+                className="link-underline text-[12px] text-foreground/70 transition-colors hover:text-foreground"
               >
                 {allTopics
                   ? "Réduire"
@@ -271,7 +280,7 @@ export function CatalogueBrowser({
             key={chip.key}
             type="button"
             onClick={chip.clear}
-            className="inline-flex items-center gap-1.5 border border-sage-300 bg-sage-100/45 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-sage-900 transition-colors hover:border-sage-600 hover:bg-sage-100/70"
+            className="inline-flex items-center gap-1.5 border border-sage-600 bg-sage-100/60 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-sage-900 transition-colors hover:bg-sage-100 dark:border-sage-300/70 dark:bg-sage-300/20 dark:text-sage-100 dark:hover:bg-sage-300/30"
           >
             {chip.label}
             <X className="size-3" />
@@ -282,7 +291,7 @@ export function CatalogueBrowser({
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-foreground/50 transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
           >
             <X className="size-3" />
             Réinitialiser
@@ -291,9 +300,9 @@ export function CatalogueBrowser({
       </div>
 
       {results.length === 0 ? (
-        <div className="border-y border-[var(--rule)] py-20 text-center">
+        <div className="border-y border-[var(--rule)] py-14 text-center">
           <p className="display text-[22px]">Aucune citation ne correspond.</p>
-          <p className="mt-2 text-[13px] text-foreground/50">
+          <p className="mt-2 text-[13px] text-foreground/65">
             Essayez un autre mot-clé, ou réinitialisez les filtres.
           </p>
         </div>

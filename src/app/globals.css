@@ -148,6 +148,10 @@
     background: var(--color-sage-100);
     color: var(--color-ink);
   }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
   body::before {
     content: "";
     position: fixed;
@@ -196,6 +200,18 @@
     box-shadow:
       0 1px 0 oklch(0.312 0.018 225.2 / 4%),
       0 22px 48px -30px oklch(0.312 0.018 225.2 / 45%);
+  }
+  .panel {
+    padding: 1.25rem;
+    background: color-mix(in oklch, var(--secondary) 75%, transparent);
+    border: 1px solid var(--rule-strong);
+    border-top: 2px solid var(--color-sage-600);
+    box-shadow: 0 18px 40px -32px oklch(0.312 0.018 225.2 / 45%);
+  }
+  .dark .panel {
+    background: var(--card);
+    border-color: var(--input);
+    border-top-color: var(--color-sage-300);
   }
   .hanging {
     text-indent: -0.42em;
