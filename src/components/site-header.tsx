@@ -40,10 +40,10 @@ function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "link-underline text-[11px] uppercase tracking-[0.16em] transition-colors",
+        "inline-flex items-center px-2.5 py-1.5 text-[11px] uppercase tracking-[0.16em] transition-colors",
         active
-          ? "font-medium text-foreground [background-image:linear-gradient(var(--color-sage-600),var(--color-sage-600))] [background-size:100%_1px] dark:[background-image:linear-gradient(var(--color-sage-300),var(--color-sage-300))]"
-          : "text-foreground/70 hover:text-foreground",
+          ? "bg-sage-600 font-medium text-paper shadow-sm dark:bg-sage-300 dark:text-sage-900"
+          : "text-foreground/70 hover:bg-muted hover:text-foreground",
       )}
     >
       {label}
@@ -56,15 +56,17 @@ function SiteNav() {
   const searchParams = useSearchParams();
   const currentType = searchParams.get("type");
 
+  const inCatalogue =
+    pathname === "/catalogue" ||
+    pathname.startsWith("/citation/") ||
+    pathname.startsWith("/source/");
+
   return (
-    <nav className="hidden items-center gap-7 md:flex">
+    <nav className="-ml-2.5 hidden items-center gap-1 md:flex">
       {navigation.map((item) => {
-        const active =
-          pathname === "/catalogue"
-            ? item.type
-              ? currentType === item.type
-              : !currentType
-            : item.type === null && pathname === item.href;
+        const active = item.type
+          ? pathname === "/catalogue" && currentType === item.type
+          : inCatalogue && (pathname !== "/catalogue" || !currentType);
 
         return (
           <NavLink
@@ -97,7 +99,7 @@ export function SiteHeader() {
 
         <Suspense
           fallback={
-            <nav className="hidden items-center gap-7 md:flex">
+    <nav className="-ml-2.5 hidden items-center gap-1 md:flex">
               {navigation.map((item) => (
                 <NavLink
                   key={item.href}
