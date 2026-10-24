@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
@@ -13,31 +14,11 @@ import { errorMessage, requestMagicLink } from "@/lib/api";
 
 type Mode = "signin" | "signup";
 
-function GoogleMark() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden className="size-4">
-      <path
-        d="M21.6 12.23c0-.68-.06-1.36-.19-2.02H12v3.83h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.9-1.75 2.98-4.32 2.98-7.33Z"
-        fill="currentColor"
-      />
-      <path
-        d="M12 22c2.7 0 4.96-.9 6.62-2.44l-3.24-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.1H3.06v2.58A10 10 0 0 0 12 22Z"
-        fill="currentColor"
-        opacity="0.75"
-      />
-      <path
-        d="M6.41 13.92a6 6 0 0 1 0-3.84V7.5H3.06a10 10 0 0 0 0 9l3.35-2.58Z"
-        fill="currentColor"
-        opacity="0.55"
-      />
-      <path
-        d="M12 5.98c1.47 0 2.79.5 3.82 1.5l2.87-2.87A9.6 9.6 0 0 0 12 2a10 10 0 0 0-8.94 5.5l3.35 2.58C7.2 7.73 9.4 5.98 12 5.98Z"
-        fill="currentColor"
-        opacity="0.9"
-      />
-    </svg>
-  );
-}
+const providers = [
+  { id: "google", label: "Google", src: "/providers/google.png" },
+  { id: "apple", label: "Apple", src: "/providers/apple.png" },
+  { id: "facebook", label: "Facebook", src: "/providers/facebook.png" },
+] as const;
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
@@ -122,7 +103,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </p>
 
       {!isSignup ? (
-        <div className="mt-8 flex items-baseline gap-6 border-b border-[var(--rule)]">
+        <div className="mt-6 flex items-baseline gap-6 border-b border-[var(--rule)]">
           {(
             [
               ["password", "Mot de passe"],
@@ -170,7 +151,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="panel mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="panel mt-6 space-y-6">
           {isSignup ? (
             <div className="space-y-2">
               <Label htmlFor="name" className="eyebrow">
@@ -265,28 +246,40 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </form>
       )}
 
-      {!isSignup ? (
-        <div className="[@media(max-height:700px)]:hidden">
-          <div className="my-7 flex items-center gap-4">
-            <span className="h-px flex-1 bg-[var(--rule)]" />
-            <span className="eyebrow">ou</span>
-            <span className="h-px flex-1 bg-[var(--rule)]" />
-          </div>
+      <div className="my-6 flex items-center gap-4">
+        <span className="h-px flex-1 bg-[var(--rule)]" />
+        <span className="eyebrow">ou</span>
+        <span className="h-px flex-1 bg-[var(--rule)]" />
+      </div>
 
+      <div className="grid grid-cols-3 gap-2">
+        {providers.map((provider) => (
           <button
+            key={provider.id}
             type="button"
+            aria-label={`Continuer avec ${provider.label}`}
             onClick={() =>
-              toast("Google bientôt disponible", {
+              toast(`${provider.label} bientôt disponible`, {
                 description: "Maquette : l’OAuth sera branché à l’API.",
               })
             }
-            className="flex h-11 w-full items-center justify-center gap-2.5 border border-[var(--rule-strong)] text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
+            className="flex h-11 items-center justify-center gap-2 border border-[var(--rule-strong)] px-2 text-[10px] uppercase tracking-[0.12em] text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
           >
-            <GoogleMark />
-            Continuer avec Google
+            <Image
+              src={provider.src}
+              alt=""
+              width={20}
+              height={20}
+              className={
+                provider.id === "apple"
+                  ? "size-[18px] object-contain dark:invert"
+                  : "size-[18px] object-contain"
+              }
+            />
+            {provider.label}
           </button>
-        </div>
-      ) : null}
+        ))}
+      </div>
 
       <p className="mt-8 text-[12.5px] text-foreground/65">
         {isSignup ? (

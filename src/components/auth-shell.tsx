@@ -66,7 +66,7 @@ export function AuthShell({
         </figure>
       </aside>
 
-      <main className="flex flex-col px-5 py-7 sm:px-10">
+      <main className="flex flex-col px-5 py-5 sm:px-10">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
           {children}
         </div>
