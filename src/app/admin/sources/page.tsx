@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { sourceLabels, type SourceKind } from "@/lib/fake-data";
+import { sourceLabels, type SourceKind } from "@/lib/catalogue";
 import {
   createAdminSource,
   fetchAdminSources,

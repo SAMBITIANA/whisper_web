@@ -1,9 +1,9 @@
 import {
   getQuote,
   mediaKindLabels,
-  type FakeMedia,
+  type CatalogueMedia,
   type LanguageCode,
-} from "@/lib/fake-data";
+} from "@/lib/catalogue";
 import { formatViews, typography } from "@/lib/format";
 import { MediaPoster } from "@/components/media-poster";
 
@@ -12,7 +12,7 @@ export function MediaCard({
   language = "fr",
   href,
 }: {
-  item: FakeMedia;
+  item: CatalogueMedia;
   language?: LanguageCode;
   href: string;
 }) {

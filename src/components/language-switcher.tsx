@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { languages, type LanguageCode } from "@/lib/fake-data";
+import { languages, type LanguageCode } from "@/lib/catalogue";
 
 export function LanguageSwitcher({
   value,

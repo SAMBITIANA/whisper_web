@@ -1,4 +1,4 @@
-import type { MediaKind } from "@/lib/fake-data";
+import type { MediaKind } from "@/types/catalogue";
 
 export type DraftContent = {
   id: string;

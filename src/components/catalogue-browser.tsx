@@ -6,7 +6,7 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaCard } from "@/components/media-card";
-import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
+import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
 import {
   fetchMedia,
   fetchTaxonomy,

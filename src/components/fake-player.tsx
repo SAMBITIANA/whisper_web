@@ -15,7 +15,7 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MediaPoster } from "@/components/media-poster";
-import { getQuote, type LanguageCode } from "@/lib/fake-data";
+import { getQuote, type LanguageCode } from "@/lib/catalogue";
 import { formatDuration, formatViews, typography } from "@/lib/format";
 import {
   recordView,

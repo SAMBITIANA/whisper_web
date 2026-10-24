@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { CatalogueBrowser } from "@/components/catalogue-browser";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
+import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
 
 export const metadata = {
   title: "Catalogue — Whispers",

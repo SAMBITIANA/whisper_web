@@ -1,12 +1,12 @@
 import axios from "axios";
 import { z } from "zod";
 import type {
-  FakeMedia,
-  FakeSource,
+  CatalogueMedia,
+  CatalogueSource,
   LanguageCode,
   MediaKind,
   SourceKind,
-} from "@/lib/fake-data";
+} from "@/types/catalogue";
 
 const serverApiUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/, "") ??
@@ -46,7 +46,7 @@ export type ApiUser = {
   emailVerifiedAt: string | null;
 };
 
-export type ApiMedia = FakeMedia & {
+export type ApiMedia = CatalogueMedia & {
   id: string;
   status: string;
   originalLanguage: string;
@@ -58,7 +58,7 @@ export type ApiMedia = FakeMedia & {
   userState?: { saved: boolean; reaction: string | null };
 };
 
-export type ApiSource = FakeSource & {
+export type ApiSource = CatalogueSource & {
   id: string;
   quoteCount: number;
   characters: { id: string; name: string; description: string | null }[];

@@ -10,7 +10,7 @@ import { MediaCard } from "@/components/media-card";
 import { SectionHeading } from "@/components/section-heading";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { mediaKindLabels, sourceLabels } from "@/lib/fake-data";
+import { mediaKindLabels, sourceLabels } from "@/lib/catalogue";
 import { fetchMediaBySlug, fetchRelated } from "@/lib/api";
 import { formatDate, formatViews, typography } from "@/lib/format";
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
-import { mediaKindLabels } from "@/lib/fake-data";
+import { mediaKindLabels } from "@/lib/catalogue";
 import {
   fetchAdminDashboard,
   fetchAdminProposals,

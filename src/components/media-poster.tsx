@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Images, Music2, Play, ImageIcon } from "lucide-react";
 import { cn } from "cn";
-import type { MediaKind } from "@/lib/fake-data";
+import type { MediaKind } from "@/types/catalogue";
 import { formatDuration } from "@/lib/format";
 
 const kindIcons: Record<MediaKind, typeof Play> = {

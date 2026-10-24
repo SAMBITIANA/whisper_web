@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { parseDuration } from "@/lib/fake-content";
-import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
+import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
 import {
   createAdminMedia,
   fetchAdminSources,

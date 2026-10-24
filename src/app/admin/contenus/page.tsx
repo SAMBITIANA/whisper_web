@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
-import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
+import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
 import { formatDate } from "@/lib/format";
 import { fetchAdminMedia, type ApiAdminMedia } from "@/lib/api";
 

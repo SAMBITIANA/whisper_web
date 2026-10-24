@@ -10,7 +10,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { typography } from "@/lib/format";
-import { sourceLabels } from "@/lib/fake-data";
+import { sourceLabels } from "@/lib/catalogue";
 import { fetchSource } from "@/lib/api";
 
 export async function generateMetadata({

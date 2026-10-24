@@ -1,75 +1,6 @@
-import { typography } from "@/lib/format";
+import type { CatalogueMedia, CatalogueSource } from "@/types/catalogue";
 
-export type MediaKind = "VIDEO" | "IMAGE" | "SEQUENCE" | "TRACK";
-
-export type SourceKind =
-  | "FILM"
-  | "SERIES"
-  | "CARTOON"
-  | "BOOK"
-  | "SONG"
-  | "SPEECH"
-  | "PROVERB"
-  | "PERSONAL";
-
-export type LanguageCode = "fr" | "en";
-
-export type FakeSource = {
-  slug: string;
-  kind: SourceKind;
-  title: string;
-  poster?: string;
-  year?: number;
-  author?: string;
-  character?: string;
-  locator?: string;
-};
-
-export type FakeMedia = {
-  slug: string;
-  kind: MediaKind;
-  title: string;
-  quote: Record<LanguageCode, string>;
-  source: FakeSource;
-  topics: string[];
-  mood: string;
-  durationSec: number;
-  views: number;
-  likes: number;
-  comments: number;
-  publishedAt: string;
-  poster: string;
-  gradient: string;
-  items?: number;
-  language?: string;
-  featured?: boolean;
-  community?: boolean;
-};
-
-export const languages: { code: LanguageCode; label: string }[] = [
-  { code: "fr", label: "Français" },
-  { code: "en", label: "English" },
-];
-
-export const sourceLabels: Record<SourceKind, string> = {
-  FILM: "Film",
-  SERIES: "Série",
-  CARTOON: "Dessin animé",
-  BOOK: "Livre",
-  SONG: "Chanson",
-  SPEECH: "Discours",
-  PROVERB: "Proverbe",
-  PERSONAL: "Citation personnelle",
-};
-
-export const mediaKindLabels: Record<MediaKind, string> = {
-  VIDEO: "Vidéo",
-  IMAGE: "Image",
-  SEQUENCE: "Galerie",
-  TRACK: "Chanson",
-};
-
-export const media: FakeMedia[] = [
+export const media: CatalogueMedia[] = [
   {
     slug: "dernier-train-de-minuit",
     kind: "VIDEO",
@@ -493,15 +424,15 @@ export const sources = Array.from(
   new Map(media.map((item) => [item.source.slug, item.source])).values(),
 );
 
-export function getMedia(slug: string): FakeMedia | undefined {
+export function getMedia(slug: string): CatalogueMedia | undefined {
   return media.find((item) => item.slug === slug);
 }
 
-export function getSource(slug: string): FakeSource | undefined {
+export function getSource(slug: string): CatalogueSource | undefined {
   return sources.find((item) => item.slug === slug);
 }
 
-export function getMediaBySource(sourceSlug: string): FakeMedia[] {
+export function getMediaBySource(sourceSlug: string): CatalogueMedia[] {
   return media.filter((item) => item.source.slug === sourceSlug);
 }
 
@@ -511,9 +442,3 @@ export function getSourcePoster(sourceSlug: string): string | undefined {
   );
 }
 
-export function getQuote(
-  item: FakeMedia,
-  language: LanguageCode,
-): string {
-  return typography(item.quote[language] ?? item.quote.fr);
-}
