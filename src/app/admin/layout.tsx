@@ -169,7 +169,7 @@ export default function AdminLayout({
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
+        <main className="min-w-0 flex-1 px-5 py-6 sm:px-8 lg:px-10 lg:py-6">
           {children}
         </main>
       </div>

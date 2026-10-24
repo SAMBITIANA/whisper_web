@@ -122,7 +122,13 @@ export type ApiAdminDashboard = {
   };
   distribution: { kind: MediaKind; count: number }[];
   proposals: { total: number; pending: number; approved: number; rejected: number };
-  activity: { id: string; text: string; when: string }[];
+  activity: {
+    id: string;
+    text: string;
+    when: string;
+    action?: string;
+    targetType?: string | null;
+  }[];
   pipeline: { label: string; value: string; note: string }[];
 };
 
