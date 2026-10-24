@@ -244,3 +244,22 @@
     }
   }
 }
+
+:root {
+  --field-focus: var(--color-sage-600);
+}
+
+.dark {
+  --field-focus: var(--color-sage-100);
+}
+
+:is(input, textarea, select):not([type="checkbox"]):not([type="radio"]):not(
+    [type="range"]
+  ):not([type="file"]):not([type="color"]):not([type="submit"]):not(
+    [type="button"]
+  ):not([type="reset"]):not([aria-invalid="true"]):not(:disabled):focus {
+  border-color: var(--field-focus);
+  border-bottom-width: 2px;
+  box-shadow: inset -4px 0 0 var(--field-focus);
+  outline: none;
+}

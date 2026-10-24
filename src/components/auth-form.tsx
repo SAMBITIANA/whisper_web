@@ -20,6 +20,9 @@ const providers = [
   { id: "facebook", label: "Facebook", src: "/providers/facebook.png" },
 ] as const;
 
+const fieldClassName =
+  "h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none transition-colors placeholder:text-foreground/65 focus-visible:ring-0 dark:bg-transparent";
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const { signIn, signUp } = useSession();
@@ -163,7 +166,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 onChange={(event) => setName(event.target.value)}
                 autoComplete="name"
                 required
-                className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
+                className={fieldClassName}
               />
             </div>
           ) : null}
@@ -180,7 +183,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               autoComplete="email"
               required
               placeholder="vous@exemple.fr"
-              className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none placeholder:text-foreground/65 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
+              className={fieldClassName}
             />
           </div>
 
@@ -212,7 +215,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete={isSignup ? "new-password" : "current-password"}
                 required
-                className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
+                className={fieldClassName}
               />
               {isSignup ? (
                 <p className="text-[11.5px] text-foreground/65">
