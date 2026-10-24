@@ -9,7 +9,6 @@ import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { demoAccounts, roleLabels } from "@/lib/session";
 import { errorMessage, requestMagicLink } from "@/lib/api";
 
 type Mode = "signin" | "signup";
@@ -157,9 +156,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
             Lien envoyé
           </div>
           <p className="mt-3 text-[13.5px] leading-relaxed text-foreground/60">
-            Si un compte existe pour <span className="font-medium">{email}</span>
-            , un lien de connexion y sera envoyé. En maquette, l’envoi est
-            simulé — utilisez l’onglet « Mot de passe ».
+            Si un compte existe pour{" "}
+            <span className="font-medium">{email}</span>, un lien de connexion y
+            sera envoyé. En maquette, l’envoi est simulé — utilisez l’onglet «
+            Mot de passe ».
           </p>
           <button
             type="button"
@@ -266,7 +266,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       )}
 
       {!isSignup ? (
-        <>
+        <div className="[@media(max-height:700px)]:hidden">
           <div className="my-7 flex items-center gap-4">
             <span className="h-px flex-1 bg-[var(--rule)]" />
             <span className="eyebrow">ou</span>
@@ -285,37 +285,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
             <GoogleMark />
             Continuer avec Google
           </button>
-        </>
-      ) : null}
-
-      {!isSignup ? (
-        <div className="mt-10 border-t border-[var(--rule)] pt-6">
-          <p className="eyebrow">Comptes de démonstration</p>
-          <p className="mt-2 text-[11.5px] leading-relaxed text-foreground/65">
-            Mot de passe commun : <span className="font-mono">whispers</span>
-          </p>
-          <div className="mt-4 space-y-1">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => {
-                  setMethod("password");
-                  setEmail(account.email);
-                  setPassword(account.password);
-                  setError(null);
-                }}
-                className="group flex w-full items-baseline justify-between gap-4 border-t border-[var(--rule)] py-2.5 text-left"
-              >
-                <span className="text-[12.5px] text-foreground/70 group-hover:text-foreground">
-                  {account.email}
-                </span>
-                <span className="text-[10px] uppercase tracking-[0.14em] text-foreground/65">
-                  {roleLabels[account.role]}
-                </span>
-              </button>
-            ))}
-          </div>
         </div>
       ) : null}
 

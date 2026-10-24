@@ -6,12 +6,6 @@ export type SessionUser = {
   role: Role;
 };
 
-export type DemoAccount = SessionUser & {
-  password: string;
-  joinedAt: string;
-  bio: string;
-};
-
 export const roleLabels: Record<Role, string> = {
   USER: "Membre",
   EDITOR: "Éditeur",
@@ -20,73 +14,6 @@ export const roleLabels: Record<Role, string> = {
 
 export const SESSION_COOKIE = "whispers_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
-
-export const demoAccounts: DemoAccount[] = [
-  {
-    email: "julien@whispers.app",
-    name: "Julien R.",
-    role: "ADMIN",
-    password: "whispers",
-    joinedAt: "2025-11-04",
-    bio: "Fondateur. Édite la sélection du jour et relit les propositions.",
-  },
-  {
-    email: "lea@whispers.app",
-    name: "Léa M.",
-    role: "EDITOR",
-    password: "whispers",
-    joinedAt: "2026-01-17",
-    bio: "Éditrice. Sources, traductions et cadre de citation.",
-  },
-  {
-    email: "sam@whispers.app",
-    name: "Sam K.",
-    role: "USER",
-    password: "whispers",
-    joinedAt: "2026-09-02",
-    bio: "Membre. Collectionne les répliques de films des années 90.",
-  },
-];
-
-export const LOCAL_ACCOUNTS_KEY = "whispers_local_accounts";
-
-export function readLocalAccounts(): DemoAccount[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const parsed = JSON.parse(
-      window.localStorage.getItem(LOCAL_ACCOUNTS_KEY) ?? "[]",
-    ) as DemoAccount[];
-
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-export function findLocalAccount(email: string): DemoAccount | undefined {
-  return readLocalAccounts().find(
-    (account) => account.email.toLowerCase() === email.trim().toLowerCase(),
-  );
-}
-
-export function saveLocalAccount(account: DemoAccount): void {
-  if (typeof window === "undefined") return;
-
-  const accounts = readLocalAccounts().filter(
-    (item) => item.email !== account.email,
-  );
-  window.localStorage.setItem(
-    LOCAL_ACCOUNTS_KEY,
-    JSON.stringify([account, ...accounts]),
-  );
-}
-
-export function findAccount(email: string): DemoAccount | undefined {
-  return demoAccounts.find(
-    (account) => account.email.toLowerCase() === email.trim().toLowerCase(),
-  );
-}
 
 function base64Encode(value: string): string {
   const bytes = new TextEncoder().encode(value);

@@ -19,7 +19,7 @@ export function AuthShell({
 }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
-      <aside className="relative hidden flex-col border-r border-[var(--rule)] bg-paper-deep px-10 py-10 dark:bg-card lg:flex">
+      <aside className="relative hidden flex-col border-r border-[var(--rule)] bg-paper-deep px-10 pt-10 pb-6 dark:bg-card lg:flex">
         <Link
           href="/"
           className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
@@ -28,20 +28,7 @@ export function AuthShell({
           Retour au site
         </Link>
 
-        <div className="mt-10 max-w-lg">
-          <p className="eyebrow">Whispers</p>
-          <blockquote className="display hanging mt-6 text-[clamp(1.9rem,3.2vw,2.9rem)] leading-[1.08] text-balance">
-            «&nbsp;{quote}&nbsp;»
-          </blockquote>
-          <p className="mt-6 font-serif text-[15px] italic text-foreground/65">
-            {attribution}
-          </p>
-          <p className="mt-1 text-[10.5px] uppercase tracking-[0.15em] text-foreground/40">
-            {source}
-          </p>
-        </div>
-
-        <figure className="relative mt-10 aspect-[16/9] w-full flex-none overflow-hidden border border-[var(--rule-strong)]">
+        <figure className="relative mt-10 flex min-h-0 flex-1 overflow-hidden border border-[var(--rule-strong)]">
           <Image
             src={image}
             alt={imageAlt}
@@ -52,9 +39,9 @@ export function AuthShell({
           />
           <div
             aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-ink/5"
+            className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/55 to-ink/20"
           />
-          <figcaption className="absolute inset-x-0 bottom-0 flex flex-wrap items-baseline justify-between gap-2 p-4">
+          <figcaption className="absolute inset-x-0 top-0 flex flex-wrap items-baseline justify-between gap-2 p-4">
             <span className="text-[9.5px] uppercase tracking-[0.15em] text-paper/75">
               Visuel d’illustration
             </span>
@@ -62,15 +49,24 @@ export function AuthShell({
               Aucun extrait de l’œuvre
             </span>
           </figcaption>
+          <div className="absolute inset-x-0 bottom-0 p-6">
+            <p className="text-[11px] uppercase tracking-[0.19em] text-paper/65">
+              Whispers
+            </p>
+            <blockquote className="display hanging mt-4 text-[clamp(1.6rem,2.7vw,2.4rem)] leading-[1.08] text-paper text-balance">
+              «&nbsp;{quote}&nbsp;»
+            </blockquote>
+            <p className="mt-5 font-serif text-[14px] italic text-paper/80">
+              {attribution}
+            </p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.15em] text-paper/55">
+              {source}
+            </p>
+          </div>
         </figure>
-
-        <p className="mt-6 max-w-sm font-serif text-[12.5px] italic leading-relaxed text-foreground/60">
-          Les citations se lisent, s’écoutent et se traduisent. Le texte reste
-          une couche — jamais incrusté dans l’image.
-        </p>
       </aside>
 
-      <main className="flex flex-col px-5 py-10 sm:px-10">
+      <main className="flex flex-col px-5 py-7 sm:px-10">
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
           {children}
         </div>
