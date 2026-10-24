@@ -1,57 +1,35 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
-import { CONTENTS_STORAGE_KEY, type DraftContent } from "@/lib/fake-content";
-import { media, mediaKindLabels, type MediaKind } from "@/lib/fake-data";
+import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
 import { formatDate } from "@/lib/format";
-import { useStoredList } from "@/lib/use-stored-list";
+import { fetchAdminMedia, type ApiAdminMedia } from "@/lib/api";
 
 const kinds = Object.keys(mediaKindLabels) as MediaKind[];
 
 export default function AdminContenusPage() {
-  const { items: drafts } = useStoredList<DraftContent>(
-    CONTENTS_STORAGE_KEY,
-    [],
-  );
+  const [items, setItems] = useState<ApiAdminMedia[]>([]);
+  const [loading, setLoading] = useState(true);
   const [kind, setKind] = useState<MediaKind | null>(null);
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    void fetchAdminMedia()
+      .then(setItems)
+      .finally(() => setLoading(false));
+  }, []);
+
   const rows = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-
-    const published = media.map((item) => ({
-      id: item.slug,
-      kind: item.kind,
-      title: item.title,
-      source: item.source.title,
-      date: item.publishedAt,
-      views: item.views,
-      status: "Publié" as const,
-      poster: item.poster as string | undefined,
-      href: `/citation/${item.slug}`,
-    }));
-
-    const local = drafts.map((item) => ({
-      id: item.id,
-      kind: item.kind,
-      title: item.title,
-      source: item.sourceTitle,
-      date: item.createdAt,
-      views: 0,
-      status: item.status === "PUBLIE" ? ("Publié" as const) : ("Brouillon" as const),
-      poster: item.poster || undefined,
-      href: null,
-    }));
-
-    return [...local, ...published].filter((row) => {
+    return items.filter((row) => {
       if (kind && row.kind !== kind) return false;
       if (!normalized) return true;
       return `${row.title} ${row.source}`.toLowerCase().includes(normalized);
     });
-  }, [drafts, kind, query]);
+  }, [items, kind, query]);
 
   return (
     <div className="space-y-6">
@@ -62,7 +40,7 @@ export default function AdminContenusPage() {
             Contenus
           </h1>
           <p className="mt-1.5 font-serif text-[13.5px] italic text-foreground/65">
-            Vidéos, images, galeries et chansons — {media.length + drafts.length}{" "}
+            Vidéos, images, galeries et chansons — {items.length}{" "}
             pièces.
           </p>
         </div>
@@ -150,18 +128,12 @@ export default function AdminContenusPage() {
                   )}
                 </td>
                 <td className="max-w-[22rem] py-3 pr-4">
-                  {row.href ? (
-                    <Link
-                      href={row.href}
-                      className="display link-underline text-[15px] leading-snug"
-                    >
-                      {row.title}
-                    </Link>
-                  ) : (
-                    <span className="display text-[15px] leading-snug">
-                      {row.title}
-                    </span>
-                  )}
+                  <Link
+                    href={row.href}
+                    className="display link-underline text-[15px] leading-snug"
+                  >
+                    {row.title}
+                  </Link>
                 </td>
                 <td className="px-4 py-3.5 text-[11px] uppercase tracking-[0.12em] text-foreground/60">
                   {mediaKindLabels[row.kind]}
@@ -178,12 +150,16 @@ export default function AdminContenusPage() {
                 <td className="py-3.5 pl-4 text-right">
                   <span
                     className={
-                      row.status === "Publié"
+                      row.status === "PUBLISHED"
                         ? "text-[10px] uppercase tracking-[0.12em] text-sage-600 dark:text-sage-100"
                         : "text-[10px] uppercase tracking-[0.12em] text-foreground/35"
                     }
                   >
-                    {row.status}
+                    {row.status === "PUBLISHED"
+                      ? "Publié"
+                      : row.status === "DRAFT"
+                        ? "Brouillon"
+                        : row.status}
                   </span>
                 </td>
               </tr>
@@ -192,7 +168,9 @@ export default function AdminContenusPage() {
         </table>
       </div>
 
-      {rows.length === 0 ? (
+      {loading ? (
+        <div className="h-64 animate-pulse bg-foreground/5" />
+      ) : rows.length === 0 ? (
         <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
           Aucun contenu ne correspond à cette recherche.
         </p>

@@ -1,24 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
+
+export const instant = false;
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { FakePlayer } from "@/components/fake-player";
 import { MediaCard } from "@/components/media-card";
 import { SectionHeading } from "@/components/section-heading";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import {
-  getMedia,
-  getSourcePoster,
-  media,
-  mediaKindLabels,
-  sourceLabels,
-} from "@/lib/fake-data";
+import { mediaKindLabels, sourceLabels } from "@/lib/fake-data";
+import { fetchMediaBySlug, fetchRelated } from "@/lib/api";
 import { formatDate, formatViews, typography } from "@/lib/format";
-
-export function generateStaticParams() {
-  return media.map((item) => ({ slug: item.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -26,16 +20,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const item = getMedia(slug);
+  await connection();
 
-  if (!item) {
+  try {
+    const item = await fetchMediaBySlug(slug);
+    return {
+      title: `${item.quote.fr} — Whispers`,
+      description: `${item.source.title} · ${sourceLabels[item.source.kind]}`,
+    };
+  } catch {
     return { title: "Citation introuvable — Whispers" };
   }
-
-  return {
-    title: `${item.quote.fr} — Whispers`,
-    description: `${item.source.title} · ${sourceLabels[item.source.kind]}`,
-  };
 }
 
 export default async function CitationPage({
@@ -44,42 +39,16 @@ export default async function CitationPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const item = getMedia(slug);
+  await connection();
 
-  if (!item) {
+  let item;
+  try {
+    item = await fetchMediaBySlug(slug);
+  } catch {
     notFound();
   }
 
-  const matches = media
-    .filter(
-      (candidate) =>
-        candidate.slug !== item.slug &&
-        (candidate.mood === item.mood ||
-          candidate.topics.some((topic) => item.topics.includes(topic))),
-    )
-    .sort((a, b) => {
-      const score = (candidate: typeof item) =>
-        candidate.topics.filter((topic) => item.topics.includes(topic)).length *
-          10 +
-        (candidate.mood === item.mood ? 1 : 0);
-
-      return score(b) - score(a) || b.views - a.views;
-    });
-
-  const related = matches.slice(0, 3);
-  const broadened = related.length < 3;
-
-  if (broadened) {
-    related.push(
-      ...media
-        .filter(
-          (candidate) =>
-            candidate.slug !== item.slug && !related.includes(candidate),
-        )
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 3 - related.length),
-    );
-  }
+  const related = await fetchRelated(slug, 3).catch(() => []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -134,7 +103,7 @@ export default async function CitationPage({
               <div className="paper-frame">
                 <div className="relative aspect-[16/10] w-full overflow-hidden">
                   <Image
-                    src={getSourcePoster(item.source.slug) ?? item.poster}
+                    src={item.poster || item.source.poster || "/media/carnet-riviere.jpg"}
                     alt={`Visuel d’illustration pour ${item.source.title}`}
                     fill
                     sizes="(min-width: 1024px) 30vw, 100vw"
@@ -209,7 +178,7 @@ export default async function CitationPage({
           <section className="mt-16">
             <SectionHeading
               title="Citations liées"
-              note={broadened ? "À lire ensuite" : "Dans les mêmes sujets"}
+              note={related.length < 3 ? "À lire ensuite" : "Dans les mêmes sujets"}
             />
             <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((candidate) => (

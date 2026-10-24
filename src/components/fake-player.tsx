@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Bookmark,
   Copy,
@@ -14,21 +15,68 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MediaPoster } from "@/components/media-poster";
-import { getQuote, type FakeMedia, type LanguageCode } from "@/lib/fake-data";
+import { getQuote, type LanguageCode } from "@/lib/fake-data";
 import { formatDuration, formatViews, typography } from "@/lib/format";
+import {
+  recordView,
+  removeReaction,
+  setReaction,
+  toggleFavorite,
+  type ApiMedia,
+} from "@/lib/api";
+import { useOptionalSession } from "@/components/session-provider";
 
 export function FakePlayer({
   item,
   language: initialLanguage = "fr",
   autoPlay = false,
 }: {
-  item: FakeMedia;
+  item: ApiMedia;
   language?: LanguageCode;
   autoPlay?: boolean;
 }) {
+  const session = useOptionalSession();
+  const user = session?.user ?? null;
   const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
   const [playing, setPlaying] = useState(autoPlay);
   const [progress, setProgress] = useState(0);
+  const [saved, setSaved] = useState(Boolean(item.userState?.saved));
+  const [reaction, setReactionState] = useState(item.userState?.reaction ?? null);
+
+  useEffect(() => {
+    void recordView(item.slug).catch(() => undefined);
+  }, [item.slug]);
+
+  async function requireAccount() {
+    if (user) return true;
+    toast("Connectez-vous pour utiliser cette action.");
+    return false;
+  }
+
+  async function toggleSaved() {
+    if (!(await requireAccount())) return;
+    try {
+      const result = await toggleFavorite(item.slug, saved);
+      setSaved(result.saved);
+    } catch {
+      toast("Action impossible.");
+    }
+  }
+
+  async function toggleReaction() {
+    if (!(await requireAccount())) return;
+    try {
+      if (reaction) {
+        await removeReaction(item.slug);
+        setReactionState(null);
+      } else {
+        const result = await setReaction(item.slug, "LIKE");
+        setReactionState(result.reaction);
+      }
+    } catch {
+      toast("Action impossible.");
+    }
+  }
 
   useEffect(() => {
     if (!playing || item.durationSec === 0) return;
@@ -120,11 +168,25 @@ export function FakePlayer({
         />
 
         <div className="ml-auto flex items-center gap-0.5">
-          <Button variant="ghost" size="icon" aria-label="Réagir" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
-            <Heart className="size-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Réagir"
+            aria-pressed={Boolean(reaction)}
+            onClick={() => void toggleReaction()}
+            className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground"
+          >
+            <Heart className={cn("size-4", reaction && "fill-current text-sage-600 dark:text-sage-300")} />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Enregistrer" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
-            <Bookmark className="size-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Enregistrer"
+            aria-pressed={saved}
+            onClick={() => void toggleSaved()}
+            className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground"
+          >
+            <Bookmark className={cn("size-4", saved && "fill-current text-sage-600 dark:text-sage-300")} />
           </Button>
           <Button variant="ghost" size="icon" aria-label="Copier la citation" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Copy className="size-4" />

@@ -1,18 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaCard } from "@/components/media-card";
+import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
 import {
-  media,
-  mediaKindLabels,
-  moods,
-  topics,
-  type MediaKind,
-} from "@/lib/fake-data";
+  fetchMedia,
+  fetchTaxonomy,
+  type ApiMedia,
+  type ApiTaxonomy,
+} from "@/lib/api";
 
 const kinds = Object.keys(mediaKindLabels) as MediaKind[];
 
@@ -89,11 +89,33 @@ export function CatalogueBrowser({
     Boolean(initialTopic || initialMood || initialKind),
   );
   const [allTopics, setAllTopics] = useState(false);
+  const [items, setItems] = useState<ApiMedia[]>([]);
+  const [taxonomy, setTaxonomy] = useState<ApiTaxonomy | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all([fetchMedia({ limit: "100" }), fetchTaxonomy()])
+      .then(([catalogue, terms]) => {
+        if (!active) return;
+        setItems(catalogue.items);
+        setTaxonomy(terms);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const topics = taxonomy?.topics.map((item) => item.name) ?? [];
+  const moods = taxonomy?.moods.map((item) => item.name) ?? [];
 
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    const filtered = media.filter((item) => {
+    const filtered = items.filter((item) => {
       if (kind && item.kind !== kind) return false;
       if (topic && !item.topics.includes(topic)) return false;
       if (mood && item.mood !== mood) return false;
@@ -118,7 +140,7 @@ export function CatalogueBrowser({
       if (sort === "discussed") return b.comments - a.comments;
       return b.publishedAt.localeCompare(a.publishedAt);
     });
-  }, [query, kind, topic, mood, sort]);
+  }, [items, query, kind, topic, mood, sort]);
 
   const chips = [
     query.trim()
@@ -299,7 +321,13 @@ export function CatalogueBrowser({
         ) : null}
       </div>
 
-      {results.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2, 3, 4, 5].map((index) => (
+            <div key={index} className="h-72 animate-pulse bg-foreground/5" />
+          ))}
+        </div>
+      ) : results.length === 0 ? (
         <div className="border-y border-[var(--rule)] py-14 text-center">
           <p className="display text-[22px]">Aucune citation ne correspond.</p>
           <p className="mt-2 text-[13px] text-foreground/65">

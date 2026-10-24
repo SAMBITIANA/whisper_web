@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  adminProposals,
-  proposalStatusLabels,
-  type AdminProposal,
-  type ProposalStatus,
-} from "@/lib/fake-admin";
 import { formatDate } from "@/lib/format";
-import { useStoredList } from "@/lib/use-stored-list";
+import {
+  fetchAdminProposals,
+  reviewProposal,
+  type ApiProposal,
+} from "@/lib/api";
+
+type ProposalStatus = ApiProposal["status"];
+
+const proposalStatusLabels: Record<ProposalStatus, string> = {
+  PENDING: "En attente",
+  APPROVED: "Publiée",
+  REJECTED: "Rejetée",
+};
 
 const filters: { value: "ALL" | ProposalStatus; label: string }[] = [
   { value: "PENDING", label: "En attente" },
@@ -19,31 +25,38 @@ const filters: { value: "ALL" | ProposalStatus; label: string }[] = [
 ];
 
 export default function ModerationPage() {
-  const { items, update } = useStoredList<AdminProposal>(
-    "whispers_proposals",
-    adminProposals,
-  );
+  const [items, setItems] = useState<ApiProposal[]>([]);
   const [filter, setFilter] = useState<"ALL" | ProposalStatus>("PENDING");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void fetchAdminProposals()
+      .then(setItems)
+      .finally(() => setLoading(false));
+  }, []);
 
   const visible = items.filter(
     (proposal) => filter === "ALL" || proposal.status === filter,
   );
 
-  function setStatus(id: string, status: ProposalStatus) {
-    update((current) =>
-      current.map((proposal) =>
-        proposal.id === id ? { ...proposal, status } : proposal,
-      ),
-    );
-    toast(
-      status === "APPROVED"
-        ? "Proposition approuvée (maquette)"
-        : status === "REJECTED"
-          ? "Proposition rejetée (maquette)"
-          : "Proposition remise en attente (maquette)",
-    );
+  async function setStatus(id: string, status: ProposalStatus) {
+    try {
+      const updated = await reviewProposal(id, { status });
+      setItems((current) =>
+        current.map((proposal) => (proposal.id === id ? updated : proposal)),
+      );
+      toast(
+        status === "APPROVED"
+          ? "Proposition approuvée"
+          : status === "REJECTED"
+            ? "Proposition rejetée"
+            : "Proposition remise en attente",
+      );
+    } catch {
+      toast("Mise à jour impossible");
+    }
   }
 
   return (
@@ -85,7 +98,9 @@ export default function ModerationPage() {
         })}
       </div>
 
-      {visible.length === 0 ? (
+      {loading ? (
+        <div className="h-48 animate-pulse bg-foreground/5" />
+      ) : visible.length === 0 ? (
         <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
           Rien à relire dans cette catégorie.
         </p>
@@ -115,15 +130,17 @@ export default function ModerationPage() {
                           onClick={() => {
                             const value = draft.trim();
                             if (!value) return;
-                            update((current) =>
-                              current.map((item) =>
-                                item.id === proposal.id
-                                  ? { ...item, quote: value }
-                                  : item,
-                              ),
-                            );
-                            setEditingId(null);
-                            toast("Citation modifiée (maquette)");
+                            void reviewProposal(proposal.id, { quote: value })
+                              .then((updated) => {
+                                setItems((current) =>
+                                  current.map((item) =>
+                                    item.id === proposal.id ? updated : item,
+                                  ),
+                                );
+                                setEditingId(null);
+                                toast("Citation modifiée");
+                              })
+                              .catch(() => toast("Modification impossible"));
                           }}
                           className="text-[11px] uppercase tracking-[0.14em] text-foreground"
                         >

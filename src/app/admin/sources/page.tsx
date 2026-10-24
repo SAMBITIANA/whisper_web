@@ -1,29 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { sourceLabels, type SourceKind } from "@/lib/fake-data";
 import {
-  getMediaBySource,
-  sourceLabels,
-  sources,
-  type SourceKind,
-} from "@/lib/fake-data";
-import { useStoredList } from "@/lib/use-stored-list";
-
-type LocalSource = {
-  id: string;
-  title: string;
-  kind: SourceKind;
-  author: string;
-  year: string;
-  character: string;
-  locator: string;
-  createdAt: string;
-};
-
-const SOURCES_STORAGE_KEY = "whispers_sources";
+  createAdminSource,
+  fetchAdminSources,
+  type ApiSource,
+} from "@/lib/api";
 
 const fieldClass =
   "h-9 w-full rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[13px] shadow-none placeholder:text-foreground/30 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent";
@@ -31,10 +17,8 @@ const fieldClass =
 const sourceKinds = Object.keys(sourceLabels) as SourceKind[];
 
 export default function AdminSourcesPage() {
-  const { items: localSources, update } = useStoredList<LocalSource>(
-    SOURCES_STORAGE_KEY,
-    [],
-  );
+  const [sources, setSources] = useState<ApiSource[]>([]);
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [kind, setKind] = useState<SourceKind>("FILM");
   const [author, setAuthor] = useState("");
@@ -43,7 +27,13 @@ export default function AdminSourcesPage() {
   const [locator, setLocator] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    void fetchAdminSources()
+      .then(setSources)
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -52,27 +42,25 @@ export default function AdminSourcesPage() {
       return;
     }
 
-    const source: LocalSource = {
-      id:
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `source-${Date.now()}`,
-      title: title.trim(),
-      kind,
-      author: author.trim(),
-      year: year.trim(),
-      character: character.trim(),
-      locator: locator.trim(),
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-
-    update((current) => [source, ...current]);
-    setTitle("");
-    setAuthor("");
-    setYear("");
-    setCharacter("");
-    setLocator("");
-    toast("Source enregistrée (maquette)", { description: source.title });
+    try {
+      const source = await createAdminSource({
+        title: title.trim(),
+        kind,
+        author: author.trim(),
+        year: year.trim(),
+        character: character.trim(),
+        locator: locator.trim(),
+      });
+      setSources((current) => [source, ...current]);
+      setTitle("");
+      setAuthor("");
+      setYear("");
+      setCharacter("");
+      setLocator("");
+      toast("Source enregistrée", { description: source.title });
+    } catch {
+      setError("Enregistrement impossible.");
+    }
   }
 
   return (
@@ -93,34 +81,17 @@ export default function AdminSourcesPage() {
           <div className="flex items-baseline justify-between gap-4 border-b border-[var(--rule)] pb-3">
             <p className="eyebrow">Catalogue</p>
             <p className="font-mono text-[10px] text-foreground/35">
-              {sources.length + localSources.length} entrées
+              {sources.length} entrées
             </p>
           </div>
 
           <ul className="border-b border-[var(--rule)]">
-            {localSources.map((source) => (
-              <li
-                key={source.id}
-                className="grid gap-1 border-t border-[var(--rule)] py-3.5 sm:grid-cols-[1fr_auto] sm:items-baseline"
-              >
-                <div>
-                  <p className="display text-[16px] leading-snug">
-                    {source.title}
-                  </p>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-foreground/40">
-                    {sourceLabels[source.kind]}
-                    {source.author ? ` · ${source.author}` : ""}
-                    {source.year ? ` · ${source.year}` : ""}
-                  </p>
-                </div>
-                <span className="text-[9.5px] uppercase tracking-[0.13em] text-sage-600 dark:text-sage-100">
-                  Nouvelle
-                </span>
-              </li>
-            ))}
+            {loading ? (
+              <li className="h-24 animate-pulse bg-foreground/5" />
+            ) : null}
 
             {sources.map((source) => {
-              const count = getMediaBySource(source.slug).length;
+              const count = source.quoteCount;
 
               return (
                 <li

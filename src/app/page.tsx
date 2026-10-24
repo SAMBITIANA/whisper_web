@@ -1,20 +1,17 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
+
+export const instant = false;
 import { ArrowRight } from "lucide-react";
 import { MediaCard } from "@/components/media-card";
 import { MediaPoster } from "@/components/media-poster";
 import { SectionHeading } from "@/components/section-heading";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import {
-  getQuote,
-  languages,
-  media,
-  mediaKindLabels,
-  moods,
-  topics,
-} from "@/lib/fake-data";
+import { mediaKindLabels } from "@/lib/fake-data";
+import { fetchHome } from "@/lib/api";
 import {
   formatDate,
   formatDuration,
@@ -33,15 +30,26 @@ function delay(ms: number): CSSProperties {
   return { "--rise-delay": `${ms}ms` } as CSSProperties;
 }
 
-export default function HomePage() {
-  const featured = media.find((item) => item.featured) ?? media[0];
-  const trending = [...media].sort((a, b) => b.likes - a.likes).slice(0, 3);
-  const fresh = [...media]
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, 4);
-  const songs = media.filter((item) => item.kind === "TRACK").slice(0, 2);
-  const formatCount = new Set(media.map((item) => item.kind)).size;
-  const community = media.filter((item) => item.community);
+export default async function HomePage() {
+  await connection();
+  const home = await fetchHome();
+  const featured = home.featured;
+  if (!featured) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="font-serif text-[16px] italic text-foreground/65">
+          Aucune citation publiée pour l’instant.
+        </p>
+      </div>
+    );
+  }
+  const trending = home.trending;
+  const fresh = home.fresh;
+  const songs = home.songs;
+  const community = home.community;
+  const moods = home.moods;
+  const topics = home.topics;
+  const languages = home.languages;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -67,7 +75,7 @@ export default function HomePage() {
                 >
                   <span className="text-sage-300">«</span>
                   {"\u00a0"}
-                  {getQuote(featured, "fr")}
+                  {featured.quote.fr}
                   {"\u00a0"}
                   <span className="text-sage-300">»</span>
                 </blockquote>
@@ -120,8 +128,8 @@ export default function HomePage() {
                   style={delay(320)}
                 >
                   {[
-                    { value: media.length, label: "pièces" },
-                    { value: formatCount, label: "formats" },
+                    { value: home.stats.media, label: "pièces" },
+                    { value: home.stats.formats, label: "formats" },
                     { value: languages.length, label: "langues" },
                     { value: formatViews(featured.views), label: "vues" },
                   ].map((stat) => (
@@ -194,7 +202,7 @@ export default function HomePage() {
                   <div>
                     <p className="display text-[19px] leading-[1.28] text-balance">
                       <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 group-hover:bg-[length:100%_1px]">
-                        «&nbsp;{getQuote(item, "fr")}&nbsp;»
+                        «&nbsp;{item.quote.fr}&nbsp;»
                       </span>
                     </p>
                     <p className="mt-1.5 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">
@@ -441,7 +449,7 @@ export default function HomePage() {
                     <div>
                       <p className="display text-[18px] leading-[1.3] text-balance">
                         <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 group-hover:bg-[length:100%_1px]">
-                          «&nbsp;{getQuote(item, "fr")}&nbsp;»
+                          «&nbsp;{item.quote.fr}&nbsp;»
                         </span>
                       </p>
                       <p className="mt-2 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">

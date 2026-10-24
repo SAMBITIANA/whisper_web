@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "cn";
 import { useSession } from "@/components/session-provider";
-import { adminProposals } from "@/lib/fake-admin";
+import { fetchAdminDashboard } from "@/lib/api";
 import { canManageUsers, initialsOf, roleLabels } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
 
@@ -37,6 +38,14 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { user, ready } = useRequiredSession();
   const { signOut } = useSession();
+  const [pending, setPending] = useState(0);
+
+  useEffect(() => {
+    if (!user || user.role === "USER") return;
+    void fetchAdminDashboard()
+      .then((dashboard) => setPending(dashboard.stats.pending))
+      .catch(() => setPending(0));
+  }, [user]);
 
   if (!ready || !user) {
     return (
@@ -77,10 +86,6 @@ export default function AdminLayout({
       </div>
     );
   }
-
-  const pending = adminProposals.filter(
-    (proposal) => proposal.status === "PENDING",
-  ).length;
 
   const visibleItems = items.filter(
     (item) => !item.admin || canManageUsers(user.role),

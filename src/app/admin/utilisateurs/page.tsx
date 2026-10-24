@@ -1,26 +1,33 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useSession } from "@/components/session-provider";
-import { adminUsers, type AdminUser } from "@/lib/fake-admin";
+import {
+  fetchAdminUsers,
+  updateAdminUserRole,
+  updateAdminUserStatus,
+  type ApiAdminUser,
+} from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { canManageUsers, roleLabels, type Role } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
-import { useStoredList } from "@/lib/use-stored-list";
 
-const USERS_STORAGE_KEY = "whispers_users";
 const roles = Object.keys(roleLabels) as Role[];
 
 export default function AdminUsersPage() {
   const { user, ready } = useRequiredSession(["EDITOR", "ADMIN"]);
   const { user: sessionUser } = useSession();
-  const { items, update } = useStoredList<AdminUser>(
-    USERS_STORAGE_KEY,
-    adminUsers,
-  );
+  const [items, setItems] = useState<ApiAdminUser[]>([]);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void fetchAdminUsers()
+      .then(setItems)
+      .finally(() => setLoading(false));
+  }, []);
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -52,24 +59,32 @@ export default function AdminUsersPage() {
     );
   }
 
-  function changeRole(email: string, role: Role) {
-    update((current) =>
-      current.map((item) => (item.email === email ? { ...item, role } : item)),
-    );
-    toast("Rôle mis à jour (maquette)", { description: email });
+  async function changeRole(id: string, role: Role) {
+    try {
+      await updateAdminUserRole(id, role);
+      setItems((current) =>
+        current.map((item) => (item.id === id ? { ...item, role } : item)),
+      );
+      toast("Rôle mis à jour");
+    } catch {
+      toast("Mise à jour impossible");
+    }
   }
 
-  function toggleStatus(email: string) {
-    update((current) =>
-      current.map((item) =>
-        item.email === email
-          ? {
-              ...item,
-              status: item.status === "Actif" ? "Suspendu" : "Actif",
-            }
-          : item,
-      ),
-    );
+  async function toggleStatus(item: ApiAdminUser) {
+    const status = item.status === "Actif" ? "SUSPENDED" : "ACTIVE";
+    try {
+      await updateAdminUserStatus(item.id, status);
+      setItems((current) =>
+        current.map((entry) =>
+          entry.id === item.id
+            ? { ...entry, status: status === "ACTIVE" ? "Actif" : "Suspendu" }
+            : entry,
+        ),
+      );
+    } catch {
+      toast("Mise à jour impossible");
+    }
   }
 
   return (
@@ -115,8 +130,15 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="py-8">
+                  <div className="h-24 animate-pulse bg-foreground/5" />
+                </td>
+              </tr>
+            ) : null}
             {visible.map((item) => (
-              <tr key={item.email} className="border-b border-[var(--rule)]">
+              <tr key={item.id} className="border-b border-[var(--rule)]">
                 <td className="py-3.5 pl-0 pr-3">
                   <span className="display text-[15px]">{item.name}</span>
                   {item.email === sessionUser?.email ? (
@@ -135,7 +157,7 @@ export default function AdminUsersPage() {
                   <select
                     value={item.role}
                     onChange={(event) =>
-                      changeRole(item.email, event.target.value as Role)
+                      void changeRole(item.id, event.target.value as Role)
                     }
                     aria-label={`Rôle de ${item.name}`}
                     className="border-0 border-b border-transparent bg-transparent pb-0.5 text-[11.5px] text-foreground/70 hover:border-[var(--rule)] focus:border-sage-300 focus:outline-none"
@@ -150,7 +172,7 @@ export default function AdminUsersPage() {
                 <td className="py-3.5 pl-3 pr-0 text-right">
                   <button
                     type="button"
-                    onClick={() => toggleStatus(item.email)}
+                    onClick={() => void toggleStatus(item)}
                     className={
                       item.status === "Actif"
                         ? "text-[10px] uppercase tracking-[0.13em] text-foreground/65 hover:text-foreground"
@@ -167,9 +189,8 @@ export default function AdminUsersPage() {
       </div>
 
       <p className="text-[11.5px] leading-relaxed text-foreground/40">
-        Maquette : les changements sont enregistrés dans ce navigateur. Les
-        règles d’autorisation seront appliquées côté serveur (guards NestJS) avec
-        l’API.
+        Les rôles et statuts sont enregistrés côté serveur et appliqués par les
+        guards NestJS.
       </p>
     </div>
   );

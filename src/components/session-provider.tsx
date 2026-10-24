@@ -4,151 +4,106 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
-  useSyncExternalStore,
+  useState,
 } from "react";
 import {
-  clearSessionCookie,
-  decodeSession,
-  findAccount,
-  findLocalAccount,
-  readSessionCookieValue,
-  saveLocalAccount,
-  writeSessionCookie,
-  type DemoAccount,
-  type Role,
-  type SessionUser,
-} from "@/lib/session";
+  errorMessage,
+  fetchSession,
+  login,
+  logout,
+  signup,
+  type ApiUser,
+} from "@/lib/api";
+import type { SessionUser } from "@/lib/session";
 
-const listeners = new Set<() => void>();
-
-function emitSessionChange() {
-  listeners.forEach((listener) => listener());
-}
-
-function subscribeSession(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-function subscribeNoop() {
-  return () => {};
-}
-
-function readValue(): string {
-  return readSessionCookieValue();
-}
+type AuthResult = { ok: boolean; error?: string };
 
 type SessionContextValue = {
   user: SessionUser | null;
+  account: ApiUser | null;
   ready: boolean;
-  signIn: (email: string, password: string) => { ok: boolean; error?: string };
+  signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (input: {
     name: string;
     email: string;
     password: string;
-  }) => { ok: boolean; error?: string };
-  signOut: () => void;
-  updateRole: (role: Role) => void;
+  }) => Promise<AuthResult>;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
+function toSessionUser(account: ApiUser): SessionUser {
+  return {
+    email: account.email,
+    name: account.name,
+    role: account.role,
+  };
+}
+
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const cookieValue = useSyncExternalStore(
-    subscribeSession,
-    readValue,
-    () => "",
-  );
-  const hydrated = useSyncExternalStore(
-    subscribeNoop,
-    () => true,
-    () => false,
-  );
+  const [account, setAccount] = useState<ApiUser | null>(null);
+  const [ready, setReady] = useState(false);
 
-  const user = useMemo(() => decodeSession(cookieValue), [cookieValue]);
+  useEffect(() => {
+    let active = true;
+    void fetchSession().then((user) => {
+      if (!active) return;
+      setAccount(user);
+      setReady(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const signIn = useCallback((email: string, password: string) => {
-    const account = findAccount(email) ?? findLocalAccount(email);
-
-    if (!account) {
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const user = await login(email, password);
+      setAccount(user);
+      return { ok: true };
+    } catch (error) {
       return {
         ok: false,
-        error:
-          "Aucun compte ne correspond à cette adresse. Créez un compte ou utilisez un compte de démonstration.",
+        error: errorMessage(error, "Connexion impossible."),
       };
     }
-
-    if (account.password !== password) {
-      return { ok: false, error: "Mot de passe incorrect." };
-    }
-
-    writeSessionCookie({
-      email: account.email,
-      name: account.name,
-      role: account.role,
-    });
-    emitSessionChange();
-    return { ok: true };
   }, []);
 
   const signUp = useCallback(
-    (input: { name: string; email: string; password: string }) => {
-      if (findAccount(input.email) ?? findLocalAccount(input.email)) {
+    async (input: { name: string; email: string; password: string }) => {
+      try {
+        const user = await signup(input);
+        setAccount(user);
+        return { ok: true };
+      } catch (error) {
         return {
           ok: false,
-          error: "Cette adresse est déjà utilisée. Connectez-vous.",
+          error: errorMessage(error, "Inscription impossible."),
         };
       }
-
-      if (input.password.length < 6) {
-        return {
-          ok: false,
-          error: "Le mot de passe doit contenir au moins 6 caractères.",
-        };
-      }
-
-      const account: DemoAccount = {
-        email: input.email.trim().toLowerCase(),
-        name: input.name.trim(),
-        role: "USER",
-        password: input.password,
-        joinedAt: new Date().toISOString().slice(0, 10),
-        bio: "",
-      };
-
-      saveLocalAccount(account);
-      writeSessionCookie({
-        email: account.email,
-        name: account.name,
-        role: account.role,
-      });
-      emitSessionChange();
-      return { ok: true };
     },
     [],
   );
 
-  const signOut = useCallback(() => {
-    clearSessionCookie();
-    emitSessionChange();
+  const signOut = useCallback(async () => {
+    try {
+      await logout();
+    } finally {
+      setAccount(null);
+    }
   }, []);
 
-  const updateRole = useCallback((role: Role) => {
-    const current = decodeSession(readSessionCookieValue());
-    if (!current) return;
-    writeSessionCookie({ ...current, role });
-    emitSessionChange();
-  }, []);
+  const user = useMemo(
+    () => (account ? toSessionUser(account) : null),
+    [account],
+  );
 
   const value = useMemo(
-    () => ({ user, ready: hydrated, signIn, signUp, signOut, updateRole }),
-    [user, hydrated, signIn, signUp, signOut, updateRole],
+    () => ({ user, account, ready, signIn, signUp, signOut }),
+    [user, account, ready, signIn, signUp, signOut],
   );
 
   return (
@@ -164,4 +119,8 @@ export function useSession(): SessionContextValue {
   }
 
   return context;
+}
+
+export function useOptionalSession(): SessionContextValue | null {
+  return useContext(SessionContext);
 }

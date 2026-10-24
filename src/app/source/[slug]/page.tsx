@@ -1,23 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
+
+export const instant = false;
 import { ArrowLeft } from "lucide-react";
 import { MediaCard } from "@/components/media-card";
 import { SectionHeading } from "@/components/section-heading";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { typography } from "@/lib/format";
-import {
-  getMediaBySource,
-  getSource,
-  getSourcePoster,
-  sourceLabels,
-  sources,
-} from "@/lib/fake-data";
-
-export function generateStaticParams() {
-  return sources.map((source) => ({ slug: source.slug }));
-}
+import { sourceLabels } from "@/lib/fake-data";
+import { fetchSource } from "@/lib/api";
 
 export async function generateMetadata({
   params,
@@ -25,13 +19,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const source = getSource(slug);
+  await connection();
 
-  return {
-    title: source
-      ? `${source.title} — Whispers`
-      : "Source introuvable — Whispers",
-  };
+  try {
+    const source = await fetchSource(slug);
+    return { title: `${source.title} — Whispers` };
+  } catch {
+    return { title: "Source introuvable — Whispers" };
+  }
 }
 
 export default async function SourcePage({
@@ -40,13 +35,15 @@ export default async function SourcePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const source = getSource(slug);
+  await connection();
 
-  if (!source) {
+  let source;
+  try {
+    source = await fetchSource(slug);
+  } catch {
     notFound();
   }
-
-  const quotes = getMediaBySource(slug);
+  const quotes = source.media;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -99,7 +96,7 @@ export default async function SourcePage({
               <div className="paper-frame">
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <Image
-                    src={getSourcePoster(source.slug) ?? "/media/carnet-riviere.jpg"}
+                    src={source.poster ?? "/media/carnet-riviere.jpg"}
                     alt={`Visuel d’illustration pour ${source.title}`}
                     fill
                     sizes="(min-width: 768px) 38vw, 100vw"

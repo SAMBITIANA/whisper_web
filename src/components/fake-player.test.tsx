@@ -3,9 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { FakePlayer } from "./fake-player";
 import { getMedia } from "@/lib/fake-data";
+import type { ApiMedia } from "@/lib/api";
 import { typography } from "@/lib/format";
 
-const item = getMedia("dernier-train-de-minuit")!;
+const item = getMedia("dernier-train-de-minuit")! as ApiMedia;
 
 function hasText(text: string) {
   return (_content: string, element: Element | null) =>

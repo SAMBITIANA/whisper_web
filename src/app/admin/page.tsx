@@ -1,27 +1,53 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
+import { mediaKindLabels } from "@/lib/fake-data";
 import {
-  adminProposals,
-  moderationStats,
-  pipelineStatus,
-  recentActivity,
-} from "@/lib/fake-admin";
-import { media, mediaKindLabels } from "@/lib/fake-data";
+  fetchAdminDashboard,
+  fetchAdminProposals,
+  type ApiAdminDashboard,
+  type ApiProposal,
+} from "@/lib/api";
 
 const kindOrder = ["VIDEO", "IMAGE", "SEQUENCE", "TRACK"] as const;
 
 export default function AdminDashboardPage() {
-  const pending = adminProposals.filter((item) => item.status === "PENDING");
-  const total = media.length;
+  const [dashboard, setDashboard] = useState<ApiAdminDashboard | null>(null);
+  const [pending, setPending] = useState<ApiProposal[]>([]);
+
+  useEffect(() => {
+    void Promise.all([
+      fetchAdminDashboard(),
+      fetchAdminProposals("PENDING"),
+    ]).then(([data, proposals]) => {
+      setDashboard(data);
+      setPending(proposals);
+    });
+  }, []);
+
+  if (!dashboard) {
+    return (
+      <div className="space-y-8">
+        <div className="h-10 w-56 animate-pulse bg-foreground/10" />
+        <div className="h-24 animate-pulse bg-foreground/5" />
+        <div className="h-64 animate-pulse bg-foreground/5" />
+      </div>
+    );
+  }
+
+  const total = dashboard.stats.media;
 
   const kpis = [
-    { label: "Vues (7 j)", value: moderationStats.views },
-    { label: "Réactions", value: moderationStats.reactions },
-    { label: "En attente", value: String(moderationStats.pending) },
-    { label: "Publiées", value: String(moderationStats.published) },
+    { label: "Vues", value: dashboard.stats.views.toLocaleString("fr-FR") },
+    {
+      label: "Réactions",
+      value: dashboard.stats.reactions.toLocaleString("fr-FR"),
+    },
+    { label: "En attente", value: String(dashboard.stats.pending) },
+    { label: "Publiées", value: String(dashboard.stats.published) },
   ];
 
   return (
@@ -32,7 +58,7 @@ export default function AdminDashboardPage() {
           Tableau de bord
         </h1>
         <p className="mt-1.5 font-serif text-[13.5px] italic text-foreground/65">
-          Semaine du 19 octobre — données de démonstration.
+          Données live du serveur Whispers.
         </p>
       </header>
 
@@ -77,7 +103,7 @@ export default function AdminDashboardPage() {
         <div>
           <SectionHeading title="Activité récente" note="Dernières actions" />
           <ul className="border-b border-[var(--rule)]">
-            {recentActivity.map((activity) => (
+            {dashboard.activity.map((activity) => (
               <li
                 key={activity.text}
                 className="border-t border-[var(--rule)] py-4"
@@ -99,8 +125,10 @@ export default function AdminDashboardPage() {
           <SectionHeading title="Répartition" note="Par format" />
           <ul className="space-y-4">
             {kindOrder.map((kind) => {
-              const count = media.filter((item) => item.kind === kind).length;
-              const ratio = Math.round((count / total) * 100);
+              const count =
+                dashboard.distribution.find((item) => item.kind === kind)
+                  ?.count ?? 0;
+              const ratio = total > 0 ? Math.round((count / total) * 100) : 0;
 
               return (
                 <li key={kind}>
@@ -127,7 +155,7 @@ export default function AdminDashboardPage() {
         <div>
           <SectionHeading title="Pipeline" note="État des traitements" />
           <ul className="border-b border-[var(--rule)]">
-            {pipelineStatus.map((job) => (
+            {dashboard.pipeline.map((job) => (
               <li
                 key={job.label}
                 className="flex items-baseline justify-between gap-4 border-t border-[var(--rule)] py-3.5"

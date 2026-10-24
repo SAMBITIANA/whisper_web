@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { demoAccounts, roleLabels } from "@/lib/session";
+import { errorMessage, requestMagicLink } from "@/lib/api";
 
 type Mode = "signin" | "signup";
 
@@ -56,7 +57,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     return new URLSearchParams(window.location.search).get("next") ?? "/compte";
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -65,15 +66,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
         setError("Indiquez votre adresse e-mail.");
         return;
       }
-      setMagicSent(true);
-      toast("Lien magique simulé", {
-        description: `Maquette : aucun e-mail n’est envoyé à ${email}.`,
-      });
+      try {
+        await requestMagicLink(email.trim());
+        setMagicSent(true);
+        toast("Lien magique demandé", {
+          description: `Si un compte existe pour ${email}, un lien a été créé.`,
+        });
+      } catch (requestError) {
+        setError(errorMessage(requestError, "Envoi impossible."));
+      }
       return;
     }
 
     if (isSignup) {
-      const result = signUp({ name, email, password });
+      const result = await signUp({ name, email, password });
       if (!result.ok) {
         setError(result.error ?? "Inscription impossible.");
         return;
@@ -83,7 +89,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
-    const result = signIn(email, password);
+    const result = await signIn(email, password);
     if (!result.ok) {
       setError(result.error ?? "Connexion impossible.");
       return;

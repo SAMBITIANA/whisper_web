@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
@@ -8,18 +8,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { parseDuration } from "@/lib/fake-content";
+import { mediaKindLabels, type MediaKind } from "@/lib/fake-data";
 import {
-  CONTENTS_STORAGE_KEY,
-  parseDuration,
-  type DraftContent,
-} from "@/lib/fake-content";
-import {
-  mediaKindLabels,
-  moods,
-  sources,
-  type MediaKind,
-} from "@/lib/fake-data";
-import { useStoredList } from "@/lib/use-stored-list";
+  createAdminMedia,
+  fetchAdminSources,
+  fetchTaxonomy,
+  type ApiSource,
+} from "@/lib/api";
 
 const kindDescriptions: Record<MediaKind, string> = {
   VIDEO: "Vidéo HLS avec piste de texte superposée.",
@@ -36,15 +32,17 @@ const textareaClass =
 
 export default function NouveauContenuPage() {
   const router = useRouter();
-  const { update } = useStoredList<DraftContent>(CONTENTS_STORAGE_KEY, []);
+  const [sources, setSources] = useState<ApiSource[]>([]);
+  const [moods, setMoods] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
   const [kind, setKind] = useState<MediaKind>("VIDEO");
   const [title, setTitle] = useState("");
-  const [sourceSlug, setSourceSlug] = useState(sources[0]?.slug ?? "");
+  const [sourceSlug, setSourceSlug] = useState("");
   const [character, setCharacter] = useState("");
   const [quoteFr, setQuoteFr] = useState("");
   const [quoteEn, setQuoteEn] = useState("");
   const [topics, setTopics] = useState("");
-  const [mood, setMood] = useState(moods[0] ?? "Calme");
+  const [mood, setMood] = useState("");
   const [duration, setDuration] = useState("0:42");
   const [mediaUrl, setMediaUrl] = useState("");
   const [posterUrl, setPosterUrl] = useState("");
@@ -53,9 +51,20 @@ export default function NouveauContenuPage() {
   const [status, setStatus] = useState<"BROUILLON" | "PUBLIE">("BROUILLON");
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    void Promise.all([fetchAdminSources(), fetchTaxonomy()]).then(
+      ([sourceList, taxonomy]) => {
+        setSources(sourceList);
+        setMoods(taxonomy.moods.map((item) => item.name));
+        setSourceSlug((current) => current || (sourceList[0]?.slug ?? ""));
+        setMood((current) => current || (taxonomy.moods[0]?.name ?? ""));
+      },
+    );
+  }, []);
+
   const source = sources.find((item) => item.slug === sourceSlug);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -64,39 +73,32 @@ export default function NouveauContenuPage() {
       return;
     }
 
-    const draft: DraftContent = {
-      id:
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `draft-${Date.now()}`,
-      kind,
-      title: title.trim(),
-      sourceSlug,
-      sourceTitle: source?.title ?? "Source non renseignée",
-      character: character.trim(),
-      quoteFr: quoteFr.trim(),
-      quoteEn: quoteEn.trim(),
-      topics: topics
-        .split(",")
-        .map((topic) => topic.trim())
-        .filter(Boolean),
-      mood,
-      durationSec: kind === "IMAGE" ? 0 : parseDuration(duration),
-      poster: posterUrl.trim(),
-      status,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-
-    update((current) => [draft, ...current]);
-    toast(
-      status === "PUBLIE"
-        ? "Contenu publié (maquette)"
-        : "Brouillon enregistré (maquette)",
-      {
-        description: `${mediaKindLabels[kind]} · ${draft.title}`,
-      },
-    );
-    router.push("/admin/contenus");
+    setSaving(true);
+    try {
+      await createAdminMedia({
+        kind,
+        title: title.trim(),
+        sourceSlug,
+        character: character.trim(),
+        quoteFr: quoteFr.trim(),
+        quoteEn: quoteEn.trim(),
+        topics,
+        mood,
+        durationSec: kind === "IMAGE" ? 0 : parseDuration(duration),
+        posterUrl: posterUrl.trim(),
+        mediaUrl: mediaUrl.trim(),
+        status: status === "PUBLIE" ? "PUBLISHED" : "DRAFT",
+      });
+      toast(
+        status === "PUBLIE" ? "Contenu publié" : "Brouillon enregistré",
+        { description: `${mediaKindLabels[kind]} · ${title.trim()}` },
+      );
+      router.push("/admin/contenus");
+    } catch {
+      setError("Enregistrement impossible.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -352,9 +354,14 @@ export default function NouveauContenuPage() {
           <div className="flex flex-wrap items-center gap-6 border-t border-[var(--rule)] pt-6">
             <Button
               type="submit"
+              disabled={saving}
               className="h-10 rounded-none px-5 text-[11px] uppercase tracking-[0.16em]"
             >
-              {status === "PUBLIE" ? "Publier" : "Enregistrer le brouillon"}
+              {saving
+                ? "Enregistrement…"
+                : status === "PUBLIE"
+                  ? "Publier"
+                  : "Enregistrer le brouillon"}
             </Button>
 
             <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-foreground/65">

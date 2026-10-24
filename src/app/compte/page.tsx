@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -13,26 +13,32 @@ import { SiteHeader } from "@/components/site-header";
 import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { media } from "@/lib/fake-data";
-import { adminProposals, proposalStatusLabels } from "@/lib/fake-admin";
+import { fetchLibrary, updatePreferences, type ApiLibrary } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import {
-  canEditContent,
-  demoAccounts,
-  initialsOf,
-  roleLabels,
-} from "@/lib/session";
+import { canEditContent, initialsOf, roleLabels } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
 
-const saved = media.slice(0, 3);
+const proposalStatusLabels = {
+  PENDING: "En attente",
+  APPROVED: "Publiée",
+  REJECTED: "Rejetée",
+} as const;
 
 export default function ComptePage() {
   const { user, ready } = useRequiredSession();
-  const { signOut } = useSession();
+  const { account, signOut } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
   const router = useRouter();
-  const [language, setLanguage] = useState("fr");
-  const [newsletter, setNewsletter] = useState(true);
+  const [languageOverride, setLanguage] = useState<string | null>(null);
+  const [newsletterOverride, setNewsletter] = useState<boolean | null>(null);
+  const [library, setLibrary] = useState<ApiLibrary | null>(null);
+  const language = languageOverride ?? account?.preferredLanguage ?? "fr";
+  const newsletter = newsletterOverride ?? account?.newsletterOptIn ?? true;
+
+  useEffect(() => {
+    if (!account) return;
+    void fetchLibrary().then(setLibrary).catch(() => setLibrary(null));
+  }, [account]);
 
   if (!ready || !user) {
     return (
@@ -46,10 +52,8 @@ export default function ComptePage() {
     );
   }
 
-  const account = demoAccounts.find((item) => item.email === user.email);
-  const myProposals = adminProposals.filter(
-    (proposal) => proposal.author === user.name,
-  );
+  const myProposals = library?.proposals ?? [];
+  const saved = library?.saved ?? [];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -126,6 +130,11 @@ export default function ComptePage() {
                     href={`/citation/${item.slug}`}
                   />
                 ))}
+                {saved.length === 0 ? (
+                  <p className="font-serif text-[15px] italic text-foreground/65">
+                    Aucune citation enregistrée pour l’instant.
+                  </p>
+                ) : null}
               </div>
             </section>
           </div>
@@ -185,8 +194,11 @@ export default function ComptePage() {
                     id="account-language"
                     value={language}
                     onChange={(event) => {
-                      setLanguage(event.target.value);
-                      toast("Langue mise à jour (maquette)");
+                      const value = event.target.value;
+                      setLanguage(value);
+                      void updatePreferences({ language: value })
+                        .then(() => toast("Langue mise à jour"))
+                        .catch(() => toast("Mise à jour impossible"));
                     }}
                     className="border-0 border-b border-[var(--rule)] bg-transparent pb-1 text-[12.5px] text-foreground/80 focus:border-sage-300 focus:outline-none"
                   >
@@ -229,11 +241,15 @@ export default function ComptePage() {
                     checked={newsletter}
                     onCheckedChange={(checked) => {
                       setNewsletter(checked);
-                      toast(
-                        checked
-                          ? "Inscription à la lettre (maquette)"
-                          : "Désinscription de la lettre (maquette)",
-                      );
+                      void updatePreferences({ newsletter: checked })
+                        .then(() =>
+                          toast(
+                            checked
+                              ? "Inscription à la lettre confirmée"
+                              : "Désinscription de la lettre confirmée",
+                          ),
+                        )
+                        .catch(() => toast("Mise à jour impossible"));
                     }}
                   />
                 </div>
