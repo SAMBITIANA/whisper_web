@@ -4,13 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
-import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
+import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import { formatDate } from "@/lib/format";
 import { fetchAdminMedia, type ApiAdminMedia } from "@/lib/api";
 
-const kinds = Object.keys(mediaKindLabels) as MediaKind[];
+const kinds = Object.keys(mediaKindKeys) as MediaKind[];
 
 export default function AdminContenusPage() {
+  const { t } = useI18n();
   const [items, setItems] = useState<ApiAdminMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [kind, setKind] = useState<MediaKind | null>(null);
@@ -35,13 +37,17 @@ export default function AdminContenusPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-6 border-b border-[var(--rule)] pb-4">
         <div>
-          <p className="eyebrow">Administration</p>
+          <p className="eyebrow">{t("common.admin")}</p>
           <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
-            Contenus
+            {t("admin.contents")}
           </h1>
           <p className="mt-1.5 font-serif text-[13.5px] italic text-foreground/65">
-            Vidéos, images, galeries et chansons — {items.length}{" "}
-            pièces.
+            {t(
+              items.length === 1
+                ? "admin.contentsDescriptionOne"
+                : "admin.contentsDescription",
+              { count: items.length },
+            )}
           </p>
         </div>
 
@@ -50,7 +56,7 @@ export default function AdminContenusPage() {
           className="group inline-flex h-10 items-center gap-2 bg-primary px-4 text-[11px] uppercase tracking-[0.16em] text-primary-foreground"
         >
           <Plus className="size-3.5" />
-          Nouveau contenu
+          {t("admin.newContent")}
         </Link>
       </header>
 
@@ -58,13 +64,13 @@ export default function AdminContenusPage() {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Rechercher un contenu ou une source"
-          aria-label="Rechercher un contenu"
+          placeholder={t("admin.searchContentPlaceholder")}
+          aria-label={t("admin.searchContentLabel")}
           className="w-full max-w-sm border-0 border-b border-[var(--rule)] bg-transparent pb-2 text-[13.5px] placeholder:text-foreground/30 focus:border-sage-300 focus:outline-none"
         />
 
         <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-          <span className="eyebrow">Format</span>
+          <span className="eyebrow">{t("admin.format")}</span>
           {kinds.map((value) => (
             <button
               key={value}
@@ -76,7 +82,7 @@ export default function AdminContenusPage() {
                   : "text-[12px] uppercase tracking-[0.13em] text-foreground/40 transition-colors hover:text-foreground/70"
               }
             >
-              {mediaKindLabels[value]}
+              {t(mediaKindKeys[value])}
             </button>
           ))}
         </div>
@@ -87,25 +93,25 @@ export default function AdminContenusPage() {
           <thead>
             <tr className="border-y border-[var(--rule)]">
               <th className="w-14 py-2.5 pr-4">
-                <span className="sr-only">Visuel</span>
+                <span className="sr-only">{t("admin.visual")}</span>
               </th>
               <th className="py-2.5 pr-4 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                Titre
+                {t("admin.titleColumn")}
               </th>
               <th className="px-4 py-2.5 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                Format
+                {t("admin.format")}
               </th>
               <th className="px-4 py-2.5 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                Source
+                {t("admin.sourceColumn")}
               </th>
               <th className="px-4 py-2.5 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                Date
+                {t("admin.dateColumn")}
               </th>
               <th className="px-4 py-2.5 text-right text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                Vues
+                {t("admin.viewsColumn")}
               </th>
               <th className="py-2.5 pl-4 text-right text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
-                État
+                {t("admin.statusColumn")}
               </th>
             </tr>
           </thead>
@@ -136,7 +142,7 @@ export default function AdminContenusPage() {
                   </Link>
                 </td>
                 <td className="px-4 py-3.5 text-[11px] uppercase tracking-[0.12em] text-foreground/60">
-                  {mediaKindLabels[row.kind]}
+                  {t(mediaKindKeys[row.kind])}
                 </td>
                 <td className="px-4 py-3.5 text-[12.5px] text-foreground/65">
                   {row.source}
@@ -156,9 +162,9 @@ export default function AdminContenusPage() {
                     }
                   >
                     {row.status === "PUBLISHED"
-                      ? "Publié"
+                      ? t("admin.statusPublished")
                       : row.status === "DRAFT"
-                        ? "Brouillon"
+                        ? t("admin.statusDraft")
                         : row.status}
                   </span>
                 </td>
@@ -172,14 +178,13 @@ export default function AdminContenusPage() {
         <div className="h-64 animate-pulse bg-foreground/5" />
       ) : rows.length === 0 ? (
         <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
-          Aucun contenu ne correspond à cette recherche.
+          {t("admin.noContentMatch")}
         </p>
       ) : null}
 
       <p className="flex items-center gap-2 text-[11.5px] text-foreground/40">
         <ArrowRight className="size-3.5" />
-        Les brouillons créés ici restent dans ce navigateur (localStorage) —
-        l’API les remplacera.
+        {t("admin.draftsLocalNote")}
       </p>
     </div>
   );

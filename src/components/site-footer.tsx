@@ -19,7 +19,7 @@ export function SiteFooter() {
       <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
         <div className="grid gap-10 py-14 md:grid-cols-[1.6fr_1fr_1.2fr]">
           <div>
-            <p className="display text-[32px] leading-none">Whispers</p>
+            <p className="display text-[32px] leading-none">{t("brand.name")}</p>
             <p className="mt-4 max-w-[34ch] font-serif text-[15px] italic leading-relaxed text-foreground/60">
               {t("footer.description")}
             </p>

@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import { Images, Music2, Play, ImageIcon } from "lucide-react";
 import { cn } from "cn";
+import { useI18n } from "@/i18n/provider";
 import type { MediaKind } from "@/types/catalogue";
 import { formatDuration } from "@/lib/format";
 
@@ -30,6 +33,7 @@ export function MediaPoster({
   showDuration?: boolean;
   priority?: boolean;
 }) {
+  const { t } = useI18n();
   const Icon = kindIcons[kind];
 
   return (
@@ -71,7 +75,7 @@ export function MediaPoster({
 
       {showDuration ? (
         <span className="absolute bottom-2.5 right-2.5 bg-ink/70 px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-paper/95 backdrop-blur-sm">
-          {durationSec > 0 ? formatDuration(durationSec) : "Image"}
+          {durationSec > 0 ? formatDuration(durationSec) : t("mediaKind.image")}
         </span>
       ) : null}
     </div>

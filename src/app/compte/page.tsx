@@ -13,18 +13,21 @@ import { SiteHeader } from "@/components/site-header";
 import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
 import { fetchLibrary, updatePreferences, type ApiLibrary } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { canEditContent, initialsOf, roleLabels } from "@/lib/session";
+import { canEditContent, initialsOf } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
 
-const proposalStatusLabels = {
-  PENDING: "En attente",
-  APPROVED: "Publiée",
-  REJECTED: "Rejetée",
-} as const;
+const proposalStatusKeys = {
+  PENDING: "proposal.status.pending",
+  APPROVED: "proposal.status.approved",
+  REJECTED: "proposal.status.rejected",
+} as const satisfies Record<string, MessageKey>;
 
 export default function ComptePage() {
+  const { t } = useI18n();
   const { user, ready } = useRequiredSession();
   const { account, signOut } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
@@ -62,14 +65,13 @@ export default function ComptePage() {
       <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
         <header className="border-b border-[var(--rule)] pb-4">
           <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-            <p className="eyebrow">Espace personnel</p>
+            <p className="eyebrow">{t("auth.personal")}</p>
             <h1 className="display text-[clamp(1.5rem,2.8vw,2.15rem)] leading-[1.08]">
-              Bonjour, {user.name.split(" ")[0]}.
+              {t("account.greeting", { name: user.name.split(" ")[0] })}
             </h1>
           </div>
           <p className="mt-1.5 max-w-xl text-[13.5px] leading-snug text-foreground/60">
-            {account?.bio ??
-              "Votre collection de citations, vos propositions et vos préférences de lecture."}
+            {account?.bio ?? t("account.defaultBio")}
           </p>
         </header>
 
@@ -77,13 +79,17 @@ export default function ComptePage() {
           <div className="space-y-12 lg:col-span-8">
             <section>
               <SectionHeading
-                title="Mes propositions"
-                note={`${myProposals.length} envoi${myProposals.length > 1 ? "s" : ""}`}
+                title={t("account.proposalsTitle")}
+                note={t(
+                  myProposals.length === 1
+                    ? "account.proposalsCount"
+                    : "account.proposalsCountPlural",
+                  { count: myProposals.length },
+                )}
               />
               {myProposals.length === 0 ? (
                 <p className="border-y border-[var(--rule)] py-8 font-serif text-[15px] italic text-foreground/65">
-                  Aucune proposition pour l’instant. Une phrase vous a marqué ?
-                  Proposez-la depuis le catalogue.
+                  {t("account.proposalsEmpty")}
                 </p>
               ) : (
                 <ul className="border-b border-[var(--rule)]">
@@ -107,7 +113,7 @@ export default function ComptePage() {
                             : "text-[10px] uppercase tracking-[0.14em] text-foreground/40"
                         }
                       >
-                        {proposalStatusLabels[proposal.status]}
+                        {t(proposalStatusKeys[proposal.status])}
                       </span>
                     </li>
                   ))}
@@ -117,10 +123,10 @@ export default function ComptePage() {
 
             <section>
               <SectionHeading
-                title="Enregistrés"
-                note="Votre collection privée"
+                title={t("account.savedTitle")}
+                note={t("account.savedNote")}
                 href="/catalogue"
-                linkLabel="Parcourir"
+                linkLabel={t("account.browse")}
               />
               <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {saved.map((item) => (
@@ -132,7 +138,7 @@ export default function ComptePage() {
                 ))}
                 {saved.length === 0 ? (
                   <p className="font-serif text-[15px] italic text-foreground/65">
-                    Aucune citation enregistrée pour l’instant.
+                    {t("account.savedEmpty")}
                   </p>
                 ) : null}
               </div>
@@ -157,11 +163,11 @@ export default function ComptePage() {
 
               <dl className="mt-6 space-y-2.5 text-[12.5px]">
                 <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2.5">
-                  <dt className="eyebrow">Rôle</dt>
-                  <dd className="text-foreground/70">{roleLabels[user.role]}</dd>
+                  <dt className="eyebrow">{t("account.role")}</dt>
+                  <dd className="text-foreground/70">{t(`roles.${user.role.toLowerCase()}` as MessageKey)}</dd>
                 </div>
                 <div className="flex justify-between gap-4 border-t border-[var(--rule)] pt-2.5">
-                  <dt className="eyebrow">Membre depuis</dt>
+                  <dt className="eyebrow">{t("account.memberSince")}</dt>
                   <dd className="font-mono text-[11.5px] text-foreground/60">
                     {account ? formatDate(account.joinedAt) : "2026"}
                   </dd>
@@ -173,14 +179,14 @@ export default function ComptePage() {
                   href="/admin"
                   className="group mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
                 >
-                  <span className="link-underline">Ouvrir l’administration</span>
+                  <span className="link-underline">{t("ui.openAdmin")}</span>
                   <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </Link>
               ) : null}
             </div>
 
             <div className="border-t border-[var(--rule-strong)] pt-5">
-              <p className="eyebrow">Préférences de lecture</p>
+              <p className="eyebrow">{t("account.readingPreferences")}</p>
 
               <div className="mt-4 space-y-4">
                 <div className="flex items-center justify-between gap-4 border-t border-[var(--rule)] pt-4">
@@ -188,7 +194,7 @@ export default function ComptePage() {
                     htmlFor="account-language"
                     className="text-[12.5px] text-foreground/65"
                   >
-                    Langue des citations
+                    {t("ui.quoteLanguage")}
                   </label>
                   <select
                     id="account-language"
@@ -197,19 +203,19 @@ export default function ComptePage() {
                       const value = event.target.value;
                       setLanguage(value);
                       void updatePreferences({ language: value })
-                        .then(() => toast("Langue mise à jour"))
-                        .catch(() => toast("Mise à jour impossible"));
+                        .then(() => toast(t("account.languageUpdated")))
+                        .catch(() => toast(t("common.updateFailed")));
                     }}
                     className="border-0 border-b border-[var(--rule)] bg-transparent pb-1 text-[12.5px] text-foreground/80 focus:border-sage-300 focus:outline-none"
                   >
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
+                    <option value="fr">{t("language.fr")}</option>
+                    <option value="en">{t("language.en")}</option>
                   </select>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 border-t border-[var(--rule)] pt-4">
                   <span className="text-[12.5px] text-foreground/65">
-                    Thème
+                    {t("ui.theme")}
                   </span>
                   <div className="flex items-baseline gap-4">
                     {(["light", "dark"] as const).map((theme) => (
@@ -223,7 +229,7 @@ export default function ComptePage() {
                             : "link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground"
                         }
                       >
-                        {theme === "light" ? "Clair" : "Sombre"}
+                        {theme === "light" ? t("ui.light") : t("ui.dark")}
                       </button>
                     ))}
                   </div>
@@ -234,7 +240,7 @@ export default function ComptePage() {
                     htmlFor="account-newsletter"
                     className="text-[12.5px] text-foreground/65"
                   >
-                    Lettre du dimanche
+                    {t("ui.newsletter")}
                   </label>
                   <Switch
                     id="account-newsletter"
@@ -245,11 +251,11 @@ export default function ComptePage() {
                         .then(() =>
                           toast(
                             checked
-                              ? "Inscription à la lettre confirmée"
-                              : "Désinscription de la lettre confirmée",
+                              ? t("account.newsletterSubscribed")
+                              : t("account.newsletterUnsubscribed"),
                           ),
                         )
-                        .catch(() => toast("Mise à jour impossible"));
+                        .catch(() => toast(t("common.updateFailed")));
                     }}
                   />
                 </div>
@@ -267,7 +273,7 @@ export default function ComptePage() {
                 className="h-9 rounded-none px-0 text-[11px] uppercase tracking-[0.16em] text-foreground/80 hover:bg-transparent hover:text-foreground"
               >
                 <LogOut className="size-3.5" />
-                Se déconnecter
+                {t("common.logout")}
               </Button>
             </div>
           </aside>

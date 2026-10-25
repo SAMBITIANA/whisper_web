@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { useI18n } from "@/i18n/provider";
 
 export function MoodsTopicsSection({
   moods,
@@ -9,12 +12,14 @@ export function MoodsTopicsSection({
   moods: string[];
   topics: string[];
 }) {
+  const { t } = useI18n();
+
   return (
         <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <SectionHeading
             index="02"
-            title="Par humeur"
-            note="Trouver la citation qui correspond au moment"
+            title={t("home.moods.title")}
+            note={t("home.moods.note")}
           />
 
           <div className="flex flex-wrap items-baseline gap-x-8 gap-y-4">
@@ -30,7 +35,7 @@ export function MoodsTopicsSection({
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-[var(--rule)] pt-6">
-            <span className="eyebrow">Sujets</span>
+            <span className="eyebrow">{t("home.moods.topics")}</span>
             {topics.map((topic) => (
               <Link
                 key={topic}

@@ -181,7 +181,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="email"
               required
-              placeholder="vous@exemple.fr"
+              placeholder={t("auth.emailPlaceholder")}
               className={fieldClassName}
             />
           </div>
@@ -257,7 +257,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           <button
             key={provider.id}
             type="button"
-            aria-label={`Continuer avec ${provider.label}`}
+            aria-label={t("auth.continueWith", { provider: provider.label })}
             onClick={() =>
               toast(t("auth.providerSoon", { provider: provider.label }), {
                 description: t("auth.oauthMock"),

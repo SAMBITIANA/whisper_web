@@ -1,13 +1,19 @@
 import { Suspense } from "react";
 import { CatalogueBrowser } from "@/components/catalogue-browser";
+import { CatalogueHeader } from "@/components/catalogue-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
+import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
+import { getServerI18n } from "@/i18n/server";
 
-export const metadata = {
-  title: "Catalogue — Whispers",
-  description: "Toutes les citations, par format, sujet et humeur.",
-};
+export async function generateMetadata() {
+  const { t } = await getServerI18n();
+
+  return {
+    title: t("meta.catalogueTitle"),
+    description: t("meta.catalogueDescription"),
+  };
+}
 
 type CatalogueSearchParams = {
   topic?: string;
@@ -17,7 +23,7 @@ type CatalogueSearchParams = {
 };
 
 function parseKind(value: string | undefined): MediaKind | null {
-  return value && value in mediaKindLabels ? (value as MediaKind) : null;
+  return value && value in mediaKindKeys ? (value as MediaKind) : null;
 }
 
 async function CatalogueWithParams({
@@ -51,18 +57,7 @@ export default function CataloguePage({
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-6 sm:px-8 sm:py-8">
-        <header className="mb-5 border-b border-[var(--rule)] pb-4">
-          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-            <p className="eyebrow">Catalogue</p>
-            <h1 className="display text-[clamp(1.55rem,2.6vw,2.1rem)] leading-[1.08]">
-              Toutes les citations
-            </h1>
-          </div>
-          <p className="mt-1.5 max-w-2xl text-[13.5px] leading-snug text-foreground/60">
-            Vidéos, images, galeries et chansons — chaque citation porte sa
-            source, son sujet et sa traduction.
-          </p>
-        </header>
+        <CatalogueHeader />
 
         <Suspense fallback={<CatalogueBrowser />}>
           <CatalogueWithParams searchParams={searchParams} />

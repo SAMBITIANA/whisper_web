@@ -97,7 +97,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[var(--rule)] bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-[74px] w-full max-w-[1180px] items-center gap-9 px-5 sm:px-8">
         <Link href="/" className="group flex items-baseline gap-2">
-          <span className="display text-[27px] leading-none">Whispers</span>
+          <span className="display text-[27px] leading-none">{t("brand.name")}</span>
           <span
             aria-hidden
             className="mb-0.5 size-[5px] rounded-full bg-sage-300 transition-transform duration-300 group-hover:scale-125"

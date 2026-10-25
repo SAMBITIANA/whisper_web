@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { sourceLabels, type SourceKind } from "@/lib/catalogue";
+import { sourceKindKeys, type SourceKind } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import {
   createAdminSource,
   fetchAdminSources,
@@ -14,9 +15,10 @@ import {
 const fieldClass =
   "h-9 w-full rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[13px] shadow-none placeholder:text-foreground/30 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent";
 
-const sourceKinds = Object.keys(sourceLabels) as SourceKind[];
+const sourceKinds = Object.keys(sourceKindKeys) as SourceKind[];
 
 export default function AdminSourcesPage() {
+  const { t } = useI18n();
   const [sources, setSources] = useState<ApiSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -38,7 +40,7 @@ export default function AdminSourcesPage() {
     setError(null);
 
     if (!title.trim()) {
-      setError("Le titre de la source est obligatoire.");
+      setError(t("source.titleRequired"));
       return;
     }
 
@@ -57,31 +59,32 @@ export default function AdminSourcesPage() {
       setYear("");
       setCharacter("");
       setLocator("");
-      toast("Source enregistrée", { description: source.title });
+      toast(t("source.saved"), { description: source.title });
     } catch {
-      setError("Enregistrement impossible.");
+      setError(t("common.saveFailed"));
     }
   }
 
   return (
     <div className="space-y-6">
       <header className="border-b border-[var(--rule)] pb-4">
-        <p className="eyebrow">Administration</p>
+        <p className="eyebrow">{t("common.admin")}</p>
         <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
-          Sources
+          {t("admin.sources")}
         </h1>
         <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
-          Films, livres, discours, proverbes : chaque citation est rattachée à
-          une source et à un emplacement exact.
+          {t("admin.sourcesIntro")}
         </p>
       </header>
 
       <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <div className="flex items-baseline justify-between gap-4 border-b border-[var(--rule)] pb-3">
-            <p className="eyebrow">Catalogue</p>
+            <p className="eyebrow">{t("admin.catalogue")}</p>
             <p className="font-mono text-[10px] text-foreground/35">
-              {sources.length} entrées
+              {t(sources.length === 1 ? "admin.entry" : "admin.entries", {
+                count: sources.length,
+              })}
             </p>
           </div>
 
@@ -103,13 +106,18 @@ export default function AdminSourcesPage() {
                       {source.title}
                     </p>
                     <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-foreground/40">
-                      {sourceLabels[source.kind]}
+                      {t(sourceKindKeys[source.kind])}
                       {source.author ? ` · ${source.author}` : ""}
                       {source.year ? ` · ${source.year}` : ""}
                     </p>
                   </div>
                   <span className="font-mono text-[10px] text-foreground/35">
-                    {count} citation{count > 1 ? "s" : ""}
+                    {t(
+                      count === 1
+                        ? "admin.quoteCount"
+                        : "admin.quoteCountPlural",
+                      { count },
+                    )}
                   </span>
                 </li>
               );
@@ -122,11 +130,11 @@ export default function AdminSourcesPage() {
             onSubmit={handleSubmit}
             className="panel space-y-5"
           >
-            <p className="eyebrow">Nouvelle source</p>
+            <p className="eyebrow">{t("admin.newSource")}</p>
 
             <div className="space-y-2">
               <Label htmlFor="source-title" className="eyebrow">
-                Titre
+                {t("admin.titleColumn")}
               </Label>
               <input
                 id="source-title"
@@ -138,7 +146,7 @@ export default function AdminSourcesPage() {
 
             <div className="space-y-2">
               <Label htmlFor="source-kind" className="eyebrow">
-                Type
+                {t("admin.typeField")}
               </Label>
               <select
                 id="source-kind"
@@ -148,7 +156,7 @@ export default function AdminSourcesPage() {
               >
                 {sourceKinds.map((value) => (
                   <option key={value} value={value}>
-                    {sourceLabels[value]}
+                    {t(sourceKindKeys[value])}
                   </option>
                 ))}
               </select>
@@ -157,7 +165,7 @@ export default function AdminSourcesPage() {
             <div className="grid grid-cols-[1fr_5rem] gap-5">
               <div className="space-y-2">
                 <Label htmlFor="source-author" className="eyebrow">
-                  Auteur
+                  {t("admin.authorField")}
                 </Label>
                 <input
                   id="source-author"
@@ -168,7 +176,7 @@ export default function AdminSourcesPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="source-year" className="eyebrow">
-                  Année
+                  {t("admin.yearField")}
                 </Label>
                 <input
                   id="source-year"
@@ -182,7 +190,7 @@ export default function AdminSourcesPage() {
 
             <div className="space-y-2">
               <Label htmlFor="source-character" className="eyebrow">
-                Personnage
+                {t("admin.characterField")}
               </Label>
               <input
                 id="source-character"
@@ -194,13 +202,13 @@ export default function AdminSourcesPage() {
 
             <div className="space-y-2">
               <Label htmlFor="source-locator" className="eyebrow">
-                Emplacement
+                {t("admin.locatorField")}
               </Label>
               <input
                 id="source-locator"
                 value={locator}
                 onChange={(event) => setLocator(event.target.value)}
-                placeholder="p. 84, 01:12…"
+                placeholder={t("admin.locatorPlaceholder")}
                 className={fieldClass}
               />
             </div>
@@ -218,7 +226,7 @@ export default function AdminSourcesPage() {
               type="submit"
               className="h-10 w-full rounded-none text-[11px] uppercase tracking-[0.16em]"
             >
-              Ajouter la source
+              {t("admin.addSourceAction")}
             </Button>
           </form>
         </aside>

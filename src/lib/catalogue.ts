@@ -1,4 +1,4 @@
-import { localeLabels, locales } from "@/i18n/config";
+import { localeLabels, locales, type MessageKey } from "@/i18n/config";
 import { typography } from "@/lib/format";
 import type {
   CatalogueMedia,
@@ -11,22 +11,22 @@ export const languages: { code: LanguageCode; label: string }[] = locales.map(
   (code) => ({ code, label: localeLabels[code] }),
 );
 
-export const sourceLabels: Record<SourceKind, string> = {
-  FILM: "Film",
-  SERIES: "Série",
-  CARTOON: "Dessin animé",
-  BOOK: "Livre",
-  SONG: "Chanson",
-  SPEECH: "Discours",
-  PROVERB: "Proverbe",
-  PERSONAL: "Citation personnelle",
+export const sourceKindKeys: Record<SourceKind, MessageKey> = {
+  FILM: "sourceKind.film",
+  SERIES: "sourceKind.series",
+  CARTOON: "sourceKind.cartoon",
+  BOOK: "sourceKind.book",
+  SONG: "sourceKind.song",
+  SPEECH: "sourceKind.speech",
+  PROVERB: "sourceKind.proverb",
+  PERSONAL: "sourceKind.personal",
 };
 
-export const mediaKindLabels: Record<MediaKind, string> = {
-  VIDEO: "Vidéo",
-  IMAGE: "Image",
-  SEQUENCE: "Galerie",
-  TRACK: "Chanson",
+export const mediaKindKeys: Record<MediaKind, MessageKey> = {
+  VIDEO: "mediaKind.video",
+  IMAGE: "mediaKind.image",
+  SEQUENCE: "mediaKind.sequence",
+  TRACK: "mediaKind.track",
 };
 
 export function getQuote(

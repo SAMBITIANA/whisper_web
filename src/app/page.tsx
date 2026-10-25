@@ -12,11 +12,13 @@ import { NoteSection } from "@/features/home/note-section";
 import { ProposalSection } from "@/features/home/proposal-section";
 import { TrendingSection } from "@/features/home/trending-section";
 import { fetchHome } from "@/lib/api";
+import { getServerI18n } from "@/i18n/server";
 
 export const instant = false;
 
 export default async function HomePage() {
   await connection();
+  const { t } = await getServerI18n();
   const home = await fetchHome();
   const featured = home.featured;
 
@@ -24,7 +26,7 @@ export default async function HomePage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="font-serif text-[16px] italic text-foreground/65">
-          Aucune citation publiée pour l’instant.
+          {t("home.empty")}
         </p>
       </div>
     );

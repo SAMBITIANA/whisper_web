@@ -1,11 +1,16 @@
+"use client";
+
 import Image from "next/image";
+import { useI18n } from "@/i18n/provider";
 
 export function CarnetSection() {
+  const { t } = useI18n();
+
   return (
         <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--rule)] pb-3">
-            <p className="eyebrow">Carnet de repérages</p>
-            <p className="eyebrow">Images d’illustration</p>
+            <p className="eyebrow">{t("home.carnet.title")}</p>
+            <p className="eyebrow">{t("home.carnet.note")}</p>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-12 sm:items-start sm:gap-6">
@@ -14,7 +19,7 @@ export function CarnetSection() {
                 <div className="relative aspect-[4/5] w-full overflow-hidden">
                   <Image
                     src="/media/carnet-riviere.jpg"
-                    alt="Rivière brumeuse traversée par un pêcheur"
+                    alt={t("home.carnet.riverAlt")}
                     fill
                     sizes="(min-width: 640px) 40vw, 100vw"
                     className="object-cover"
@@ -22,7 +27,7 @@ export function CarnetSection() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">La rivière, 6 h 40</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">{t("home.carnet.river")}</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">01</span>
               </figcaption>
             </figure>
@@ -32,7 +37,7 @@ export function CarnetSection() {
                 <div className="relative aspect-square w-full overflow-hidden">
                   <Image
                     src="/media/carnet-atelier.jpg"
-                    alt="Intérieur d’un atelier, vestes et cadres aux murs"
+                    alt={t("home.carnet.workshopAlt")}
                     fill
                     sizes="(min-width: 640px) 33vw, 100vw"
                     className="object-cover"
@@ -40,7 +45,7 @@ export function CarnetSection() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">L’atelier, après-midi</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">{t("home.carnet.workshop")}</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">02</span>
               </figcaption>
             </figure>
@@ -50,7 +55,7 @@ export function CarnetSection() {
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   <Image
                     src="/media/carnet-vallee.jpg"
-                    alt="Vallée de Yosemite vue depuis la rivière"
+                    alt={t("home.carnet.valleyAlt")}
                     fill
                     sizes="(min-width: 640px) 25vw, 100vw"
                     className="object-cover"
@@ -58,7 +63,7 @@ export function CarnetSection() {
                 </div>
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between">
-                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">La vallée, fin d’été</span>
+                <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.12em] text-foreground/60 sm:text-[11px] sm:tracking-[0.19em]">{t("home.carnet.valley")}</span>
                 <span className="hidden font-mono text-[9.5px] text-foreground/30 sm:block">03</span>
               </figcaption>
             </figure>

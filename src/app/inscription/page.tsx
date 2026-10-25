@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth-form";
 import { AuthShell } from "@/components/auth-shell";
+import { getServerI18n } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Créer un compte — Whispers",
-  description: "Créez votre compte Whispers.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+
+  return {
+    title: t("auth.metadataSignupTitle"),
+    description: t("auth.metadataSignupDescription"),
+  };
+}
 
 export default function InscriptionPage() {
   return (
@@ -14,7 +19,7 @@ export default function InscriptionPage() {
       attribution="Niora"
       source="Les étoiles de Niora · Dessin animé · 2019"
       image="/media/auth-inscription.jpg"
-      imageAlt="Café filtre en préparation dans un intérieur boisé"
+      imageAltKey="auth.imageAltSignup"
     >
       <AuthForm mode="signup" />
     </AuthShell>

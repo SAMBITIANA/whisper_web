@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -32,6 +33,7 @@ export function I18nProvider({
   initialLocale: Locale;
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   const setLocale = useCallback((nextLocale: Locale) => {
@@ -39,7 +41,8 @@ export function I18nProvider({
     document.cookie = `locale=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.lang = nextLocale;
     document.documentElement.dir = isRtl(nextLocale) ? "rtl" : "ltr";
-  }, []);
+    router.refresh();
+  }, [router]);
 
   const t = useCallback(
     (key: MessageKey, variables?: Variables) => {

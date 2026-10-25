@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Dialog as SheetPrimitive } from "radix-ui"
+import { useI18n } from "@/i18n/provider"
 
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
@@ -55,6 +56,8 @@ function SheetContent({
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const { t } = useI18n()
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -77,7 +80,7 @@ function SheetContent({
             >
               <XIcon
               />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t("common.close")}</span>
             </Button>
           </SheetPrimitive.Close>
         )}

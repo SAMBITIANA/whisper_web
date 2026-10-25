@@ -6,12 +6,6 @@ export type SessionUser = {
   role: Role;
 };
 
-export const roleLabels: Record<Role, string> = {
-  USER: "Membre",
-  EDITOR: "Éditeur",
-  ADMIN: "Administrateur",
-};
-
 export const SESSION_COOKIE = "whispers_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 

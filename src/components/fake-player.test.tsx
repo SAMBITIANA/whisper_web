@@ -5,6 +5,7 @@ import { FakePlayer } from "./fake-player";
 import { getMedia } from "@/lib/fake-data";
 import type { ApiMedia } from "@/lib/api";
 import { typography } from "@/lib/format";
+import { I18nProvider } from "@/i18n/provider";
 
 const item = getMedia("dernier-train-de-minuit")! as ApiMedia;
 
@@ -16,7 +17,11 @@ function hasText(text: string) {
 describe("FakePlayer", () => {
   it("affiche la citation dans la langue choisie", async () => {
     const user = userEvent.setup();
-    render(<FakePlayer item={item} />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <FakePlayer item={item} />
+      </I18nProvider>,
+    );
 
     expect(
       screen.getAllByText(hasText(typography(item.quote.fr))).length,
@@ -31,7 +36,11 @@ describe("FakePlayer", () => {
   });
 
   it("affiche la source de la citation", () => {
-    render(<FakePlayer item={item} />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <FakePlayer item={item} />
+      </I18nProvider>,
+    );
 
     expect(
       screen.getAllByText(/Le dernier train de minuit/).length,

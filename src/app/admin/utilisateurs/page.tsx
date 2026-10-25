@@ -11,12 +11,15 @@ import {
   type ApiAdminUser,
 } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { canManageUsers, roleLabels, type Role } from "@/lib/session";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
+import { canManageUsers, type Role } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
 
-const roles = Object.keys(roleLabels) as Role[];
+const roles: Role[] = ["USER", "EDITOR", "ADMIN"];
 
 export default function AdminUsersPage() {
+  const { t } = useI18n();
   const { user, ready } = useRequiredSession(["EDITOR", "ADMIN"]);
   const { user: sessionUser } = useSession();
   const [items, setItems] = useState<ApiAdminUser[]>([]);
@@ -44,16 +47,17 @@ export default function AdminUsersPage() {
   if (!canManageUsers(user.role)) {
     return (
       <div className="border-y border-[var(--rule)] py-14 text-center">
-        <p className="display text-[22px]">Accès réservé aux administrateurs.</p>
+        <p className="display text-[22px]">{t("admin.adminsOnly")}</p>
         <p className="mt-2 text-[12.5px] text-foreground/65">
-          Votre rôle ({roleLabels[user.role]}) permet la modération et l’édition
-          des contenus, pas la gestion des comptes.
+          {t("admin.userRestricted", {
+            role: t(`roles.${user.role.toLowerCase()}` as MessageKey),
+          })}
         </p>
         <Link
           href="/admin"
           className="link-underline mt-5 inline-block text-[11px] uppercase tracking-[0.16em] text-foreground/60"
         >
-          Retour au tableau de bord
+          {t("admin.backToDashboard")}
         </Link>
       </div>
     );
@@ -65,9 +69,9 @@ export default function AdminUsersPage() {
       setItems((current) =>
         current.map((item) => (item.id === id ? { ...item, role } : item)),
       );
-      toast("Rôle mis à jour");
+      toast(t("admin.roleUpdated"));
     } catch {
-      toast("Mise à jour impossible");
+      toast(t("common.updateFailed"));
     }
   }
 
@@ -83,20 +87,19 @@ export default function AdminUsersPage() {
         ),
       );
     } catch {
-      toast("Mise à jour impossible");
+      toast(t("common.updateFailed"));
     }
   }
 
   return (
     <div className="space-y-6">
       <header className="border-b border-[var(--rule)] pb-4">
-        <p className="eyebrow">Administration</p>
+        <p className="eyebrow">{t("common.admin")}</p>
         <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
-          Utilisateurs
+          {t("admin.users")}
         </h1>
         <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
-          Comptes, rôles et accès. Un membre propose, un éditeur publie, un
-          administrateur gère les comptes.
+          {t("admin.usersIntro")}
         </p>
       </header>
 
@@ -104,12 +107,17 @@ export default function AdminUsersPage() {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Rechercher un nom ou une adresse"
-          aria-label="Rechercher un utilisateur"
+          placeholder={t("admin.searchUserPlaceholder")}
+          aria-label={t("admin.searchUserLabel")}
           className="w-full max-w-sm border-0 border-b border-[var(--rule)] bg-transparent pb-2 text-[13.5px] placeholder:text-foreground/30 focus:border-sage-300 focus:outline-none"
         />
         <p className="font-mono text-[10px] text-foreground/35">
-          {visible.length} compte{visible.length > 1 ? "s" : ""}
+          {t(
+            visible.length === 1
+              ? "admin.accountCount"
+              : "admin.accountCountPlural",
+            { count: visible.length },
+          )}
         </p>
       </div>
 
@@ -117,16 +125,20 @@ export default function AdminUsersPage() {
         <table className="w-full min-w-[44rem] border-collapse text-left">
           <thead>
             <tr className="border-y border-[var(--rule)]">
-              {["Membre", "Adresse", "Inscrit le", "Rôle", "Statut"].map(
-                (label) => (
-                  <th
-                    key={label}
-                    className="px-3 py-2.5 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40 first:pl-0 last:pr-0 last:text-right"
-                  >
-                    {label}
-                  </th>
-                ),
-              )}
+              {[
+                t("admin.member"),
+                t("admin.address"),
+                t("admin.joinedOn"),
+                t("admin.role"),
+                t("admin.status"),
+              ].map((label) => (
+                <th
+                  key={label}
+                  className="px-3 py-2.5 text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40 first:pl-0 last:pr-0 last:text-right"
+                >
+                  {label}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -143,7 +155,7 @@ export default function AdminUsersPage() {
                   <span className="display text-[15px]">{item.name}</span>
                   {item.email === sessionUser?.email ? (
                     <span className="ml-2 text-[9px] uppercase tracking-[0.12em] text-sage-600 dark:text-sage-100">
-                      vous
+                      {t("admin.you")}
                     </span>
                   ) : null}
                 </td>
@@ -159,12 +171,12 @@ export default function AdminUsersPage() {
                     onChange={(event) =>
                       void changeRole(item.id, event.target.value as Role)
                     }
-                    aria-label={`Rôle de ${item.name}`}
+                    aria-label={t("admin.roleSelectLabel", { name: item.name })}
                     className="border-0 border-b border-transparent bg-transparent pb-0.5 text-[11.5px] text-foreground/70 hover:border-[var(--rule)] focus:border-sage-300 focus:outline-none"
                   >
                     {roles.map((role) => (
                       <option key={role} value={role}>
-                        {roleLabels[role]}
+                        {t(`roles.${role.toLowerCase()}` as MessageKey)}
                       </option>
                     ))}
                   </select>
@@ -179,7 +191,11 @@ export default function AdminUsersPage() {
                         : "text-[10px] uppercase tracking-[0.13em] text-destructive"
                     }
                   >
-                    {item.status}
+                    {item.status === "Actif"
+                      ? t("admin.userStatusActive")
+                      : item.status === "Suspendu"
+                        ? t("admin.userStatusSuspended")
+                        : item.status}
                   </button>
                 </td>
               </tr>
@@ -189,8 +205,7 @@ export default function AdminUsersPage() {
       </div>
 
       <p className="text-[11.5px] leading-relaxed text-foreground/40">
-        Les rôles et statuts sont enregistrés côté serveur et appliqués par les
-        guards NestJS.
+        {t("admin.usersFooter")}
       </p>
     </div>
   );

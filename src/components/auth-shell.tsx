@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { type MessageKey } from "@/i18n/config";
 import { useI18n } from "@/i18n/provider";
 
 export function AuthShell({
@@ -13,14 +14,14 @@ export function AuthShell({
   attribution,
   source,
   image,
-  imageAlt,
+  imageAltKey,
 }: {
   children: React.ReactNode;
   quote: string;
   attribution: string;
   source: string;
   image: string;
-  imageAlt: string;
+  imageAltKey: MessageKey;
 }) {
   const { t } = useI18n();
 
@@ -38,7 +39,7 @@ export function AuthShell({
         <figure className="relative mt-10 flex min-h-0 flex-1 overflow-hidden border border-[var(--rule-strong)]">
           <Image
             src={image}
-            alt={imageAlt}
+            alt={t(imageAltKey)}
             fill
             sizes="(min-width: 1024px) 46vw, 100vw"
             className="object-cover"
@@ -58,7 +59,7 @@ export function AuthShell({
           </figcaption>
           <div className="absolute inset-x-0 bottom-0 p-6">
             <p className="text-[11px] uppercase tracking-[0.19em] text-paper/65">
-              Whispers
+              {t("brand.name")}
             </p>
             <blockquote className="display hanging mt-4 text-[clamp(1.6rem,2.7vw,2.4rem)] leading-[1.08] text-paper text-balance">
               «&nbsp;{quote}&nbsp;»

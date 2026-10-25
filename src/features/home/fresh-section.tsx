@@ -1,14 +1,19 @@
+"use client";
+
 import { MediaCard } from "@/components/media-card";
 import { SectionHeading } from "@/components/section-heading";
+import { useI18n } from "@/i18n/provider";
 import type { ApiMedia } from "@/lib/api";
 
 export function FreshSection({ items }: { items: ApiMedia[] }) {
+  const { t } = useI18n();
+
   return (
         <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
           <SectionHeading
             index="03"
-            title="Dernières parutions"
-            note="Publiées par l’équipe éditoriale"
+            title={t("home.fresh.title")}
+            note={t("home.fresh.note")}
             href="/catalogue"
           />
 

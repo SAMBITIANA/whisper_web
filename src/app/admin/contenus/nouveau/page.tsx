@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { parseDuration } from "@/lib/fake-content";
-import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
+import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
 import {
   createAdminMedia,
   fetchAdminSources,
@@ -17,11 +19,11 @@ import {
   type ApiSource,
 } from "@/lib/api";
 
-const kindDescriptions: Record<MediaKind, string> = {
-  VIDEO: "Vidéo HLS avec piste de texte superposée.",
-  IMAGE: "Image fixe avec texte en surimpression.",
-  SEQUENCE: "Galerie d’images, format story.",
-  TRACK: "Chanson avec paroles synchronisées.",
+const kindDescriptionKeys: Record<MediaKind, MessageKey> = {
+  VIDEO: "content.kindVideoDescription",
+  IMAGE: "content.kindImageDescription",
+  SEQUENCE: "content.kindSequenceDescription",
+  TRACK: "content.kindTrackDescription",
 };
 
 const fieldClass =
@@ -31,6 +33,7 @@ const textareaClass =
   "w-full resize-none border border-[var(--rule-strong)] bg-transparent p-3 text-[13.5px] leading-relaxed placeholder:text-foreground/30 focus:border-sage-300 focus:outline-none";
 
 export default function NouveauContenuPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [sources, setSources] = useState<ApiSource[]>([]);
   const [moods, setMoods] = useState<string[]>([]);
@@ -69,7 +72,7 @@ export default function NouveauContenuPage() {
     setError(null);
 
     if (!title.trim() || !quoteFr.trim()) {
-      setError("Le titre et la citation française sont obligatoires.");
+      setError(t("content.required"));
       return;
     }
 
@@ -90,12 +93,14 @@ export default function NouveauContenuPage() {
         status: status === "PUBLIE" ? "PUBLISHED" : "DRAFT",
       });
       toast(
-        status === "PUBLIE" ? "Contenu publié" : "Brouillon enregistré",
-        { description: `${mediaKindLabels[kind]} · ${title.trim()}` },
+        status === "PUBLIE"
+          ? t("content.published")
+          : t("content.draftSaved"),
+        { description: `${t(mediaKindKeys[kind])} · ${title.trim()}` },
       );
       router.push("/admin/contenus");
     } catch {
-      setError("Enregistrement impossible.");
+      setError(t("common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -108,17 +113,16 @@ export default function NouveauContenuPage() {
         className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/60 transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
-        Retour aux contenus
+        {t("admin.backToContents")}
       </Link>
 
       <header className="border-b border-[var(--rule)] pb-4">
-        <p className="eyebrow">Administration</p>
+        <p className="eyebrow">{t("common.admin")}</p>
         <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
-          Nouveau contenu
+          {t("admin.newContent")}
         </h1>
         <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
-          Le texte reste une couche séparée : il sera saisi ici en français et
-          en anglais, puis posé sur le média.
+          {t("content.newIntro")}
         </p>
       </header>
 
@@ -128,9 +132,9 @@ export default function NouveauContenuPage() {
       >
         <div className="space-y-6">
           <fieldset>
-            <legend className="eyebrow">Format</legend>
+            <legend className="eyebrow">{t("admin.format")}</legend>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {(Object.keys(mediaKindLabels) as MediaKind[]).map((value) => (
+              {(Object.keys(mediaKindKeys) as MediaKind[]).map((value) => (
                 <button
                   key={value}
                   type="button"
@@ -144,14 +148,14 @@ export default function NouveauContenuPage() {
                 >
                   <span className="flex items-center justify-between gap-3">
                     <span className="display text-[16px]">
-                      {mediaKindLabels[value]}
+                      {t(mediaKindKeys[value])}
                     </span>
                     {kind === value ? (
                       <Check className="size-3.5 text-sage-600 dark:text-sage-100" />
                     ) : null}
                   </span>
                   <span className="mt-1 block text-[11px] leading-relaxed text-foreground/60">
-                    {kindDescriptions[value]}
+                    {t(kindDescriptionKeys[value])}
                   </span>
                 </button>
               ))}
@@ -161,20 +165,20 @@ export default function NouveauContenuPage() {
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="title" className="eyebrow">
-                Titre du média
+                {t("content.mediaTitle")}
               </Label>
               <input
                 id="title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Le dernier train de minuit"
+                placeholder={t("content.titlePlaceholder")}
                 className={fieldClass}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="source" className="eyebrow">
-                Source
+                {t("content.source")}
               </Label>
               <select
                 id="source"
@@ -192,7 +196,8 @@ export default function NouveauContenuPage() {
 
             <div className="space-y-2">
               <Label htmlFor="character" className="eyebrow">
-                Personnage <span className="normal-case">(facultatif)</span>
+                {t("content.character")}{" "}
+                <span className="normal-case">{t("common.optional")}</span>
               </Label>
               <input
                 id="character"
@@ -204,7 +209,7 @@ export default function NouveauContenuPage() {
 
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="quote-fr" className="eyebrow">
-                Citation — français
+                {t("content.quoteFr")}
               </Label>
               <textarea
                 id="quote-fr"
@@ -217,7 +222,7 @@ export default function NouveauContenuPage() {
 
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="quote-en" className="eyebrow">
-                Citation — anglais
+                {t("content.quoteEn")}
               </Label>
               <textarea
                 id="quote-en"
@@ -230,20 +235,20 @@ export default function NouveauContenuPage() {
 
             <div className="space-y-2">
               <Label htmlFor="topics" className="eyebrow">
-                Thèmes
+                {t("content.topics")}
               </Label>
               <input
                 id="topics"
                 value={topics}
                 onChange={(event) => setTopics(event.target.value)}
-                placeholder="Voyage, Persévérance"
+                placeholder={t("content.topicsPlaceholder")}
                 className={fieldClass}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="mood" className="eyebrow">
-                Humeur
+                {t("content.mood")}
               </Label>
               <select
                 id="mood"
@@ -261,18 +266,18 @@ export default function NouveauContenuPage() {
           </div>
 
           <fieldset className="space-y-6">
-            <legend className="eyebrow">Média et piste de texte</legend>
+            <legend className="eyebrow">{t("content.mediaAndText")}</legend>
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="poster" className="eyebrow">
-                  Visuel (URL)
+                  {t("content.posterUrl")}
                 </Label>
                 <input
                   id="poster"
                   value={posterUrl}
                   onChange={(event) => setPosterUrl(event.target.value)}
-                  placeholder="/media/… ou https://cdn…"
+                  placeholder={t("content.posterPlaceholder")}
                   className={fieldClass}
                 />
               </div>
@@ -280,7 +285,7 @@ export default function NouveauContenuPage() {
               {kind === "VIDEO" ? (
                 <div className="space-y-2">
                   <Label htmlFor="hls" className="eyebrow">
-                    Playlist HLS
+                    {t("content.hlsPlaylist")}
                   </Label>
                   <input
                     id="hls"
@@ -295,7 +300,7 @@ export default function NouveauContenuPage() {
               {kind === "SEQUENCE" ? (
                 <div className="space-y-2">
                   <Label htmlFor="items" className="eyebrow">
-                    Nombre d’images
+                    {t("content.itemCount")}
                   </Label>
                   <input
                     id="items"
@@ -310,7 +315,7 @@ export default function NouveauContenuPage() {
               {kind !== "IMAGE" ? (
                 <div className="space-y-2">
                   <Label htmlFor="duration" className="eyebrow">
-                    Durée (m:ss)
+                    {t("content.duration")}
                   </Label>
                   <input
                     id="duration"
@@ -327,17 +332,17 @@ export default function NouveauContenuPage() {
               <div>
                 <p className="text-[12.5px] text-foreground/70">
                   {kind === "TRACK"
-                    ? "Paroles synchronisées"
-                    : "Piste de texte traduisible"}
+                    ? t("content.syncedLyrics")
+                    : t("content.translatableTrack")}
                 </p>
                 <p className="mt-1 text-[11px] text-foreground/60">
-                  Couche séparée, jamais incrustée dans le média.
+                  {t("content.separateLayer")}
                 </p>
               </div>
               <Switch
                 checked={lyrics}
                 onCheckedChange={setLyrics}
-                aria-label="Activer la piste de texte"
+                aria-label={t("content.toggleTrack")}
               />
             </div>
           </fieldset>
@@ -358,10 +363,10 @@ export default function NouveauContenuPage() {
               className="h-10 rounded-none px-5 text-[11px] uppercase tracking-[0.16em]"
             >
               {saving
-                ? "Enregistrement…"
+                ? t("content.saving")
                 : status === "PUBLIE"
-                  ? "Publier"
-                  : "Enregistrer le brouillon"}
+                  ? t("content.publish")
+                  : t("content.saveDraft")}
             </Button>
 
             <label className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-foreground/65">
@@ -373,13 +378,13 @@ export default function NouveauContenuPage() {
                 }
                 className="size-3.5 accent-[var(--color-sage-600)]"
               />
-              Publier immédiatement
+              {t("content.publishNow")}
             </label>
           </div>
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <p className="eyebrow">Aperçu</p>
+          <p className="eyebrow">{t("content.preview")}</p>
           <div className="mt-4 border border-[var(--rule)] p-3">
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep dark:bg-card">
               <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_20%_10%,oklch(0.729_0.07_126.4_/_0.55),transparent_60%)]" />
@@ -391,11 +396,11 @@ export default function NouveauContenuPage() {
                 </p>
                 <p className="display mt-2 text-[20px] leading-[1.2] text-paper">
                   «&nbsp;
-                  {quoteFr.trim() || "La citation apparaîtra ici."}
+                  {quoteFr.trim() || t("content.previewPlaceholder")}
                   &nbsp;»
                 </p>
                 <p className="mt-3 text-[9.5px] uppercase tracking-[0.15em] text-paper/60">
-                  {source?.title ?? "Source"}
+                  {source?.title ?? t("content.source")}
                   {character ? ` · ${character}` : ""}
                 </p>
               </div>
@@ -403,19 +408,19 @@ export default function NouveauContenuPage() {
 
             <div className="mt-3 flex items-center justify-between">
               <span className="text-[9.5px] uppercase tracking-[0.15em] text-foreground/60">
-                {mediaKindLabels[kind]}
+                {t(mediaKindKeys[kind])}
                 {kind !== "IMAGE" && duration ? ` · ${duration}` : ""}
               </span>
               <span className="text-[9.5px] uppercase tracking-[0.14em] text-foreground/30">
-                {posterUrl ? "Visuel fourni" : "Visuel à venir"}
+                {posterUrl ? t("content.visualProvided") : t("content.visualPending")}
               </span>
             </div>
           </div>
 
           <ul className="mt-6 space-y-2.5 border-t border-[var(--rule)] pt-5 text-[11.5px] leading-relaxed text-foreground/60">
-            <li>Citation courte, crédit et lien vers la source obligatoires.</li>
-            <li>Aucune image d’œuvre protégée par défaut (§5.4).</li>
-            <li>La traduction anglaise peut rester vide à la création.</li>
+            <li>{t("content.ruleCredit")}</li>
+            <li>{t("content.ruleNoProtectedImage")}</li>
+            <li>{t("content.ruleEnglishOptional")}</li>
           </ul>
         </aside>
       </form>

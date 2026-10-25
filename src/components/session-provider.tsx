@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useI18n } from "@/i18n/provider";
 import {
   errorMessage,
   fetchSession,
@@ -44,6 +45,7 @@ function toSessionUser(account: ApiUser): SessionUser {
 }
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useI18n();
   const [account, setAccount] = useState<ApiUser | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -67,10 +69,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       return {
         ok: false,
-        error: errorMessage(error, "Connexion impossible."),
+        error: errorMessage(error, t("auth.signinError")),
       };
     }
-  }, []);
+  }, [t]);
 
   const signUp = useCallback(
     async (input: { name: string; email: string; password: string }) => {
@@ -81,11 +83,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         return {
           ok: false,
-          error: errorMessage(error, "Inscription impossible."),
+          error: errorMessage(error, t("auth.signupError")),
         };
       }
     },
-    [],
+    [t],
   );
 
   const signOut = useCallback(async () => {

@@ -1,10 +1,13 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LocalizedQuote } from "@/components/localized-quote";
 
 import { MediaPoster } from "@/components/media-poster";
-import { mediaKindLabels } from "@/lib/catalogue";
+import { mediaKindKeys } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import type { ApiHome, ApiMedia } from "@/lib/api";
 import { formatDate, formatDuration, formatViews, typography } from "@/lib/format";
 
@@ -21,11 +24,13 @@ export function FeaturedSection({
   stats: ApiHome["stats"];
   languages: ApiHome["languages"];
 }) {
+  const { t } = useI18n();
+
   return (
         <section>
           <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
             <div className="flex items-center justify-between border-b border-[var(--rule)] py-4">
-              <p className="eyebrow rise">Nº 07 — La citation du jour</p>
+              <p className="eyebrow rise">{t("home.featured.index")}</p>
               <p className="eyebrow rise hidden sm:block" style={delay(60)}>
                 {formatDate(featured.publishedAt)}
               </p>
@@ -33,7 +38,7 @@ export function FeaturedSection({
 
             <div className="grid gap-10 py-8 lg:grid-cols-12 lg:gap-14 lg:py-12">
               <div className="lg:col-span-7">
-                <p className="eyebrow rise">Le mot du jour</p>
+                <p className="eyebrow rise">{t("home.featured.kicker")}</p>
 
                 <blockquote
                   className="display hanging rise mt-4 text-[clamp(1.9rem,4vw,3.2rem)] leading-[1.05] text-balance"
@@ -77,14 +82,14 @@ export function FeaturedSection({
                     href={`/citation/${featured.slug}`}
                     className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100"
                   >
-                    <span className="link-underline">Lire la citation</span>
+                    <span className="link-underline">{t("home.featured.read")}</span>
                     <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                   </Link>
                   <Link
                     href="/catalogue"
                     className="group inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
                   >
-                    <span className="link-underline">Explorer le catalogue</span>
+                    <span className="link-underline">{t("home.featured.explore")}</span>
                     <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                   </Link>
                 </div>
@@ -94,10 +99,10 @@ export function FeaturedSection({
                   style={delay(320)}
                 >
                   {[
-                    { value: stats.media, label: "pièces" },
-                    { value: stats.formats, label: "formats" },
-                    { value: languages.length, label: "langues" },
-                    { value: formatViews(featured.views), label: "vues" },
+                    { value: stats.media, label: t("home.stats.pieces") },
+                    { value: stats.formats, label: t("home.stats.formats") },
+                    { value: languages.length, label: t("home.stats.languages") },
+                    { value: formatViews(featured.views), label: t("home.stats.views") },
                   ].map((stat) => (
                     <div key={stat.label} className="flex items-baseline gap-2">
                       <dt className="display text-[22px] leading-none">
@@ -126,7 +131,7 @@ export function FeaturedSection({
                 </div>
                 <figcaption className="mt-5 flex items-center justify-between">
                   <span className="eyebrow">
-                    {mediaKindLabels[featured.kind]} ·{" "}
+                    {t(mediaKindKeys[featured.kind])} ·{" "}
                     {formatDuration(featured.durationSec)}
                   </span>
                   <span className="eyebrow">{featured.mood}</span>

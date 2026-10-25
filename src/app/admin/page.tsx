@@ -11,7 +11,9 @@ import {
   Inbox,
 } from "lucide-react";
 import { cn } from "cn";
-import { mediaKindLabels } from "@/lib/catalogue";
+import { mediaKindKeys } from "@/lib/catalogue";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
 import { formatDate } from "@/lib/format";
 import {
   fetchAdminDashboard,
@@ -22,25 +24,31 @@ import {
 
 const kindOrder = ["VIDEO", "IMAGE", "SEQUENCE", "TRACK"] as const;
 
-const activityActionLabels: Record<string, string> = {
-  "media.publish": "a publié un média",
-  "media.update": "a modifié un média",
-  "media.delete": "a supprimé un média",
-  "proposal.approve": "a approuvé une proposition",
-  "proposal.reject": "a rejeté une proposition",
-  "proposal.update": "a modifié une proposition",
-  "translation.create": "a ajouté une traduction",
-  "source.create": "a ajouté une source",
-  "source.update": "a modifié une source",
-  "user.update": "a modifié un utilisateur",
-  "settings.update": "a modifié les réglages",
-  "auth.login": "s’est connecté",
+const activityActionKeys: Record<string, MessageKey> = {
+  "media.publish": "admin.activity.mediaPublish",
+  "media.update": "admin.activity.mediaUpdate",
+  "media.delete": "admin.activity.mediaDelete",
+  "proposal.approve": "admin.activity.proposalApprove",
+  "proposal.reject": "admin.activity.proposalReject",
+  "proposal.update": "admin.activity.proposalUpdate",
+  "translation.create": "admin.activity.translationCreate",
+  "source.create": "admin.activity.sourceCreate",
+  "source.update": "admin.activity.sourceUpdate",
+  "user.update": "admin.activity.userUpdate",
+  "settings.update": "admin.activity.settingsUpdate",
+  "auth.login": "admin.activity.authLogin",
 };
+
+type Translate = (
+  key: MessageKey,
+  variables?: Record<string, string | number>,
+) => string;
 
 type DashboardActivity = ApiAdminDashboard["activity"][number];
 type Tone = "sage" | "amber";
 
 export default function AdminDashboardPage() {
+  const { t } = useI18n();
   const [dashboard, setDashboard] = useState<ApiAdminDashboard | null>(null);
   const [pending, setPending] = useState<ApiProposal[]>([]);
 
@@ -83,25 +91,25 @@ export default function AdminDashboardPage() {
     tone: Tone;
   }[] = [
     {
-      label: "Vues",
+      label: t("admin.views"),
       value: dashboard.stats.views.toLocaleString("fr-FR"),
       icon: Eye,
       tone: "sage",
     },
     {
-      label: "Réactions",
+      label: t("admin.reactions"),
       value: dashboard.stats.reactions.toLocaleString("fr-FR"),
       icon: Heart,
       tone: "sage",
     },
     {
-      label: "En attente",
+      label: t("admin.pending"),
       value: String(dashboard.stats.pending),
       icon: Clock3,
       tone: dashboard.stats.pending > 0 ? "amber" : "sage",
     },
     {
-      label: "Publiées",
+      label: t("admin.published"),
       value: String(dashboard.stats.published),
       icon: CheckCircle2,
       tone: "sage",
@@ -113,10 +121,10 @@ export default function AdminDashboardPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-[26px]">
-            Tableau de bord
+            {t("admin.dashboard")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Vue d’ensemble de l’activité éditoriale.
+            {t("admin.overview")}
           </p>
         </div>
         <span className="inline-flex items-center gap-2 rounded-full border border-[var(--rule)] bg-card px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
@@ -124,7 +132,7 @@ export default function AdminDashboardPage() {
             aria-hidden
             className="size-2 rounded-full bg-sage-600 dark:bg-sage-300"
           />
-          Données live
+          {t("admin.data")}
         </span>
       </header>
 
@@ -165,19 +173,24 @@ export default function AdminDashboardPage() {
       <section className="grid gap-3 lg:grid-cols-2">
         <Card>
           <PanelHeading
-            title="File de modération"
-            description={`${pending.length} proposition${pending.length > 1 ? "s" : ""} à relire`}
+            title={t("admin.moderationQueue")}
+            description={t(
+              pending.length === 1
+                ? "admin.toReview"
+                : "admin.toReviewPlural",
+              { count: pending.length },
+            )}
             href="/admin/moderation"
-            linkLabel="Tout relire"
+            linkLabel={t("admin.reviewAll")}
           />
           {pending.length === 0 ? (
             <div className="mt-4 flex flex-col items-center justify-center rounded-md border border-dashed border-[var(--rule-strong)] px-4 py-8 text-center">
               <Inbox aria-hidden className="size-5 text-muted-foreground" />
               <p className="mt-2 text-sm font-medium text-foreground">
-                Aucune proposition en attente
+                {t("admin.noPending")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                La file de modération est vide.
+                {t("admin.queueEmpty")}
               </p>
             </div>
           ) : (
@@ -206,17 +219,17 @@ export default function AdminDashboardPage() {
 
         <Card>
           <PanelHeading
-            title="Activité récente"
-            description="Dernières actions de l’équipe"
+            title={t("admin.recentActivity")}
+            description={t("admin.recentActivityNote")}
           />
           {dashboard.activity.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">
-              Aucune activité récente.
+              {t("admin.noRecentActivity")}
             </p>
           ) : (
             <ul className="mt-3 divide-y divide-[var(--rule)]">
               {dashboard.activity.slice(0, 3).map((activity) => {
-                const { actor, description } = activitySentence(activity);
+                const { actor, description } = activitySentence(activity, t);
 
                 return (
                   <li
@@ -234,7 +247,7 @@ export default function AdminDashboardPage() {
                         </span>
                       </p>
                       <p className="mt-1 text-[11px] leading-4 text-muted-foreground">
-                        {formatRelativeTime(activity.when)}
+                        {formatRelativeTime(activity.when, t)}
                       </p>
                     </div>
                   </li>
@@ -248,8 +261,8 @@ export default function AdminDashboardPage() {
       <section className="grid gap-3 lg:grid-cols-2">
         <Card className="flex flex-col">
           <PanelHeading
-            title="Répartition"
-            description="Par format de contenu"
+            title={t("admin.distribution")}
+            description={t("admin.distributionNote")}
           />
           <ul className="mt-3 space-y-2.5">
             {kindOrder.map((kind) => {
@@ -262,7 +275,7 @@ export default function AdminDashboardPage() {
                 <li key={kind}>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-[13px] text-foreground">
-                      {mediaKindLabels[kind]}
+                      {t(mediaKindKeys[kind])}
                     </span>
                     <span className="text-[11px] tabular-nums text-muted-foreground">
                       {count} · {ratio}%
@@ -279,17 +292,19 @@ export default function AdminDashboardPage() {
             })}
           </ul>
           <div className="mt-auto flex items-center justify-between border-t border-[var(--rule)] pt-3">
-            <span className="text-xs text-muted-foreground">Total</span>
+            <span className="text-xs text-muted-foreground">{t("admin.total")}</span>
             <span className="text-xs font-medium tabular-nums text-foreground">
-              {total} contenus
+              {t(total === 1 ? "admin.totalContent" : "admin.totalContents", {
+                count: total,
+              })}
             </span>
           </div>
         </Card>
 
         <Card className="flex flex-col">
           <PanelHeading
-            title="Pipeline"
-            description="État des traitements"
+            title={t("admin.pipeline")}
+            description={t("admin.pipelineNote")}
           />
           <ul className="mt-3 divide-y divide-[var(--rule)]">
             {dashboard.pipeline.map((job) => (
@@ -322,7 +337,7 @@ export default function AdminDashboardPage() {
                         : "bg-amber-500",
                     )}
                   />
-                  {job.value === "ok" ? "À jour" : "En attente"}
+                  {job.value === "ok" ? t("admin.upToDate") : t("admin.pending")}
                 </span>
               </li>
             ))}
@@ -333,14 +348,14 @@ export default function AdminDashboardPage() {
               href="/admin/contenus/nouveau"
               className="inline-flex items-center gap-1.5 rounded-md bg-sage-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-sage-900 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
             >
-              Créer un contenu
+              {t("admin.createContent")}
               <ArrowRight aria-hidden className="size-3.5" />
             </Link>
             <Link
               href="/admin/sources"
               className="inline-flex items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-3 py-2 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
             >
-              Ajouter une source
+              {t("admin.addSource")}
             </Link>
           </div>
         </Card>
@@ -379,6 +394,8 @@ function PanelHeading({
   href?: string;
   linkLabel?: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
@@ -394,7 +411,7 @@ function PanelHeading({
           href={href}
           className="group inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-sage-600 transition-colors hover:text-sage-900 dark:text-sage-100 dark:hover:text-sage-300"
         >
-          {linkLabel ?? "Tout voir"}
+          {linkLabel ?? t("common.seeAll")}
           <ArrowRight
             aria-hidden
             className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
@@ -405,13 +422,15 @@ function PanelHeading({
   );
 }
 
-function activitySentence(entry: DashboardActivity) {
+function activitySentence(entry: DashboardActivity, t: Translate) {
   const [actor, ...rest] = entry.text.split(" · ");
-  const label = entry.action ? activityActionLabels[entry.action] : undefined;
+  const key = entry.action ? activityActionKeys[entry.action] : undefined;
 
   return {
-    actor: actor || "Système",
-    description: label ?? (rest.join(" · ") || "a effectué une action"),
+    actor: actor || t("admin.system"),
+    description: key
+      ? t(key)
+      : rest.join(" · ") || t("admin.defaultAction"),
   };
 }
 
@@ -424,24 +443,24 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-function formatRelativeTime(isoDate: string): string {
+function formatRelativeTime(isoDate: string, t: Translate): string {
   const timestamp = new Date(isoDate).getTime();
 
   if (Number.isNaN(timestamp)) return isoDate;
 
   const minutes = Math.round((Date.now() - timestamp) / 60_000);
 
-  if (minutes < 1) return "À l’instant";
-  if (minutes < 60) return `Il y a ${minutes} min`;
+  if (minutes < 1) return t("admin.time.justNow");
+  if (minutes < 60) return t("admin.time.minutes", { count: minutes });
 
   const hours = Math.round(minutes / 60);
 
-  if (hours < 24) return `Il y a ${hours} h`;
+  if (hours < 24) return t("admin.time.hours", { count: hours });
 
   const days = Math.round(hours / 24);
 
-  if (days === 1) return "Hier";
-  if (days < 7) return `Il y a ${days} j`;
+  if (days === 1) return t("admin.time.yesterday");
+  if (days < 7) return t("admin.time.days", { count: days });
 
   return formatDate(isoDate);
 }

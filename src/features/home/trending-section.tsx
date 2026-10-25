@@ -1,18 +1,23 @@
+"use client";
+
 import Link from "next/link";
 
 import { LocalizedQuote } from "@/components/localized-quote";
 import { MediaPoster } from "@/components/media-poster";
 import { SectionHeading } from "@/components/section-heading";
+import { useI18n } from "@/i18n/provider";
 import type { ApiMedia } from "@/lib/api";
 import { formatViews, typography } from "@/lib/format";
 
 export function TrendingSection({ items }: { items: ApiMedia[] }) {
+  const { t } = useI18n();
+
   return (
         <section className="mx-auto w-full max-w-[1180px] px-5 pt-6 sm:px-8">
           <SectionHeading
             index="01"
-            title="En ce moment"
-            note="Les plus aimées cette semaine"
+            title={t("home.trending.title")}
+            note={t("home.trending.note")}
             href="/catalogue?sort=popular"
           />
 

@@ -29,6 +29,8 @@ function LanguageSwitch({
   onCheckedChange: () => void;
   label: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <SwitchPrimitive.Root
       checked={active}
@@ -47,7 +49,7 @@ function LanguageSwitch({
             : "justify-end pr-3 text-muted-foreground"
         }`}
       >
-        {active ? "Active" : "Inactive"}
+        {active ? t("common.active") : t("common.inactive")}
       </span>
       <SwitchPrimitive.Thumb
         className={`pointer-events-none block size-5 rounded-full bg-background shadow-sm transition-transform ${
@@ -83,13 +85,13 @@ export default function AdminSettingsPage() {
     return (
       <div className="rounded-lg border border-[var(--rule)] bg-card p-8 text-center">
         <p className="text-sm font-medium text-foreground">
-          Accès réservé aux administrateurs.
+          {t("admin.adminsOnly")}
         </p>
         <Link
           href="/admin"
           className="mt-3 inline-block text-xs font-medium text-sage-600 hover:underline dark:text-sage-100"
         >
-          Retour au tableau de bord
+          {t("admin.backToDashboard")}
         </Link>
       </div>
     );
@@ -100,7 +102,7 @@ export default function AdminSettingsPage() {
     const trimmedCode = code.trim();
 
     if (!trimmedCode || !name.trim() || !nativeName.trim()) {
-      toast("Renseignez le code, le nom et le nom natif.");
+      toast(t("admin.languageFieldsRequired"));
       return;
     }
 
@@ -118,9 +120,9 @@ export default function AdminSettingsPage() {
       setCode("");
       setName("");
       setNativeName("");
-      toast("Langue ajoutée");
+      toast(t("admin.languageAdded"));
     } catch (error) {
-      toast(errorMessage(error, "Ajout impossible."));
+      toast(errorMessage(error, t("admin.languageAddFailed")));
     } finally {
       setSaving(false);
     }
@@ -136,9 +138,9 @@ export default function AdminSettingsPage() {
       setLanguages((current) =>
         current.map((item) => (item.code === updated.code ? updated : item)),
       );
-      toast(updated.isActive ? "Langue activée" : "Langue désactivée");
+      toast(updated.isActive ? t("admin.languageEnabled") : t("admin.languageDisabled"));
     } catch (error) {
-      toast(errorMessage(error, "Mise à jour impossible."));
+      toast(errorMessage(error, t("common.updateFailed")));
     } finally {
       setUpdating(null);
     }
@@ -154,7 +156,7 @@ export default function AdminSettingsPage() {
           {t("admin.settings")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Langues de l’application et des contenus.
+          {t("admin.languagesDescription")}
         </p>
       </header>
 
@@ -165,7 +167,7 @@ export default function AdminSettingsPage() {
         <div className="flex items-center gap-2">
           <Globe2 aria-hidden className="size-4 text-sage-600 dark:text-sage-100" />
           <h2 className="text-sm font-semibold text-foreground">
-            Ajouter une langue
+            {t("admin.addLanguage")}
           </h2>
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_auto]">
@@ -173,21 +175,21 @@ export default function AdminSettingsPage() {
             value={code}
             onChange={(event) => setCode(event.target.value)}
             placeholder="es"
-            aria-label="Code de la langue"
+            aria-label={t("admin.languageCodeLabel")}
             className={fieldClassName}
           />
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Spanish"
-            aria-label="Nom de la langue"
+            placeholder={t("admin.languageNamePlaceholder")}
+            aria-label={t("admin.languageNameLabel")}
             className={fieldClassName}
           />
           <input
             value={nativeName}
             onChange={(event) => setNativeName(event.target.value)}
-            placeholder="Español"
-            aria-label="Nom natif de la langue"
+            placeholder={t("admin.languageNativePlaceholder")}
+            aria-label={t("admin.languageNativeLabel")}
             className={fieldClassName}
           />
           <button
@@ -196,7 +198,7 @@ export default function AdminSettingsPage() {
             className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-sage-600 px-4 text-xs font-medium text-white transition-colors hover:bg-sage-900 disabled:opacity-50 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
           >
             <Plus aria-hidden className="size-3.5" />
-            Ajouter
+            {t("admin.add")}
           </button>
         </div>
       </form>
@@ -208,11 +210,16 @@ export default function AdminSettingsPage() {
               {t("admin.languages")}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Les langues actives sont proposées dans l’application.
+              {t("admin.activeLanguagesNote")}
             </p>
           </div>
           <span className="text-xs tabular-nums text-muted-foreground">
-            {languages.length} langue{languages.length > 1 ? "s" : ""}
+            {t(
+              languages.length === 1
+                ? "admin.languageCount"
+                : "admin.languageCountPlural",
+              { count: languages.length },
+            )}
           </span>
         </div>
 
@@ -222,7 +229,7 @@ export default function AdminSettingsPage() {
           </div>
         ) : languages.length === 0 ? (
           <p className="p-6 text-center text-sm text-muted-foreground">
-            Aucune langue enregistrée.
+            {t("admin.noLanguages")}
           </p>
         ) : (
           <ul className="divide-y divide-[var(--rule)]">
@@ -241,14 +248,17 @@ export default function AdminSettingsPage() {
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {language.nativeName} · ordre {language.sortOrder}
+                    {t("admin.languageOrder", {
+                      name: language.nativeName,
+                      order: language.sortOrder,
+                    })}
                   </p>
                 </div>
                 <LanguageSwitch
                   active={language.isActive}
                   disabled={updating === language.code}
                   onCheckedChange={() => void toggleLanguage(language)}
-                  label={`Activer ou désactiver ${language.name}`}
+                  label={t("admin.languageToggleLabel", { name: language.name })}
                 />
               </li>
             ))}
@@ -257,9 +267,7 @@ export default function AdminSettingsPage() {
       </section>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Ajouter une langue ne traduit pas encore automatiquement l’interface ni
-        les contenus. Les catalogues et les jobs de traduction restent à
-        générer.
+        {t("admin.languagesFooter")}
       </p>
     </div>
   );

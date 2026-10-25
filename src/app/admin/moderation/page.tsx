@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
 import { formatDate } from "@/lib/format";
 import {
   fetchAdminProposals,
@@ -11,20 +13,21 @@ import {
 
 type ProposalStatus = ApiProposal["status"];
 
-const proposalStatusLabels: Record<ProposalStatus, string> = {
-  PENDING: "En attente",
-  APPROVED: "Publiée",
-  REJECTED: "Rejetée",
+const proposalStatusKeys: Record<ProposalStatus, MessageKey> = {
+  PENDING: "proposal.status.pending",
+  APPROVED: "proposal.status.approved",
+  REJECTED: "proposal.status.rejected",
 };
 
-const filters: { value: "ALL" | ProposalStatus; label: string }[] = [
-  { value: "PENDING", label: "En attente" },
-  { value: "APPROVED", label: "Publiées" },
-  { value: "REJECTED", label: "Rejetées" },
-  { value: "ALL", label: "Toutes" },
+const filters: { value: "ALL" | ProposalStatus; labelKey: MessageKey }[] = [
+  { value: "PENDING", labelKey: "proposal.filter.pending" },
+  { value: "APPROVED", labelKey: "proposal.filter.approved" },
+  { value: "REJECTED", labelKey: "proposal.filter.rejected" },
+  { value: "ALL", labelKey: "proposal.filter.all" },
 ];
 
 export default function ModerationPage() {
+  const { t } = useI18n();
   const [items, setItems] = useState<ApiProposal[]>([]);
   const [filter, setFilter] = useState<"ALL" | ProposalStatus>("PENDING");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -49,26 +52,25 @@ export default function ModerationPage() {
       );
       toast(
         status === "APPROVED"
-          ? "Proposition approuvée"
+          ? t("admin.proposalApproved")
           : status === "REJECTED"
-            ? "Proposition rejetée"
-            : "Proposition remise en attente",
+            ? t("admin.proposalRejected")
+            : t("admin.proposalPendingAgain"),
       );
     } catch {
-      toast("Mise à jour impossible");
+      toast(t("common.updateFailed"));
     }
   }
 
   return (
     <div className="space-y-6">
       <header className="border-b border-[var(--rule)] pb-4">
-        <p className="eyebrow">Administration</p>
+        <p className="eyebrow">{t("common.admin")}</p>
         <h1 className="display mt-1.5 text-[clamp(1.5rem,2.4vw,1.95rem)] leading-[1.1]">
-          Modération
+          {t("admin.moderation")}
         </h1>
         <p className="mt-1.5 max-w-2xl font-serif text-[13.5px] italic leading-snug text-foreground/65">
-          Chaque proposition est vérifiée avant publication : citation courte,
-          attribution exacte, crédit et lien vers la source.
+          {t("admin.moderationIntro")}
         </p>
       </header>
 
@@ -89,7 +91,7 @@ export default function ModerationPage() {
                   : "text-[12px] uppercase tracking-[0.14em] text-foreground/60 transition-colors hover:text-foreground/70"
               }
             >
-              {item.label}
+              {t(item.labelKey)}
               <span className="ml-1.5 font-mono text-[10px] text-foreground/60">
                 {String(count).padStart(2, "0")}
               </span>
@@ -102,7 +104,7 @@ export default function ModerationPage() {
         <div className="h-48 animate-pulse bg-foreground/5" />
       ) : visible.length === 0 ? (
         <p className="border-y border-[var(--rule)] py-12 text-center font-serif text-[15px] italic text-foreground/60">
-          Rien à relire dans cette catégorie.
+          {t("admin.nothingToReview")}
         </p>
       ) : (
         <ul className="border-b border-[var(--rule)]">
@@ -121,7 +123,7 @@ export default function ModerationPage() {
                         value={draft}
                         onChange={(event) => setDraft(event.target.value)}
                         rows={3}
-                        aria-label="Modifier la citation"
+                        aria-label={t("admin.editQuoteLabel")}
                         className="w-full resize-none border border-[var(--rule-strong)] bg-transparent p-3 font-serif text-[16px] leading-relaxed focus:border-sage-300 focus:outline-none"
                       />
                       <div className="flex gap-5">
@@ -138,20 +140,20 @@ export default function ModerationPage() {
                                   ),
                                 );
                                 setEditingId(null);
-                                toast("Citation modifiée");
+                                toast(t("admin.quoteUpdated"));
                               })
-                              .catch(() => toast("Modification impossible"));
+                              .catch(() => toast(t("common.updateFailed")));
                           }}
                           className="text-[11px] uppercase tracking-[0.14em] text-foreground"
                         >
-                          Enregistrer
+                          {t("common.save")}
                         </button>
                         <button
                           type="button"
                           onClick={() => setEditingId(null)}
                           className="text-[11px] uppercase tracking-[0.14em] text-foreground/60"
                         >
-                          Annuler
+                          {t("common.cancel")}
                         </button>
                       </div>
                     </div>
@@ -177,7 +179,7 @@ export default function ModerationPage() {
                           : "text-[10px] uppercase tracking-[0.14em] text-foreground/65"
                     }
                   >
-                    {proposalStatusLabels[proposal.status]}
+                    {t(proposalStatusKeys[proposal.status])}
                   </span>
 
                   <div className="flex items-baseline gap-4">
@@ -189,21 +191,21 @@ export default function ModerationPage() {
                       }}
                       className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/70 transition-colors hover:text-foreground"
                     >
-                      Modifier
+                      {t("admin.edit")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setStatus(proposal.id, "APPROVED")}
                       className="link-underline text-[11px] uppercase tracking-[0.14em] text-sage-600 dark:text-sage-100"
                     >
-                      Approuver
+                      {t("admin.approve")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setStatus(proposal.id, "REJECTED")}
                       className="link-underline text-[11px] uppercase tracking-[0.14em] text-foreground/60 transition-colors hover:text-foreground"
                     >
-                      Rejeter
+                      {t("admin.reject")}
                     </button>
                   </div>
                 </div>

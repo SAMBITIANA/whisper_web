@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { MediaPoster } from "@/components/media-poster";
 import { getQuote, type LanguageCode } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import { formatDuration, formatViews, typography } from "@/lib/format";
 import {
   recordView,
@@ -35,6 +36,7 @@ export function FakePlayer({
   language?: LanguageCode;
   autoPlay?: boolean;
 }) {
+  const { t } = useI18n();
   const session = useOptionalSession();
   const user = session?.user ?? null;
   const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
@@ -49,7 +51,7 @@ export function FakePlayer({
 
   async function requireAccount() {
     if (user) return true;
-    toast("Connectez-vous pour utiliser cette action.");
+    toast(t("common.loginRequired"));
     return false;
   }
 
@@ -59,7 +61,7 @@ export function FakePlayer({
       const result = await toggleFavorite(item.slug, saved);
       setSaved(result.saved);
     } catch {
-      toast("Action impossible.");
+      toast(t("common.actionFailed"));
     }
   }
 
@@ -74,7 +76,7 @@ export function FakePlayer({
         setReactionState(result.reaction);
       }
     } catch {
-      toast("Action impossible.");
+      toast(t("common.actionFailed"));
     }
   }
 
@@ -132,7 +134,7 @@ export function FakePlayer({
             type="button"
             onClick={() => setPlaying((value) => !value)}
             className="absolute left-1/2 top-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-paper/90 text-ink transition-transform duration-300 hover:scale-105"
-            aria-label={playing ? "Mettre en pause" : "Lire"}
+            aria-label={playing ? t("common.pause") : t("common.read")}
           >
             {playing ? (
               <Pause className="size-5 fill-current" />
@@ -155,7 +157,7 @@ export function FakePlayer({
             <span>
               {formatDuration(elapsed)} / {formatDuration(item.durationSec)}
             </span>
-            <span>{formatViews(item.views)} vues</span>
+            <span>{formatViews(item.views)} {t("common.views")}</span>
           </div>
         </div>
       )}
@@ -171,7 +173,7 @@ export function FakePlayer({
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Réagir"
+            aria-label={t("common.react")}
             aria-pressed={Boolean(reaction)}
             onClick={() => void toggleReaction()}
             className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground"
@@ -181,20 +183,20 @@ export function FakePlayer({
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Enregistrer"
+            aria-label={t("common.save")}
             aria-pressed={saved}
             onClick={() => void toggleSaved()}
             className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground"
           >
             <Bookmark className={cn("size-4", saved && "fill-current text-sage-600 dark:text-sage-300")} />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Copier la citation" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label={t("common.copy")} className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Copy className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Partager" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label={t("common.share")} className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Share2 className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Volume" className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
+          <Button variant="ghost" size="icon" aria-label={t("common.volume")} className="rounded-full text-foreground/75 hover:bg-muted hover:text-foreground">
             <Volume2 className="size-4" />
           </Button>
         </div>

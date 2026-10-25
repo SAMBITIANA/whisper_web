@@ -5,6 +5,7 @@ import { Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/session-provider";
 import { defaultLocale, isLocale, isRtl } from "@/i18n/config";
 import { I18nProvider } from "@/i18n/provider";
+import { getServerI18n } from "@/i18n/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
@@ -53,11 +54,14 @@ const geistMono = Geist_Mono({
 
 export const instant = false;
 
-export const metadata: Metadata = {
-  title: "Whispers — des citations à regarder et à écouter",
-  description:
-    "Citations en vidéo, en image et en musique, avec un texte superposé traduisible.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+
+  return {
+    title: t("meta.homeTitle"),
+    description: t("meta.homeDescription"),
+  };
+}
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const cookieStore = await cookies();

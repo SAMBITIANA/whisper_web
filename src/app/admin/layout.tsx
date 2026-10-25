@@ -89,20 +89,19 @@ export default function AdminLayout({
         <AdminTopBar />
         <div className="mx-auto flex w-full max-w-[1320px] flex-1 items-center px-5 py-8 sm:px-8">
           <div className="max-w-xl border-y border-[var(--rule)] py-12">
-            <p className="eyebrow">Accès réservé</p>
+            <p className="eyebrow">{t("admin.restricted")}</p>
             <h1 className="display mt-4 text-[clamp(1.8rem,3vw,2.4rem)] leading-[1.06]">
-              Cet espace est réservé à l’équipe éditoriale.
+              {t("admin.restrictedTitle")}
             </h1>
             <p className="mt-4 text-[13.5px] leading-relaxed text-foreground/65">
-              Votre compte est un compte membre : vous pouvez proposer des
-              citations et garder vos favoris.
+              {t("admin.restrictedBody")}
             </p>
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] uppercase tracking-[0.15em]">
               <Link href="/compte" className="link-underline text-foreground/70">
                 {t("common.account")}
               </Link>
               <Link href="/" className="link-underline text-foreground/65">
-                Retour au site
+                {t("common.site")}
               </Link>
             </div>
           </div>
@@ -208,7 +207,7 @@ function AdminTopBar({ role }: { role?: string }) {
     <header className="sticky top-0 z-40 border-b border-[var(--rule)] bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-[64px] w-full max-w-[1320px] items-center gap-3 px-5 sm:px-8">
         <Link href="/admin" className="display text-[21px] leading-none">
-          Whispers
+          {t("brand.name")}
         </Link>
         <span aria-hidden className="h-4 w-px bg-[var(--rule-strong)]" />
         <span className="eyebrow">{t("common.admin")}</span>

@@ -1,11 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useI18n } from "@/i18n/provider";
 
 export function SectionHeading({
   index,
   title,
   note,
   href,
-  linkLabel = "Tout voir",
+  linkLabel,
 }: {
   index?: string;
   title: string;
@@ -13,6 +16,8 @@ export function SectionHeading({
   href?: string;
   linkLabel?: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-[var(--rule)] pb-3">
       <div className="flex items-baseline gap-4">
@@ -36,7 +41,7 @@ export function SectionHeading({
           href={href}
           className="link-underline text-[11px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
         >
-          {linkLabel}
+          {linkLabel ?? t("common.seeAll")}
         </Link>
       ) : null}
     </div>

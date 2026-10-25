@@ -6,7 +6,8 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaCard } from "@/components/media-card";
-import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
+import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
+import { type MessageKey } from "@/i18n/config";
 import { useI18n } from "@/i18n/provider";
 import {
   fetchMedia,
@@ -15,15 +16,15 @@ import {
   type ApiTaxonomy,
 } from "@/lib/api";
 
-const kinds = Object.keys(mediaKindLabels) as MediaKind[];
+const kinds = Object.keys(mediaKindKeys) as MediaKind[];
 
 type SortKey = "recent" | "popular" | "discussed";
 
-const sortLabels: Record<SortKey, string> = {
-  recent: "Plus récentes",
-  popular: "Plus aimées",
-  discussed: "Plus commentées",
-};
+const sortKeys = {
+  recent: "catalogue.sortRecent",
+  popular: "catalogue.sortPopular",
+  discussed: "catalogue.sortDiscussed",
+} as const satisfies Record<SortKey, MessageKey>;
 
 const TOPIC_PREVIEW = 8;
 
@@ -81,7 +82,7 @@ export function CatalogueBrowser({
   initialKind?: MediaKind | null;
   initialSort?: SortKey;
 } = {}) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<MediaKind | null>(initialKind ?? null);
   const [topic, setTopic] = useState<string | null>(initialTopic ?? null);
@@ -150,7 +151,7 @@ export function CatalogueBrowser({
     kind
       ? {
           key: "kind",
-          label: mediaKindLabels[kind],
+          label: t(mediaKindKeys[kind]),
           clear: () => setKind(null),
         }
       : null,
@@ -179,9 +180,9 @@ export function CatalogueBrowser({
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Rechercher une citation, une source, un personnage…"
+            placeholder={t("catalogue.searchPlaceholder")}
             className="h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent pl-6 text-[14px] shadow-none placeholder:text-foreground/65 focus-visible:border-sage-300 focus-visible:ring-0 dark:bg-transparent"
-            aria-label="Rechercher"
+            aria-label={t("catalogue.searchLabel")}
           />
         </div>
 
@@ -199,7 +200,7 @@ export function CatalogueBrowser({
                 : "",
             )}
           >
-            Filtres
+            {t("catalogue.filters")}
             {chips.length > 0 ? (
               <span
                 className={cn(
@@ -221,14 +222,14 @@ export function CatalogueBrowser({
           </Button>
 
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-            <span className="eyebrow">Trier</span>
-            {(Object.keys(sortLabels) as SortKey[]).map((key) => (
+            <span className="eyebrow">{t("catalogue.sort")}</span>
+            {(Object.keys(sortKeys) as SortKey[]).map((key) => (
               <FilterButton
                 key={key}
                 active={sort === key}
                 onClick={() => setSort(key)}
               >
-                {sortLabels[key]}
+                {t(sortKeys[key])}
               </FilterButton>
             ))}
           </div>
@@ -237,7 +238,7 @@ export function CatalogueBrowser({
 
       {filtersOpen ? (
         <div id="catalogue-filtres" className="panel">
-          <FilterRow label="Format">
+          <FilterRow label={t("catalogue.format")}>
             {kinds.map((value) => (
               <FilterButton
                 key={value}
@@ -246,12 +247,12 @@ export function CatalogueBrowser({
                   setKind((current) => (current === value ? null : value))
                 }
               >
-                {mediaKindLabels[value]}
+                {t(mediaKindKeys[value])}
               </FilterButton>
             ))}
           </FilterRow>
 
-          <FilterRow label="Sujet">
+          <FilterRow label={t("catalogue.topic")}>
             {visibleTopics.map((value) => (
               <FilterButton
                 key={value}
@@ -270,13 +271,15 @@ export function CatalogueBrowser({
                 className="link-underline text-[12px] text-foreground/70 transition-colors hover:text-foreground"
               >
                 {allTopics
-                  ? "Réduire"
-                  : `+ ${topics.length - TOPIC_PREVIEW} sujets`}
+                  ? t("catalogue.collapse")
+                  : t("catalogue.moreTopics", {
+                      count: topics.length - TOPIC_PREVIEW,
+                    })}
               </button>
             ) : null}
           </FilterRow>
 
-          <FilterRow label="Humeur">
+          <FilterRow label={t("catalogue.mood")}>
             {moods.map((value) => (
               <FilterButton
                 key={value}
@@ -294,8 +297,11 @@ export function CatalogueBrowser({
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="eyebrow">
-          {results.length} citation{results.length > 1 ? "s" : ""}
-          {chips.length > 0 ? " après filtrage" : ""}
+          {t(
+            results.length === 1 ? "catalogue.result" : "catalogue.results",
+            { count: results.length },
+          )}
+          {chips.length > 0 ? t("catalogue.filteredSuffix") : ""}
         </p>
 
         {chips.map((chip) => (
@@ -317,7 +323,7 @@ export function CatalogueBrowser({
             className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-foreground/70 transition-colors hover:text-foreground"
           >
             <X className="size-3" />
-            Réinitialiser
+            {t("catalogue.reset")}
           </button>
         ) : null}
       </div>
@@ -330,9 +336,9 @@ export function CatalogueBrowser({
         </div>
       ) : results.length === 0 ? (
         <div className="border-y border-[var(--rule)] py-14 text-center">
-          <p className="display text-[22px]">Aucune citation ne correspond.</p>
+          <p className="display text-[22px]">{t("catalogue.emptyTitle")}</p>
           <p className="mt-2 text-[13px] text-foreground/65">
-            Essayez un autre mot-clé, ou réinitialisez les filtres.
+            {t("catalogue.emptyBody")}
           </p>
         </div>
       ) : (

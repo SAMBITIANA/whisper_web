@@ -1,11 +1,14 @@
+"use client";
+
 import {
   getQuote,
-  mediaKindLabels,
+  mediaKindKeys,
   type CatalogueMedia,
   type LanguageCode,
 } from "@/lib/catalogue";
 import { formatViews, typography } from "@/lib/format";
 import { MediaPoster } from "@/components/media-poster";
+import { useI18n } from "@/i18n/provider";
 
 export function MediaCard({
   item,
@@ -16,6 +19,8 @@ export function MediaCard({
   language?: LanguageCode;
   href: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <article className="group">
       <a href={href} className="block">
@@ -30,7 +35,7 @@ export function MediaCard({
         />
 
         <div className="mt-4 flex items-center gap-2.5 text-[10px] uppercase tracking-[0.16em] text-foreground/60">
-          <span>{mediaKindLabels[item.kind]}</span>
+          <span>{t(mediaKindKeys[item.kind])}</span>
           <span aria-hidden className="h-px w-3.5 bg-[var(--rule-strong)]" />
           <span>{item.mood}</span>
         </div>
@@ -47,7 +52,8 @@ export function MediaCard({
         </p>
 
         <p className="mt-1.5 font-mono text-[10.5px] tracking-wide text-foreground/65">
-          {formatViews(item.views)} vues · {formatViews(item.likes)} réactions
+          {formatViews(item.views)} {t("common.views")} ·{" "}
+          {formatViews(item.likes)} {t("common.reactions")}
         </p>
       </a>
     </article>

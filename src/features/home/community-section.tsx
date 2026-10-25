@@ -1,21 +1,26 @@
+"use client";
+
 import Link from "next/link";
 
 import { LocalizedQuote } from "@/components/localized-quote";
 import { MediaPoster } from "@/components/media-poster";
 import { SectionHeading } from "@/components/section-heading";
-import { mediaKindLabels } from "@/lib/catalogue";
+import { mediaKindKeys } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import type { ApiMedia } from "@/lib/api";
 import { typography } from "@/lib/format";
 
 export function CommunitySection({ items }: { items: ApiMedia[] }) {
+  const { t } = useI18n();
+
   if (items.length === 0) return null;
 
   return (
           <section className="mx-auto w-full max-w-[1180px] px-5 pt-10 sm:px-8">
             <SectionHeading
               index="05"
-              title="De la communauté"
-              note="En attente de relecture"
+              title={t("home.community.title")}
+              note={t("home.community.note")}
             />
             <ul className="border-b border-[var(--rule)]">
               {items.map((item) => (
@@ -41,11 +46,11 @@ export function CommunitySection({ items }: { items: ApiMedia[] }) {
                       </p>
                       <p className="mt-2 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">
                         {typography(item.source.title)} ·{" "}
-                        {mediaKindLabels[item.kind]}
+                        {t(mediaKindKeys[item.kind])}
                       </p>
                     </div>
                     <p className="hidden text-right font-serif text-[13px] italic text-foreground/40 sm:block">
-                      En relecture
+                      {t("home.community.reviewing")}
                     </p>
                   </Link>
                 </li>
