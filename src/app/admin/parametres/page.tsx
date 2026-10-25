@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Globe2, Plus } from "lucide-react";
+import { Switch as SwitchPrimitive } from "radix-ui";
 import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
 import { useI18n } from "@/i18n/provider";
 import {
   createAdminLanguage,
@@ -17,6 +17,46 @@ import { useRequiredSession } from "@/lib/use-required-session";
 
 const fieldClassName =
   "h-10 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
+
+function LanguageSwitch({
+  active,
+  disabled,
+  onCheckedChange,
+  label,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  onCheckedChange: () => void;
+  label: string;
+}) {
+  return (
+    <SwitchPrimitive.Root
+      checked={active}
+      onCheckedChange={onCheckedChange}
+      disabled={disabled}
+      aria-label={label}
+      className={`relative inline-flex h-7 w-[84px] shrink-0 items-center rounded-full border border-transparent transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sage-600/40 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-sage-300/40 ${
+        active ? "bg-sage-600 dark:bg-sage-300" : "bg-muted"
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute inset-0 flex items-center text-[9px] font-semibold uppercase tracking-[0.12em] ${
+          active
+            ? "justify-start pl-3 text-white dark:text-sage-900"
+            : "justify-end pr-3 text-muted-foreground"
+        }`}
+      >
+        {active ? "Active" : "Inactive"}
+      </span>
+      <SwitchPrimitive.Thumb
+        className={`pointer-events-none block size-5 rounded-full bg-background shadow-sm transition-transform ${
+          active ? "translate-x-[60px]" : "translate-x-1"
+        }`}
+      />
+    </SwitchPrimitive.Root>
+  );
+}
 
 export default function AdminSettingsPage() {
   const { t } = useI18n();
@@ -204,23 +244,12 @@ export default function AdminSettingsPage() {
                     {language.nativeName} · ordre {language.sortOrder}
                   </p>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className={
-                      language.isActive
-                        ? "text-[11px] font-medium uppercase tracking-[0.12em] text-sage-600 dark:text-sage-300"
-                        : "text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground"
-                    }
-                  >
-                    {language.isActive ? "Active" : "Inactive"}
-                  </span>
-                  <Switch
-                    checked={language.isActive}
-                    onCheckedChange={() => void toggleLanguage(language)}
-                    disabled={updating === language.code}
-                    aria-label={`Activer ou désactiver ${language.name}`}
-                  />
-                </div>
+                <LanguageSwitch
+                  active={language.isActive}
+                  disabled={updating === language.code}
+                  onCheckedChange={() => void toggleLanguage(language)}
+                  label={`Activer ou désactiver ${language.name}`}
+                />
               </li>
             ))}
           </ul>
