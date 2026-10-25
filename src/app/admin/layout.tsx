@@ -8,26 +8,47 @@ import {
   FileText,
   LayoutDashboard,
   Library,
+  Settings,
   ShieldCheck,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "cn";
 import { useSession } from "@/components/session-provider";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
 import { fetchAdminDashboard } from "@/lib/api";
-import { canManageUsers, initialsOf, roleLabels } from "@/lib/session";
+import { canManageUsers, initialsOf } from "@/lib/session";
 import { useRequiredSession } from "@/lib/use-required-session";
 
-const items = [
+const items: {
+  href: string;
+  labelKey: MessageKey;
+  icon: LucideIcon;
+  exact?: boolean;
+  admin?: boolean;
+}[] = [
   {
     href: "/admin",
-    label: "Tableau de bord",
+    labelKey: "admin.dashboard",
     icon: LayoutDashboard,
     exact: true,
   },
-  { href: "/admin/moderation", label: "Modération", icon: ShieldCheck },
-  { href: "/admin/contenus", label: "Contenus", icon: Library },
-  { href: "/admin/sources", label: "Sources", icon: FileText },
-  { href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users, admin: true },
+  { href: "/admin/moderation", labelKey: "admin.moderation", icon: ShieldCheck },
+  { href: "/admin/contenus", labelKey: "admin.contents", icon: Library },
+  { href: "/admin/sources", labelKey: "admin.sources", icon: FileText },
+  {
+    href: "/admin/utilisateurs",
+    labelKey: "admin.users",
+    icon: Users,
+    admin: true,
+  },
+  {
+    href: "/admin/parametres",
+    labelKey: "admin.settings",
+    icon: Settings,
+    admin: true,
+  },
 ];
 
 export default function AdminLayout({
@@ -35,6 +56,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useI18n();
   const pathname = usePathname();
   const { user, ready } = useRequiredSession();
   const { signOut } = useSession();
@@ -75,7 +97,7 @@ export default function AdminLayout({
             </p>
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[11px] uppercase tracking-[0.15em]">
               <Link href="/compte" className="link-underline text-foreground/70">
-                Mon compte
+                {t("common.account")}
               </Link>
               <Link href="/" className="link-underline text-foreground/65">
                 Retour au site
@@ -93,11 +115,11 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <AdminTopBar role={roleLabels[user.role]} />
+      <AdminTopBar role={t(`roles.${user.role.toLowerCase()}` as MessageKey)} />
 
       <div className="mx-auto flex w-full max-w-[1320px] flex-1 flex-col lg:flex-row">
         <aside className="border-b border-[var(--rule)] px-5 py-6 sm:px-8 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r lg:px-6 lg:py-10">
-          <p className="eyebrow hidden lg:block">Navigation</p>
+          <p className="eyebrow hidden lg:block">{t("admin.navigation")}</p>
 
           <nav className="flex flex-wrap gap-x-5 gap-y-1 lg:mt-3 lg:flex-col lg:flex-nowrap lg:gap-0">
             {visibleItems.map((item) => {
@@ -125,7 +147,7 @@ export default function AdminLayout({
                         : "text-foreground/65",
                     )}
                   />
-                  {item.label}
+                  {t(item.labelKey)}
                   {item.href === "/admin/moderation" && pending > 0 ? (
                     <span className="ml-auto hidden font-mono text-[10px] text-foreground/65 lg:inline">
                       {String(pending).padStart(2, "0")}
@@ -146,7 +168,7 @@ export default function AdminLayout({
                   {user.name}
                 </p>
                 <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/65">
-                  {roleLabels[user.role]}
+                  {t(`roles.${user.role.toLowerCase()}` as MessageKey)}
                 </p>
               </div>
             </div>
@@ -156,14 +178,14 @@ export default function AdminLayout({
                 href="/compte"
                 className="text-foreground/65 transition-colors hover:text-foreground"
               >
-                Mon compte
+                {t("common.account")}
               </Link>
               <button
                 type="button"
                 onClick={signOut}
                 className="text-left text-foreground/65 transition-colors hover:text-foreground"
               >
-                Déconnexion
+                {t("common.logout")}
               </button>
             </div>
           </div>
@@ -178,6 +200,8 @@ export default function AdminLayout({
 }
 
 function AdminTopBar({ role }: { role?: string }) {
+  const { t } = useI18n();
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--rule)] bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-[64px] w-full max-w-[1320px] items-center gap-3 px-5 sm:px-8">
@@ -185,9 +209,9 @@ function AdminTopBar({ role }: { role?: string }) {
           Whispers
         </Link>
         <span aria-hidden className="h-4 w-px bg-[var(--rule-strong)]" />
-        <span className="eyebrow">Administration</span>
+        <span className="eyebrow">{t("common.admin")}</span>
         <span className="hidden border border-[var(--rule-strong)] px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground/65 sm:inline-block">
-          Maquette
+          {t("admin.mockup")}
         </span>
 
         <div className="ml-auto flex items-center gap-5">
@@ -195,7 +219,7 @@ function AdminTopBar({ role }: { role?: string }) {
             href="/"
             className="hidden items-center gap-1.5 text-[10.5px] uppercase tracking-[0.13em] text-foreground/65 transition-colors hover:text-foreground sm:inline-flex"
           >
-            Voir le site
+            {t("admin.viewSite")}
             <ArrowUpRight className="size-3" />
           </Link>
           {role ? (

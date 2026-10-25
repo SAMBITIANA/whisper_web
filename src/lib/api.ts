@@ -154,6 +154,14 @@ export type ApiAdminUser = {
   joinedAt: string;
 };
 
+export type ApiAdminLanguage = {
+  code: string;
+  name: string;
+  nativeName: string;
+  isActive: boolean;
+  sortOrder: number;
+};
+
 export function errorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data?.message;
@@ -351,6 +359,43 @@ export async function updateAdminUserStatus(
   status: "ACTIVE" | "SUSPENDED",
 ) {
   await api.patch(`/admin/users/${id}/status`, { status });
+}
+
+export async function fetchAdminLanguages() {
+  const { data } = await api.get<{ items: ApiAdminLanguage[] }>(
+    "/admin/languages",
+  );
+  return data.items;
+}
+
+export async function createAdminLanguage(input: {
+  code: string;
+  name: string;
+  nativeName: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}) {
+  const { data } = await api.post<ApiAdminLanguage>(
+    "/admin/languages",
+    input,
+  );
+  return data;
+}
+
+export async function updateAdminLanguage(
+  code: string,
+  input: {
+    name?: string;
+    nativeName?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  },
+) {
+  const { data } = await api.patch<ApiAdminLanguage>(
+    `/admin/languages/${code}`,
+    input,
+  );
+  return data;
 }
 
 export async function createAdminMedia(input: {

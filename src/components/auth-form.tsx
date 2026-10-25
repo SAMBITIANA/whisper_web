@@ -10,6 +10,7 @@ import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n/provider";
 import { errorMessage, requestMagicLink } from "@/lib/api";
 
 type Mode = "signin" | "signup";
@@ -24,6 +25,7 @@ const fieldClassName =
   "h-10 rounded-none border-0 border-b border-[var(--rule)] bg-transparent px-0 text-[14px] shadow-none transition-colors placeholder:text-foreground/65 focus-visible:ring-0 dark:bg-transparent";
 
 export function AuthForm({ mode }: { mode: Mode }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { signIn, signUp } = useSession();
   const [method, setMethod] = useState<"password" | "magic">("password");
@@ -46,17 +48,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
     if (method === "magic") {
       if (!email.trim()) {
-        setError("Indiquez votre adresse e-mail.");
+        setError(t("auth.requiredEmail"));
         return;
       }
       try {
         await requestMagicLink(email.trim());
         setMagicSent(true);
-        toast("Lien magique demandé", {
-          description: `Si un compte existe pour ${email}, un lien a été créé.`,
+        toast(t("auth.magicRequested"), {
+          description: t("auth.magicRequestedBody", { email }),
         });
       } catch (requestError) {
-        setError(errorMessage(requestError, "Envoi impossible."));
+        setError(errorMessage(requestError, t("auth.sendError")));
       }
       return;
     }
@@ -64,20 +66,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
     if (isSignup) {
       const result = await signUp({ name, email, password });
       if (!result.ok) {
-        setError(result.error ?? "Inscription impossible.");
+        setError(result.error ?? t("auth.signupError"));
         return;
       }
-      toast("Compte créé", { description: `Bienvenue, ${name}.` });
+      toast(t("auth.accountCreated"), { description: t("auth.welcome", { name }) });
       router.push(destination());
       return;
     }
 
     const result = await signIn(email, password);
     if (!result.ok) {
-      setError(result.error ?? "Connexion impossible.");
+      setError(result.error ?? t("auth.signinError"));
       return;
     }
-    toast("Connexion réussie");
+    toast(t("auth.signedIn"));
     router.push(destination());
   }
 
@@ -89,28 +91,28 @@ export function AuthForm({ mode }: { mode: Mode }) {
           className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
-          Retour au site
+          {t("common.site")}
         </Link>
       </div>
 
       <p className="eyebrow mt-8 lg:mt-0">
-        {isSignup ? "Créer un compte" : "Espace personnel"}
+        {isSignup ? t("auth.createAccount") : t("auth.personal")}
       </p>
       <h1 className="display mt-1.5 text-[clamp(1.6rem,3vw,2.1rem)] leading-[1.08] text-balance">
-        {isSignup ? "Rejoindre Whispers." : "Revenir à ses citations."}
+        {isSignup ? t("auth.joinTitle") : t("auth.signinTitle")}
       </h1>
       <p className="mt-3 max-w-sm text-[13.5px] leading-relaxed text-foreground/65">
         {isSignup
-          ? "Un compte pour proposer des citations, garder vos favoris et suivre vos propositions."
-          : "Retrouvez vos favoris, vos propositions et votre langue de lecture."}
+          ? t("auth.joinDescription")
+          : t("auth.signinDescription")}
       </p>
 
       {!isSignup ? (
         <div className="mt-6 flex items-baseline gap-6 border-b border-[var(--rule)]">
           {(
             [
-              ["password", "Mot de passe"],
-              ["magic", "Lien magique"],
+              ["password", t("auth.password")],
+              ["magic", t("auth.magic")],
             ] as const
           ).map(([value, label]) => (
             <button
@@ -137,20 +139,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <div className="panel mt-8">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-sage-600 dark:text-sage-100">
             <Mail className="size-4" />
-            Lien envoyé
+            {t("auth.magicSent")}
           </div>
           <p className="mt-3 text-[13.5px] leading-relaxed text-foreground/60">
-            Si un compte existe pour{" "}
-            <span className="font-medium">{email}</span>, un lien de connexion y
-            sera envoyé. En maquette, l’envoi est simulé — utilisez l’onglet «
-            Mot de passe ».
+            {t("auth.magicSentBody", { email })}
           </p>
           <button
             type="button"
             onClick={() => setMagicSent(false)}
             className="link-underline mt-4 text-[11px] uppercase tracking-[0.16em] text-foreground/65"
           >
-            Utiliser une autre adresse
+            {t("auth.useAnother")}
           </button>
         </div>
       ) : (
@@ -158,7 +157,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {isSignup ? (
             <div className="space-y-2">
               <Label htmlFor="name" className="eyebrow">
-                Nom affiché
+                {t("auth.name")}
               </Label>
               <Input
                 id="name"
@@ -173,7 +172,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
           <div className="space-y-2">
             <Label htmlFor="email" className="eyebrow">
-              Adresse e-mail
+              {t("auth.email")}
             </Label>
             <Input
               id="email"
@@ -191,20 +190,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
             <div className="space-y-2">
               <div className="flex items-baseline justify-between gap-4">
                 <Label htmlFor="password" className="eyebrow">
-                  Mot de passe
+                  {t("auth.password")}
                 </Label>
                 {!isSignup ? (
                   <button
                     type="button"
                     onClick={() =>
-                      toast("Réinitialisation simulée", {
-                        description:
-                          "Maquette : le parcours de récupération sera branché à l’API.",
+                      toast(t("auth.resetMock"), {
+                        description: t("auth.resetMockBody"),
                       })
                     }
                     className="link-underline text-[10.5px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground"
                   >
-                    Oublié ?
+                    {t("auth.forgot")}
                   </button>
                 ) : null}
               </div>
@@ -219,8 +217,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
               />
               {isSignup ? (
                 <p className="text-[11.5px] text-foreground/65">
-                  Six caractères minimum. Le stockage sécurisé arrivera avec
-                  l’API.
+                  {t("auth.passwordHint")}
                 </p>
               ) : null}
             </div>
@@ -240,10 +237,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
             className="h-11 w-full rounded-none text-[11px] uppercase tracking-[0.16em]"
           >
             {isSignup
-              ? "Créer mon compte"
+              ? t("auth.submitSignup")
               : method === "magic"
-                ? "Recevoir un lien"
-                : "Se connecter"}
+                ? t("auth.submitMagic")
+                : t("auth.submitSignin")}
             <ArrowRight />
           </Button>
         </form>
@@ -251,7 +248,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       <div className="my-6 flex items-center gap-4">
         <span className="h-px flex-1 bg-[var(--rule)]" />
-        <span className="eyebrow">ou</span>
+        <span className="eyebrow">{t("auth.or")}</span>
         <span className="h-px flex-1 bg-[var(--rule)]" />
       </div>
 
@@ -262,8 +259,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
             type="button"
             aria-label={`Continuer avec ${provider.label}`}
             onClick={() =>
-              toast(`${provider.label} bientôt disponible`, {
-                description: "Maquette : l’OAuth sera branché à l’API.",
+              toast(t("auth.providerSoon", { provider: provider.label }), {
+                description: t("auth.oauthMock"),
               })
             }
             className="flex h-11 items-center justify-center gap-2 border border-[var(--rule-strong)] px-2 text-[10px] uppercase tracking-[0.12em] text-foreground/70 transition-colors hover:border-sage-300 hover:text-foreground"
@@ -287,22 +284,22 @@ export function AuthForm({ mode }: { mode: Mode }) {
       <p className="mt-8 text-[12.5px] text-foreground/65">
         {isSignup ? (
           <>
-            Déjà un compte ?{" "}
+            {t("auth.already")}{" "}
             <Link
               href="/connexion"
               className="link-underline text-foreground/80 hover:text-foreground"
             >
-              Se connecter
+              {t("common.login")}
             </Link>
           </>
         ) : (
           <>
-            Pas encore de compte ?{" "}
+            {t("auth.noAccount")}{" "}
             <Link
               href="/inscription"
               className="link-underline text-foreground/80 hover:text-foreground"
             >
-              Créer un compte
+              {t("common.signup")}
             </Link>
           </>
         )}

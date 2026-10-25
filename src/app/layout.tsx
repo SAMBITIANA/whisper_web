@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import localFont from "next/font/local";
 import { Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/session-provider";
+import { defaultLocale, isLocale, isRtl } from "@/i18n/config";
+import { I18nProvider } from "@/i18n/provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
@@ -48,26 +51,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "Whispers — des citations à regarder et à écouter",
   description:
     "Citations en vidéo, en image et en musique, avec un texte superposé traduisible.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("locale")?.value;
+  const locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+
   return (
     <html
-      lang="fr"
+      lang={locale}
+      dir={isRtl(locale) ? "rtl" : "ltr"}
       className={`${instrumentSans.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <ThemeProvider>
-          <SessionProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </SessionProvider>
-          <Toaster />
-        </ThemeProvider>
+        <I18nProvider initialLocale={locale}>
+          <ThemeProvider>
+            <SessionProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </SessionProvider>
+            <Toaster />
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   );

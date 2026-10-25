@@ -1,13 +1,19 @@
-import Link from "next/link";
+"use client";
 
-const explore = [
-  { href: "/catalogue", label: "Catalogue" },
-  { href: "/catalogue?type=VIDEO", label: "Vidéos" },
-  { href: "/catalogue?type=IMAGE", label: "Images" },
-  { href: "/catalogue?type=TRACK", label: "Chansons" },
+import Link from "next/link";
+import { type MessageKey } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
+
+const explore: { href: string; labelKey: MessageKey }[] = [
+  { href: "/catalogue", labelKey: "nav.catalogue" },
+  { href: "/catalogue?type=VIDEO", labelKey: "nav.videos" },
+  { href: "/catalogue?type=IMAGE", labelKey: "nav.images" },
+  { href: "/catalogue?type=TRACK", labelKey: "nav.songs" },
 ];
 
 export function SiteFooter() {
+  const { t } = useI18n();
+
   return (
     <footer className="mt-16 border-t border-[var(--rule)]">
       <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
@@ -15,39 +21,37 @@ export function SiteFooter() {
           <div>
             <p className="display text-[32px] leading-none">Whispers</p>
             <p className="mt-4 max-w-[34ch] font-serif text-[15px] italic leading-relaxed text-foreground/60">
-              Des citations en vidéo, en image et en musique — avec un texte
-              superposé, traduisible, dans la langue de chacun.
+              {t("footer.description")}
             </p>
           </div>
 
           <nav className="space-y-2.5">
-            <p className="eyebrow">Explorer</p>
+            <p className="eyebrow">{t("footer.explore")}</p>
             {explore.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="link-underline block w-fit text-[13px] text-foreground/65 transition-colors hover:text-foreground"
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
           </nav>
 
           <div className="space-y-2.5">
-            <p className="eyebrow">Coulisses</p>
+            <p className="eyebrow">{t("footer.behind")}</p>
             <p className="text-[13px] leading-relaxed text-foreground/60">
-              Démonstration éditoriale — données fictives, visuels de banque
-              d&apos;images.
+              {t("footer.demo")}
             </p>
             <p className="font-serif text-[13px] italic leading-relaxed text-foreground/65">
-              Stockage Backblaze B2, diffusion Cloudflare, API NestJS + Fastify.
+              {t("footer.tech")}
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--rule)] py-6">
-          <p className="eyebrow">© Whispers — démonstration</p>
-          <p className="eyebrow">Le texte reste une couche — jamais incrusté</p>
+          <p className="eyebrow">{t("footer.copyright")}</p>
+          <p className="eyebrow">{t("footer.layer")}</p>
         </div>
       </div>
     </footer>

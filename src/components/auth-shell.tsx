@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useI18n } from "@/i18n/provider";
 
 export function AuthShell({
   children,
@@ -17,6 +20,8 @@ export function AuthShell({
   image: string;
   imageAlt: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden flex-col border-r border-[var(--rule)] bg-paper-deep px-10 pt-10 pb-6 dark:bg-card lg:flex">
@@ -25,7 +30,7 @@ export function AuthShell({
           className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-foreground/65 transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5 transition-transform duration-300 group-hover:-translate-x-0.5" />
-          Retour au site
+          {t("common.site")}
         </Link>
 
         <figure className="relative mt-10 flex min-h-0 flex-1 overflow-hidden border border-[var(--rule-strong)]">
@@ -43,10 +48,10 @@ export function AuthShell({
           />
           <figcaption className="absolute inset-x-0 top-0 flex flex-wrap items-baseline justify-between gap-2 p-4">
             <span className="text-[9.5px] uppercase tracking-[0.15em] text-paper/75">
-              Visuel d’illustration
+              {t("auth.illustration")}
             </span>
             <span className="text-[9.5px] uppercase tracking-[0.15em] text-paper/45">
-              Aucun extrait de l’œuvre
+              {t("auth.noExcerpt")}
             </span>
           </figcaption>
           <div className="absolute inset-x-0 bottom-0 p-6">
