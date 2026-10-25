@@ -14,7 +14,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "cn";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { useSession } from "@/components/session-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { type MessageKey } from "@/i18n/config";
 import { useI18n } from "@/i18n/provider";
 import { fetchAdminDashboard } from "@/lib/api";
@@ -214,7 +216,7 @@ function AdminTopBar({ role }: { role?: string }) {
           {t("admin.mockup")}
         </span>
 
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-2">
           <Link
             href="/"
             className="hidden items-center gap-1.5 text-[10.5px] uppercase tracking-[0.13em] text-foreground/65 transition-colors hover:text-foreground sm:inline-flex"
@@ -227,6 +229,8 @@ function AdminTopBar({ role }: { role?: string }) {
               {role}
             </span>
           ) : null}
+          <LocaleSwitcher className="h-8 rounded-full border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/80 hover:border-sage-300 hover:bg-muted hover:text-foreground" />
+          <ThemeToggle />
         </div>
       </div>
     </header>

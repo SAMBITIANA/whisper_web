@@ -3,12 +3,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { LayoutDashboard, LogOut, Moon, Search, Sun, User } from "lucide-react";
+import { LayoutDashboard, LogOut, Search, User } from "lucide-react";
 import { cn } from "cn";
-import { useTheme } from "next-themes";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useSession } from "@/components/session-provider";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,7 +90,6 @@ function SiteNav() {
 
 export function SiteHeader() {
   const { t } = useI18n();
-  const { resolvedTheme, setTheme } = useTheme();
   const { user, ready, signOut } = useSession();
   const router = useRouter();
 
@@ -142,16 +140,7 @@ export function SiteHeader() {
 
           <LocaleSwitcher className="h-8 rounded-full border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/80 hover:border-sage-300 hover:bg-muted hover:text-foreground" />
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 rounded-full border border-[var(--rule-strong)] text-foreground/80 hover:border-sage-300 hover:bg-muted hover:text-foreground"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            aria-label={t("common.changeTheme")}
-          >
-            <Sun className="size-[15px] dark:hidden" />
-            <Moon className="hidden size-[15px] dark:block" />
-          </Button>
+          <ThemeToggle />
 
           {ready ? (
             user ? (

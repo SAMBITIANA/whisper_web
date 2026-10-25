@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useI18n } from "@/i18n/provider";
 
 export function AuthShell({
@@ -72,6 +74,19 @@ export function AuthShell({
       </aside>
 
       <main className="flex flex-col px-5 py-5 sm:px-10">
+        <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="link-underline inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-foreground/65 transition-colors hover:text-foreground lg:hidden"
+          >
+            <ArrowLeft className="size-3.5" />
+            {t("common.site")}
+          </Link>
+          <div className="ml-auto flex items-center gap-2">
+            <LocaleSwitcher className="h-8 rounded-full border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/80 hover:border-sage-300 hover:bg-muted hover:text-foreground" />
+            <ThemeToggle />
+          </div>
+        </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
           {children}
         </div>
