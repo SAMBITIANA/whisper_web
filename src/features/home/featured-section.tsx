@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { LocalizedQuote } from "@/components/localized-quote";
 
 import { MediaPoster } from "@/components/media-poster";
 import { mediaKindLabels } from "@/lib/catalogue";
@@ -40,7 +41,7 @@ export function FeaturedSection({
                 >
                   <span className="text-sage-300">«</span>
                   {"\u00a0"}
-                  {featured.quote.fr}
+                  <LocalizedQuote item={featured} />
                   {"\u00a0"}
                   <span className="text-sage-300">»</span>
                 </blockquote>

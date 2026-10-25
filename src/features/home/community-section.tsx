@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { LocalizedQuote } from "@/components/localized-quote";
 import { MediaPoster } from "@/components/media-poster";
 import { SectionHeading } from "@/components/section-heading";
 import { mediaKindLabels } from "@/lib/catalogue";
@@ -35,7 +36,7 @@ export function CommunitySection({ items }: { items: ApiMedia[] }) {
                     <div>
                       <p className="display text-[18px] leading-[1.3] text-balance">
                         <span className="bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat transition-[background-size] duration-300 group-hover:bg-[length:100%_1px]">
-                          «&nbsp;{item.quote.fr}&nbsp;»
+                          «&nbsp;<LocalizedQuote item={item} />&nbsp;»
                         </span>
                       </p>
                       <p className="mt-2 text-[10.5px] uppercase tracking-[0.15em] text-foreground/60">

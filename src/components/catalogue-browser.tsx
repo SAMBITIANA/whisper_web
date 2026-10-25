@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaCard } from "@/components/media-card";
 import { mediaKindLabels, type MediaKind } from "@/lib/catalogue";
+import { useI18n } from "@/i18n/provider";
 import {
   fetchMedia,
   fetchTaxonomy,
@@ -80,6 +81,7 @@ export function CatalogueBrowser({
   initialKind?: MediaKind | null;
   initialSort?: SortKey;
 } = {}) {
+  const { locale } = useI18n();
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<MediaKind | null>(initialKind ?? null);
   const [topic, setTopic] = useState<string | null>(initialTopic ?? null);
@@ -123,8 +125,7 @@ export function CatalogueBrowser({
 
       return [
         item.title,
-        item.quote.fr,
-        item.quote.en,
+        ...Object.values(item.quote),
         item.source.title,
         item.source.author ?? "",
         item.source.character ?? "",
@@ -340,6 +341,7 @@ export function CatalogueBrowser({
             <MediaCard
               key={item.slug}
               item={item}
+              language={locale}
               href={`/citation/${item.slug}`}
             />
           ))}

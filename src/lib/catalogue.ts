@@ -1,3 +1,4 @@
+import { localeLabels, locales } from "@/i18n/config";
 import { typography } from "@/lib/format";
 import type {
   CatalogueMedia,
@@ -6,10 +7,9 @@ import type {
   SourceKind,
 } from "@/types/catalogue";
 
-export const languages: { code: LanguageCode; label: string }[] = [
-  { code: "fr", label: "Français" },
-  { code: "en", label: "English" },
-];
+export const languages: { code: LanguageCode; label: string }[] = locales.map(
+  (code) => ({ code, label: localeLabels[code] }),
+);
 
 export const sourceLabels: Record<SourceKind, string> = {
   FILM: "Film",

@@ -1,3 +1,5 @@
+import type { Locale } from "@/i18n/config";
+
 export type MediaKind = "VIDEO" | "IMAGE" | "SEQUENCE" | "TRACK";
 
 export type SourceKind =
@@ -10,7 +12,7 @@ export type SourceKind =
   | "PROVERB"
   | "PERSONAL";
 
-export type LanguageCode = "fr" | "en";
+export type LanguageCode = Locale;
 
 export type CatalogueSource = {
   slug: string;
@@ -27,7 +29,7 @@ export type CatalogueMedia = {
   slug: string;
   kind: MediaKind;
   title: string;
-  quote: Record<LanguageCode, string>;
+  quote: Partial<Record<LanguageCode, string>> & { fr: string };
   source: CatalogueSource;
   topics: string[];
   mood: string;

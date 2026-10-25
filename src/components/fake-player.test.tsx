@@ -26,7 +26,7 @@ describe("FakePlayer", () => {
     await user.click(screen.getByRole("menuitem", { name: "English" }));
 
     expect(
-      screen.getAllByText(hasText(typography(item.quote.en))).length,
+      screen.getAllByText(hasText(typography(item.quote.en ?? ""))).length,
     ).toBeGreaterThan(0);
   });
 

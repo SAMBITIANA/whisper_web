@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { CatalogueBrowser } from "./catalogue-browser";
 import { media } from "@/lib/fake-data";
+import { I18nProvider } from "@/i18n/provider";
 
 vi.mock("@/lib/api", async () => {
   const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");
@@ -29,7 +30,11 @@ vi.mock("@/lib/api", async () => {
 
 describe("CatalogueBrowser", () => {
   it("affiche tout le catalogue par défaut", async () => {
-    render(<CatalogueBrowser />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <CatalogueBrowser />
+      </I18nProvider>,
+    );
 
     expect(
       await screen.findByText(`${media.length} citations`),
@@ -38,7 +43,11 @@ describe("CatalogueBrowser", () => {
 
   it("filtre par recherche textuelle", async () => {
     const user = userEvent.setup();
-    render(<CatalogueBrowser />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <CatalogueBrowser />
+      </I18nProvider>,
+    );
     await screen.findByText(`${media.length} citations`);
 
     await user.type(screen.getByLabelText("Rechercher"), "minuit");
@@ -50,7 +59,11 @@ describe("CatalogueBrowser", () => {
 
   it("filtre par format de média", async () => {
     const user = userEvent.setup();
-    render(<CatalogueBrowser />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <CatalogueBrowser />
+      </I18nProvider>,
+    );
     await screen.findByText(`${media.length} citations`);
 
     const trackCount = media.filter((item) => item.kind === "TRACK").length;
@@ -64,7 +77,11 @@ describe("CatalogueBrowser", () => {
 
   it("affiche un état vide quand rien ne correspond", async () => {
     const user = userEvent.setup();
-    render(<CatalogueBrowser />);
+    render(
+      <I18nProvider initialLocale="fr">
+        <CatalogueBrowser />
+      </I18nProvider>,
+    );
     await screen.findByText(`${media.length} citations`);
 
     await user.type(screen.getByLabelText("Rechercher"), "zzz-zzz-zzz");
