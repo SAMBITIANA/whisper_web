@@ -6,6 +6,8 @@ import { LayoutGrid, Pencil, Plus } from "lucide-react";
 import { Switch as SwitchPrimitive } from "radix-ui";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/provider";
+import type { MessageKey } from "@/i18n/config";
+import { Label } from "@/components/ui/label";
 import {
   createAdminMediaFormat,
   errorMessage,
@@ -18,7 +20,7 @@ import { useRequiredSession } from "@/lib/use-required-session";
 const fieldClassName =
   "h-10 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
 
-function LanguageSwitch({
+function StatusSwitch({
   active,
   disabled,
   onCheckedChange,
@@ -101,7 +103,7 @@ export default function AdminFormatsPage() {
           {t("admin.formats")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {t("admin.formatsDescription")}
+          {t("admin.formatIntro")}
         </p>
       </header>
 
@@ -125,8 +127,9 @@ function FormatsContent() {
   useEffect(() => {
     void fetchAdminMediaFormats()
       .then(setFormats)
+      .catch(() => toast(t("admin.loadFormatsError")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   function resetForm() {
     setEditingId(null);
@@ -223,36 +226,56 @@ function FormatsContent() {
         <p className="mt-1 text-xs text-muted-foreground">
           {t("admin.addFormatNote")}
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[7rem_minmax(0,1.2fr)_7rem_6rem_auto]">
-          <input
-            value={code}
-            onChange={(event) => setCode(event.target.value.toUpperCase())}
-            placeholder={t("admin.formatCodePlaceholder")}
-            aria-label={t("admin.formatCodeA11y")}
-            className={fieldClassName}
-          />
-          <input
-            value={labelKey}
-            onChange={(event) => setLabelKey(event.target.value)}
-            placeholder={t("admin.formatLabelKeyPlaceholder")}
-            aria-label={t("admin.formatLabelKeyA11y")}
-            className={fieldClassName}
-          />
-          <input
-            value={icon}
-            onChange={(event) => setIcon(event.target.value)}
-            placeholder={t("admin.formatIconPlaceholder")}
-            aria-label={t("admin.formatIconA11y")}
-            className={fieldClassName}
-          />
-          <input
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-            placeholder={t("admin.formatSortOrderPlaceholder")}
-            aria-label={t("admin.formatSortOrderA11y")}
-            inputMode="numeric"
-            className={fieldClassName}
-          />
+        <div className="mt-4 grid items-end gap-3 sm:grid-cols-[7rem_minmax(0,1.2fr)_7rem_6rem_auto]">
+          <div className="space-y-2">
+            <Label htmlFor="format-code" className="eyebrow">
+              {t("admin.formatCode")}
+            </Label>
+            <input
+              id="format-code"
+              value={code}
+              onChange={(event) => setCode(event.target.value.toUpperCase())}
+              placeholder={t("admin.formatCodePlaceholder")}
+              className={fieldClassName}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="format-label-key" className="eyebrow">
+              {t("admin.formatLabelKey")}
+            </Label>
+            <input
+              id="format-label-key"
+              value={labelKey}
+              onChange={(event) => setLabelKey(event.target.value)}
+              placeholder={t("admin.formatLabelKeyPlaceholder")}
+              className={fieldClassName}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="format-icon" className="eyebrow">
+              {t("admin.formatIcon")}
+            </Label>
+            <input
+              id="format-icon"
+              value={icon}
+              onChange={(event) => setIcon(event.target.value)}
+              placeholder={t("admin.formatIconPlaceholder")}
+              className={fieldClassName}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="format-sort-order" className="eyebrow">
+              {t("admin.formatSortOrder")}
+            </Label>
+            <input
+              id="format-sort-order"
+              value={sortOrder}
+              onChange={(event) => setSortOrder(event.target.value)}
+              placeholder={t("admin.formatSortOrderPlaceholder")}
+              inputMode="numeric"
+              className={fieldClassName}
+            />
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="submit"
@@ -319,13 +342,16 @@ function FormatsContent() {
                     <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase text-muted-foreground">
                       {format.code}
                     </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {format.labelKey}
+                    <span
+                      className="text-sm font-medium text-foreground"
+                      title={format.labelKey}
+                    >
+                      {t(format.labelKey as MessageKey)}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {t("admin.formatOrder", {
-                      code: format.icon ?? "—",
+                      icon: format.icon?.trim() || "—",
                       order: format.sortOrder,
                     })}
                   </p>
@@ -338,7 +364,7 @@ function FormatsContent() {
                   <Pencil aria-hidden className="size-3" />
                   {t("common.edit")}
                 </button>
-                <LanguageSwitch
+                <StatusSwitch
                   active={format.isActive}
                   disabled={updating === format.id}
                   onCheckedChange={() => void toggleFormat(format)}
