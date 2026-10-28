@@ -5,6 +5,7 @@ import { Geist_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/session-provider";
 import { defaultLocale, isLocale, isRtl } from "@/i18n/config";
 import { I18nProvider } from "@/i18n/provider";
+import { LocaleRefresh } from "@/i18n/locale-refresh";
 import { getServerI18n } from "@/i18n/server";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -77,6 +78,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <I18nProvider initialLocale={locale}>
+          <LocaleRefresh />
           <ThemeProvider>
             <SessionProvider>
               <TooltipProvider>{children}</TooltipProvider>

@@ -162,6 +162,15 @@ export type ApiAdminLanguage = {
   sortOrder: number;
 };
 
+export type ApiAdminMediaFormat = {
+  id: string;
+  code: string;
+  labelKey: string;
+  icon: string | null;
+  isActive: boolean;
+  sortOrder: number;
+};
+
 export function errorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data?.message;
@@ -393,6 +402,44 @@ export async function updateAdminLanguage(
 ) {
   const { data } = await api.patch<ApiAdminLanguage>(
     `/admin/languages/${code}`,
+    input,
+  );
+  return data;
+}
+
+export async function fetchAdminMediaFormats() {
+  const { data } = await api.get<{ items: ApiAdminMediaFormat[] }>(
+    "/admin/media-formats",
+  );
+  return data.items;
+}
+
+export async function createAdminMediaFormat(input: {
+  code: string;
+  labelKey: string;
+  icon?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}) {
+  const { data } = await api.post<ApiAdminMediaFormat>(
+    "/admin/media-formats",
+    input,
+  );
+  return data;
+}
+
+export async function updateAdminMediaFormat(
+  id: string,
+  input: {
+    code?: string;
+    labelKey?: string;
+    icon?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  },
+) {
+  const { data } = await api.patch<ApiAdminMediaFormat>(
+    `/admin/media-formats/${id}`,
     input,
   );
   return data;

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ArrowUpRight,
+  ChevronDown,
+  ChevronRight,
   FileText,
   LayoutDashboard,
   Library,
@@ -63,6 +65,8 @@ export default function AdminLayout({
   const { user, ready } = useRequiredSession();
   const { signOut } = useSession();
   const [pending, setPending] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState<boolean | null>(null);
+  const settingsExpanded = settingsOpen ?? pathname.startsWith("/admin/parametres");
 
   useEffect(() => {
     if (!user || user.role === "USER") return;
@@ -127,34 +131,91 @@ export default function AdminLayout({
               const active = item.exact
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
+              const isSettings = item.href === "/admin/parametres";
 
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex shrink-0 items-center gap-2.5 whitespace-nowrap py-2 text-[12px] transition-colors lg:-mx-2 lg:border-t lg:border-[var(--rule)] lg:px-2 lg:py-3",
-                    active
-                      ? "bg-sage-600/10 font-medium text-foreground shadow-[inset_2px_0_0_var(--color-sage-600)] dark:bg-sage-300/15 dark:shadow-[inset_2px_0_0_var(--color-sage-300)]"
-                      : "text-foreground/65 hover:bg-sage-100/50 hover:text-foreground dark:hover:bg-sage-300/10",
+                <Fragment key={item.href}>
+                  {isSettings ? (
+                    <button
+                      type="button"
+                      onClick={() => setSettingsOpen(!settingsExpanded)}
+                      aria-expanded={settingsExpanded}
+                      className={cn(
+                        "flex shrink-0 items-center gap-2.5 whitespace-nowrap py-2 text-left text-[12px] transition-colors lg:-mx-2 lg:w-full lg:border-t lg:border-[var(--rule)] lg:px-2 lg:py-3",
+                        active
+                          ? "bg-sage-600/10 font-medium text-foreground shadow-[inset_2px_0_0_var(--color-sage-600)] dark:bg-sage-300/15 dark:shadow-[inset_2px_0_0_var(--color-sage-300)]"
+                          : "text-foreground/65 hover:bg-sage-100/50 hover:text-foreground dark:hover:bg-sage-300/10",
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "size-3.5",
+                          active
+                            ? "text-sage-600 dark:text-sage-300"
+                            : "text-foreground/65",
+                        )}
+                      />
+                      {t(item.labelKey)}
+                      {settingsExpanded ? (
+                        <ChevronDown className="ml-auto size-3.5" />
+                      ) : (
+                        <ChevronRight className="ml-auto size-3.5" />
+                      )}
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex shrink-0 items-center gap-2.5 whitespace-nowrap py-2 text-[12px] transition-colors lg:-mx-2 lg:w-full lg:border-t lg:border-[var(--rule)] lg:px-2 lg:py-3",
+                        active
+                          ? "bg-sage-600/10 font-medium text-foreground shadow-[inset_2px_0_0_var(--color-sage-600)] dark:bg-sage-300/15 dark:shadow-[inset_2px_0_0_var(--color-sage-300)]"
+                          : "text-foreground/65 hover:bg-sage-100/50 hover:text-foreground dark:hover:bg-sage-300/10",
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "size-3.5",
+                          active
+                            ? "text-sage-600 dark:text-sage-300"
+                            : "text-foreground/65",
+                        )}
+                      />
+                      {t(item.labelKey)}
+                      {item.href === "/admin/moderation" && pending > 0 ? (
+                        <span className="ml-auto hidden font-mono text-[10px] text-foreground/65 lg:inline">
+                          {String(pending).padStart(2, "0")}
+                        </span>
+                      ) : null}
+                    </Link>
                   )}
-                >
-                  <item.icon
-                    className={cn(
-                      "size-3.5",
-                      active
-                        ? "text-sage-600 dark:text-sage-300"
-                        : "text-foreground/65",
-                    )}
-                  />
-                  {t(item.labelKey)}
-                  {item.href === "/admin/moderation" && pending > 0 ? (
-                    <span className="ml-auto hidden font-mono text-[10px] text-foreground/65 lg:inline">
-                      {String(pending).padStart(2, "0")}
-                    </span>
+                  {isSettings && settingsExpanded ? (
+                    <div className="flex w-full flex-col border-l border-[var(--rule)] pl-4 lg:ml-4">
+                      <Link
+                        href="/admin/parametres/langues"
+                        className={cn(
+                          "py-1.5 text-[11px] transition-colors",
+                          pathname === "/admin/parametres/langues"
+                            ? "font-medium text-foreground"
+                            : "text-foreground/60 hover:text-foreground",
+                        )}
+                      >
+                        {t("admin.languages")}
+                      </Link>
+                      <Link
+                        href="/admin/parametres/formats"
+                        className={cn(
+                          "py-1.5 text-[11px] transition-colors",
+                          pathname === "/admin/parametres/formats"
+                            ? "font-medium text-foreground"
+                            : "text-foreground/60 hover:text-foreground",
+                        )}
+                      >
+                        {t("admin.formats")}
+                      </Link>
+                    </div>
                   ) : null}
-                </Link>
+                </Fragment>
               );
             })}
           </nav>
