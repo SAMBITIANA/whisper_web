@@ -47,6 +47,8 @@
   "auth.joinDescription": "Una cuenta para proponer citas, guardar sus favoritos y seguir sus propuestas.",
   "auth.signinDescription": "Encuentre sus favoritos, sus propuestas y su idioma de lectura.",
   "auth.password": "Contraseña",
+  "auth.showPassword": "Mostrar la contraseña",
+  "auth.hidePassword": "Ocultar la contraseña",
   "auth.magic": "Enlace mágico",
   "auth.magicSent": "Enlace enviado",
   "auth.magicSentBody": "Si existe una cuenta para {email}, se enviará un enlace de conexión. En la maqueta, el envío es simulado — use la pestaña «Contraseña».",

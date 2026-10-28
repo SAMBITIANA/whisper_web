@@ -47,6 +47,8 @@
   "auth.joinDescription": "Kaonty hanolorana citations, hitahirizana ny ankafizinao ary hanarahana ny tolo-kevitrao.",
   "auth.signinDescription": "Hità ny ankafizinao, ny tolo-kevitrao ary ny fiteny famakianao.",
   "auth.password": "Tenimiafina",
+  "auth.showPassword": "Asehoy ny tenimiafina",
+  "auth.hidePassword": "Afeno ny tenimiafina",
   "auth.magic": "Rohana mahagaga",
   "auth.magicSent": "Nalefa ny rohy",
   "auth.magicSentBody": "Raha misy kaonty ho an’i {email}, halefa ny rohy hidirana. Amin’ity fampisehoana ity, simba ny fandefasana — ampiasao ny tabilao « Tenimiafina ».",

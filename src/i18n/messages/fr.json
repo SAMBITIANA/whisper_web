@@ -47,6 +47,8 @@
   "auth.joinDescription": "Un compte pour proposer des citations, garder vos favoris et suivre vos propositions.",
   "auth.signinDescription": "Retrouvez vos favoris, vos propositions et votre langue de lecture.",
   "auth.password": "Mot de passe",
+  "auth.showPassword": "Afficher le mot de passe",
+  "auth.hidePassword": "Masquer le mot de passe",
   "auth.magic": "Lien magique",
   "auth.magicSent": "Lien envoyé",
   "auth.magicSentBody": "Si un compte existe pour {email}, un lien de connexion y sera envoyé. En maquette, l’envoi est simulé — utilisez l’onglet « Mot de passe ».",

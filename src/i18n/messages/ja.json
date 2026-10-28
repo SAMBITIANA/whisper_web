@@ -47,6 +47,8 @@
   "auth.joinDescription": "引用の提案、お気に入りの保存、提案の追跡のためのアカウントです。",
   "auth.signinDescription": "お気に入り、提案、読書言語を見つけましょう。",
   "auth.password": "パスワード",
+  "auth.showPassword": "パスワードを表示",
+  "auth.hidePassword": "パスワードを隠す",
   "auth.magic": "マジックリンク",
   "auth.magicSent": "リンクを送信しました",
   "auth.magicSentBody": "{email} のアカウントが存在する場合、ログインリンクが送信されます。デモでは送信はシミュレーションです — 「パスワード」タブを使用してください。",

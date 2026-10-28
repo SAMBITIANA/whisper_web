@@ -47,6 +47,8 @@
   "auth.joinDescription": "An account to suggest quotes, keep your favourites and follow your proposals.",
   "auth.signinDescription": "Find your favourites, your proposals and your reading language.",
   "auth.password": "Password",
+  "auth.showPassword": "Show password",
+  "auth.hidePassword": "Hide password",
   "auth.magic": "Magic link",
   "auth.magicSent": "Link sent",
   "auth.magicSentBody": "If an account exists for {email}, a sign-in link will be sent. In this mock-up, sending is simulated — use the “Password” tab.",

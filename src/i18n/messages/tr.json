@@ -47,6 +47,8 @@
   "auth.joinDescription": "Alıntı önermek, favorileri saklamak ve önerilerini takip etmek için bir hesap.",
   "auth.signinDescription": "Favorilerini, önerilerini ve okuma dilini bul.",
   "auth.password": "Parola",
+  "auth.showPassword": "Parolayı göster",
+  "auth.hidePassword": "Parolayı gizle",
   "auth.magic": "Sihirli bağlantı",
   "auth.magicSent": "Bağlantı gönderildi",
   "auth.magicSentBody": "{email} için bir hesap varsa giriş bağlantısı gönderilecek. Bu demoda gönderim simüle edilir — «Parola» sekmesini kullanın.",

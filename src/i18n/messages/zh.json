@@ -47,6 +47,8 @@
   "auth.joinDescription": "一个账户，用于推荐引文、保存收藏并跟踪你的推荐。",
   "auth.signinDescription": "找回你的收藏、推荐和阅读语言。",
   "auth.password": "密码",
+  "auth.showPassword": "显示密码",
+  "auth.hidePassword": "隐藏密码",
   "auth.magic": "魔法链接",
   "auth.magicSent": "链接已发送",
   "auth.magicSentBody": "如果 {email} 存在账户，将发送登录链接。在演示中，发送为模拟——请使用“密码”标签页。",

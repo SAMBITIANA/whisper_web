@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [magicSent, setMagicSent] = useState(false);
 
@@ -206,15 +207,34 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   </button>
                 ) : null}
               </div>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete={isSignup ? "new-password" : "current-password"}
-                required
-                className={fieldClassName}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={passwordVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete={isSignup ? "new-password" : "current-password"}
+                  required
+                  className={`${fieldClassName} pe-9`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible((visible) => !visible)}
+                  aria-label={
+                    passwordVisible
+                      ? t("auth.hidePassword")
+                      : t("auth.showPassword")
+                  }
+                  aria-pressed={passwordVisible}
+                  className="absolute end-0 top-0 flex h-10 items-center px-1 text-foreground/55 transition-colors hover:text-foreground"
+                >
+                  {passwordVisible ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
               {isSignup ? (
                 <p className="text-[11.5px] text-foreground/65">
                   {t("auth.passwordHint")}
