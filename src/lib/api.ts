@@ -472,7 +472,7 @@ export async function generateAdminQuotes(input: {
     model: string;
     costCents: number;
     candidates: ApiQuoteCandidate[];
-  }>("/ai/text/quotes", input);
+  }>("/ai/text/quotes", input, { timeout: 60_000 });
 
   return data;
 }
@@ -491,7 +491,7 @@ export async function generateAdminScenes(input: {
     model: string;
     costCents: number;
     items: { sentence: string; prompt: string; url: string }[];
-  }>("/ai/image/scenes", input);
+  }>("/ai/image/scenes", input, { timeout: 240_000 });
 
   return data;
 }
@@ -507,7 +507,7 @@ export async function generateAdminMusic(input: {
     model: string;
     url: string | null;
     costCents: number;
-  }>("/ai/music", input);
+  }>("/ai/music", input, { timeout: 240_000 });
 
   return data;
 }
@@ -530,7 +530,7 @@ export async function generateAdminLocalize(input: {
       durationSec: number;
       cacheKey: string;
     }[];
-  }>("/ai/localize", input);
+  }>("/ai/localize", input, { timeout: 600_000 });
 
   return data;
 }
@@ -549,7 +549,7 @@ export async function generateAdminSpeech(input: {
     url: string | null;
     durationSec: number;
     costCents: number;
-  }>("/ai/speech", input);
+  }>("/ai/speech", input, { timeout: 180_000 });
 
   return data;
 }
