@@ -453,6 +453,62 @@ export async function deleteAdminMediaFormat(id: string) {
   return data;
 }
 
+export type ApiQuoteCandidate = {
+  quote_fr: string;
+  title_fr: string;
+  topics: string[];
+  mood: string;
+};
+
+export async function generateAdminQuotes(input: {
+  theme?: string;
+  mood?: string;
+  count?: number;
+}) {
+  const { data } = await api.post<{
+    jobId: string;
+    provider: string;
+    model: string;
+    costCents: number;
+    candidates: ApiQuoteCandidate[];
+  }>("/ai/text/quotes", input);
+
+  return data;
+}
+
+export async function generateAdminScenes(input: {
+  sentences: string[];
+  mood?: string;
+  width?: number;
+  height?: number;
+  seed?: number;
+}) {
+  const { data } = await api.post<{
+    jobId: string;
+    provider: string;
+    model: string;
+    costCents: number;
+    items: { sentence: string; prompt: string; url: string }[];
+  }>("/ai/image/scenes", input);
+
+  return data;
+}
+
+export async function generateAdminMusic(input: {
+  mood: string;
+  durationSec: number;
+}) {
+  const { data } = await api.post<{
+    jobId: string;
+    provider: string;
+    model: string;
+    url: string | null;
+    costCents: number;
+  }>("/ai/music", input);
+
+  return data;
+}
+
 export async function uploadAdminFile(file: File) {
   const form = new FormData();
   form.append("file", file);

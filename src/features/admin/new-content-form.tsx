@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,11 +14,14 @@ import { type MessageKey } from "@/i18n/config";
 import { useI18n } from "@/i18n/provider";
 import {
   createAdminMedia,
+  errorMessage,
   fetchAdminSources,
+  generateAdminQuotes,
   fetchTaxonomy,
   updateAdminMedia,
   uploadAdminFile,
   type ApiAdminMediaDetail,
+  type ApiQuoteCandidate,
   type ApiSource,
   type ApiTaxonomy,
 } from "@/lib/api";
@@ -74,6 +78,8 @@ export function NewContentForm({
     media?.status === "PUBLISHED" ? "PUBLIE" : "BROUILLON",
   );
   const [error, setError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [candidates, setCandidates] = useState<ApiQuoteCandidate[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
 
@@ -137,6 +143,41 @@ export function NewContentForm({
       }
     };
   }, [videoPreview]);
+
+  async function generateQuotes() {
+    setGenerating(true);
+
+    try {
+      const result = await generateAdminQuotes({
+        theme: title.trim() || undefined,
+        mood: mood || undefined,
+        count: 5,
+      });
+      setCandidates(result.candidates);
+    } catch (error) {
+      toast(errorMessage(error, t("content.generateError")));
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function applyCandidate(candidate: ApiQuoteCandidate) {
+    setQuote(candidate.quote_fr);
+
+    if (candidate.title_fr) {
+      setTitle(candidate.title_fr);
+    }
+
+    if (candidate.topics.length > 0) {
+      setTopics(candidate.topics.join(", "));
+    }
+
+    if (candidate.mood && moods.includes(candidate.mood)) {
+      setMood(candidate.mood);
+    }
+
+    setCandidates([]);
+  }
 
   function selectFile(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -389,6 +430,34 @@ export function NewContentForm({
             <p className="text-[11px] leading-relaxed text-foreground/60">
               {t("content.quoteAutomaticNote")}
             </p>
+
+            <button
+              type="button"
+              onClick={() => void generateQuotes()}
+              disabled={generating}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/75 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            >
+              <Sparkles aria-hidden className="size-3" />
+              {generating
+                ? t("content.generating")
+                : t("content.generateQuotes")}
+            </button>
+
+            {candidates.length > 0 ? (
+              <ul className="space-y-2 border border-[var(--rule)] bg-muted/40 p-3">
+                {candidates.map((candidate, index) => (
+                  <li key={`${index}-${candidate.quote_fr}`}>
+                    <button
+                      type="button"
+                      onClick={() => applyCandidate(candidate)}
+                      className="w-full text-left text-[12.5px] leading-relaxed text-foreground/80 transition-colors hover:text-foreground"
+                    >
+                      {candidate.quote_fr}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
 
           <div className="space-y-2">
