@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Bookmark,
@@ -42,6 +42,10 @@ export function FakePlayer({
   const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
   const [playing, setPlaying] = useState(autoPlay);
   const [progress, setProgress] = useState(0);
+  const [frame, setFrame] = useState(0);
+  const [voiceDuration, setVoiceDuration] = useState(0);
+  const voiceRef = useRef<HTMLAudioElement>(null);
+  const musicRef = useRef<HTMLAudioElement>(null);
   const [saved, setSaved] = useState(Boolean(item.userState?.saved));
   const [reaction, setReactionState] = useState(item.userState?.reaction ?? null);
 
@@ -80,31 +84,92 @@ export function FakePlayer({
     }
   }
 
+  const frames = item.images?.length
+    ? item.images
+    : item.poster
+      ? [item.poster]
+      : [];
+  const isImage = item.kind === "IMAGE";
+  const totalDuration =
+    voiceDuration > 0 ? Math.round(voiceDuration) : item.durationSec;
+  const elapsed = Math.round((progress / 100) * totalDuration);
+
   useEffect(() => {
-    if (!playing || item.durationSec === 0) return;
+    const voice = voiceRef.current;
+    const music = musicRef.current;
+
+    if (!playing) {
+      voice?.pause();
+      music?.pause();
+      return;
+    }
+
+    if (music) {
+      music.volume = 0.25;
+      void music.play().catch(() => undefined);
+    }
+
+    if (voice) {
+      void voice.play().catch(() => undefined);
+    }
+  }, [playing]);
+
+  useEffect(() => {
+    if (!playing || frames.length <= 1) return;
+
+    const total =
+      voiceDuration > 0 ? voiceDuration : Math.max(4, item.durationSec || 8);
+    const perFrame = Math.max(1500, (total * 1000) / frames.length);
+    const timer = setInterval(() => {
+      setFrame((current) => (current + 1) % frames.length);
+    }, perFrame);
+
+    return () => clearInterval(timer);
+  }, [playing, frames.length, voiceDuration, item.durationSec]);
+
+  useEffect(() => {
+    if (!playing || totalDuration === 0) return;
+
     const timer = setInterval(() => {
       setProgress((current) => {
         if (current >= 100) {
           setPlaying(false);
+          setFrame(0);
           return 0;
         }
-        return current + 100 / (item.durationSec * 10);
+        return current + 100 / (totalDuration * 10);
       });
     }, 100);
-    return () => clearInterval(timer);
-  }, [playing, item.durationSec]);
 
-  const isImage = item.kind === "IMAGE";
-  const elapsed = Math.round((progress / 100) * item.durationSec);
+    return () => clearInterval(timer);
+  }, [playing, totalDuration]);
 
   return (
     <div className="overflow-hidden border border-[var(--rule)] bg-card">
+      {item.voiceUrl ? (
+        <audio
+          ref={voiceRef}
+          src={item.voiceUrl}
+          onLoadedMetadata={(event) =>
+            setVoiceDuration(event.currentTarget.duration)
+          }
+          onEnded={() => {
+            setPlaying(false);
+            setProgress(0);
+            setFrame(0);
+          }}
+          className="hidden"
+        />
+      ) : null}
+      {item.musicUrl ? (
+        <audio ref={musicRef} src={item.musicUrl} loop className="hidden" />
+      ) : null}
       <div className="group relative">
         <MediaPoster
           kind={item.kind}
           gradient={item.gradient}
           durationSec={item.durationSec}
-          poster={item.poster}
+          poster={frames[frame] ?? item.poster}
           showIcon={false}
           showDuration={false}
           priority
@@ -129,7 +194,7 @@ export function FakePlayer({
           </p>
         </div>
 
-        {isImage ? null : (
+        {isImage && !item.voiceUrl && frames.length <= 1 ? null : (
           <button
             type="button"
             onClick={() => setPlaying((value) => !value)}
@@ -145,7 +210,7 @@ export function FakePlayer({
         )}
       </div>
 
-      {isImage ? null : (
+      {isImage && !item.voiceUrl ? null : (
         <div className="space-y-2.5 border-t border-[var(--rule)] px-5 py-4 sm:px-7">
           <div className="h-px w-full bg-foreground/15">
             <div
@@ -155,7 +220,7 @@ export function FakePlayer({
           </div>
           <div className="flex items-center justify-between font-mono text-[10.5px] text-foreground/60">
             <span>
-              {formatDuration(elapsed)} / {formatDuration(item.durationSec)}
+              {formatDuration(elapsed)} / {formatDuration(totalDuration)}
             </span>
             <span>{formatViews(item.views)} {t("common.views")}</span>
           </div>
