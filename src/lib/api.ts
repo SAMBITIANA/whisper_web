@@ -600,6 +600,8 @@ export async function createAdminMedia(input: {
   status: "DRAFT" | "PUBLISHED";
   images?: string[];
   musicUrl?: string;
+  voiceUrl?: string;
+  voiceLanguage?: string;
 }) {
   const { data } = await api.post("/admin/media", input);
   return data;
@@ -620,6 +622,8 @@ export type ApiAdminMediaDetail = {
   posterUrl: string;
   mediaUrl: string;
   musicUrl: string;
+  voiceUrl: string;
+  voiceLanguage: string;
 };
 
 export async function fetchAdminMediaItem(id: string) {
@@ -644,6 +648,8 @@ export async function updateAdminMedia(
     status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     images?: string[];
     musicUrl?: string;
+    voiceUrl?: string;
+    voiceLanguage?: string;
   },
 ) {
   const { data } = await api.patch(`/admin/media/${id}`, input);

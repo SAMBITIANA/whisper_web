@@ -24,6 +24,7 @@ import {
   fetchAdminSources,
   fetchAdminMusic,
   generateAdminQuotes,
+  generateAdminSpeech,
   generateAdminScenes,
   fetchTaxonomy,
   updateAdminMedia,
@@ -103,6 +104,13 @@ export function NewContentForm({
     media?.musicUrl ?? null,
   );
   const [musicTracks, setMusicTracks] = useState<ApiAdminMusic[]>([]);
+  const [voiceUrl, setVoiceUrl] = useState<string | null>(
+    media?.voiceUrl || null,
+  );
+  const [voiceLanguage, setVoiceLanguage] = useState(
+    media?.voiceLanguage || media?.language || "fr",
+  );
+  const [generatingVoice, setGeneratingVoice] = useState(false);
   const [candidates, setCandidates] = useState<ApiQuoteCandidate[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -253,6 +261,27 @@ export function NewContentForm({
     setCandidates([]);
   }
 
+  async function generateVoice() {
+    if (!quote.trim()) {
+      toast(t("content.generateError"));
+      return;
+    }
+
+    setGeneratingVoice(true);
+
+    try {
+      const result = await generateAdminSpeech({
+        text: quote.trim(),
+        language: voiceLanguage,
+      });
+      setVoiceUrl(result.url);
+    } catch (error) {
+      toast(errorMessage(error, t("content.generateError")));
+    } finally {
+      setGeneratingVoice(false);
+    }
+  }
+
   function selectFile(
     event: React.ChangeEvent<HTMLInputElement>,
     target: "poster" | "video",
@@ -317,6 +346,8 @@ export function NewContentForm({
           | "DRAFT",
         images: sceneImages.map((image) => image.url),
         musicUrl: musicTrackUrl ?? "",
+        voiceUrl: voiceUrl ?? "",
+        voiceLanguage,
       };
 
       if (media) {
@@ -407,6 +438,7 @@ export function NewContentForm({
           <TabsList>
             <TabsTrigger value="citation">{t("content.tabQuote")}</TabsTrigger>
             <TabsTrigger value="images">{t("content.tabImages")}</TabsTrigger>
+            <TabsTrigger value="vocal">{t("content.tabVoice")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="citation" className="space-y-6">
@@ -658,6 +690,46 @@ export function NewContentForm({
                   </figure>
                 ))}
               </div>
+            ) : null}
+          </TabsContent>
+
+          <TabsContent value="vocal" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="voice-language" className="eyebrow">
+                {t("content.sourceLanguage")}
+              </Label>
+              <select
+                id="voice-language"
+                value={voiceLanguage}
+                onChange={(event) => setVoiceLanguage(event.target.value)}
+                className={fieldClass}
+              >
+                {languages.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <p className="text-[11px] leading-relaxed text-foreground/60">
+              {t("content.voiceNote")}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => void generateVoice()}
+              disabled={generatingVoice || !quote.trim()}
+              className={generateButtonClass}
+            >
+              <Sparkles aria-hidden className="size-3.5" />
+              {generatingVoice
+                ? t("content.generating")
+                : t("content.generateVoice")}
+            </button>
+
+            {voiceUrl ? (
+              <audio controls src={voiceUrl} className="w-full" />
             ) : null}
           </TabsContent>
 
