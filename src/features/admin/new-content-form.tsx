@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { type MessageKey } from "@/i18n/config";
 import { useI18n } from "@/i18n/provider";
 import {
   createAdminMedia,
-  errorMessage,
   fetchAdminSources,
   fetchTaxonomy,
   updateAdminMedia,
@@ -66,18 +65,17 @@ export function NewContentForm({
   const [quote, setQuote] = useState(media?.quote ?? "");
   const [topics, setTopics] = useState(media?.topics ?? "");
   const [mood, setMood] = useState(media?.mood ?? "");
-  const [duration, setDuration] = useState(
-    media ? formatDuration(media.durationSec) : "0:00",
-  );
-  const [mediaUrl, setMediaUrl] = useState(media?.mediaUrl ?? "");
-  const [posterUrl, setPosterUrl] = useState(media?.posterUrl ?? "");
+  const duration = media ? formatDuration(media.durationSec) : "0:00";
+  const mediaUrl = media?.mediaUrl ?? "";
+  const posterUrl = media?.posterUrl ?? "";
   const [itemsCount, setItemsCount] = useState("6");
   const [lyrics, setLyrics] = useState(true);
   const [status, setStatus] = useState<"BROUILLON" | "PUBLIE">(
     media?.status === "PUBLISHED" ? "PUBLIE" : "BROUILLON",
   );
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState<"poster" | "video" | null>(null);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   useEffect(() => {
     void Promise.all([fetchAdminSources(), fetchTaxonomy()]).then(
@@ -115,42 +113,41 @@ export function NewContentForm({
 
   const source = sources.find((item) => item.slug === sourceSlug);
 
-  async function uploadFile(
+  const posterPreview = useMemo(
+    () => (posterFile ? URL.createObjectURL(posterFile) : null),
+    [posterFile],
+  );
+  const videoPreview = useMemo(
+    () => (videoFile ? URL.createObjectURL(videoFile) : null),
+    [videoFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (posterPreview) {
+        URL.revokeObjectURL(posterPreview);
+      }
+    };
+  }, [posterPreview]);
+
+  useEffect(() => {
+    return () => {
+      if (videoPreview) {
+        URL.revokeObjectURL(videoPreview);
+      }
+    };
+  }, [videoPreview]);
+
+  function selectFile(
     event: React.ChangeEvent<HTMLInputElement>,
     target: "poster" | "video",
   ) {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0] ?? null;
 
-    if (!file) {
-      return;
-    }
-
-    setUploading(target);
-
-    try {
-      const {
-        url,
-        posterUrl: extractedPoster,
-        durationSec,
-      } = await uploadAdminFile(file);
-
-      if (target === "poster") {
-        setPosterUrl(url);
-      } else {
-        setMediaUrl(url);
-
-        if (extractedPoster) {
-          setPosterUrl(extractedPoster);
-        }
-
-        if (durationSec !== undefined) {
-          setDuration(formatDuration(durationSec));
-        }
-      }
-    } catch (error) {
-      toast(errorMessage(error, t("content.uploadFailed")));
-    } finally {
-      setUploading(null);
+    if (target === "poster") {
+      setPosterFile(file);
+    } else {
+      setVideoFile(file);
     }
   }
 
@@ -164,24 +161,47 @@ export function NewContentForm({
     }
 
     setSaving(true);
-    const payload = {
-      kind: kind as MediaKind,
-      title: title.trim(),
-      sourceSlug,
-      character: character.trim(),
-      language,
-      quote: quote.trim(),
-      topics,
-      mood,
-      durationSec: kind === "IMAGE" ? 0 : parseDuration(duration),
-      posterUrl: posterUrl.trim(),
-      mediaUrl: mediaUrl.trim(),
-      status: (status === "PUBLIE" ? "PUBLISHED" : "DRAFT") as
-        | "PUBLISHED"
-        | "DRAFT",
-    };
 
     try {
+      let nextPosterUrl = posterUrl.trim();
+      let nextMediaUrl = mediaUrl.trim();
+      let nextDurationSec = kind === "IMAGE" ? 0 : parseDuration(duration);
+
+      if (posterFile) {
+        const uploaded = await uploadAdminFile(posterFile);
+        nextPosterUrl = uploaded.url;
+      }
+
+      if (videoFile) {
+        const uploaded = await uploadAdminFile(videoFile);
+        nextMediaUrl = uploaded.url;
+
+        if (uploaded.posterUrl) {
+          nextPosterUrl = uploaded.posterUrl;
+        }
+
+        if (uploaded.durationSec !== undefined) {
+          nextDurationSec = uploaded.durationSec;
+        }
+      }
+
+      const payload = {
+        kind: kind as MediaKind,
+        title: title.trim(),
+        sourceSlug,
+        character: character.trim(),
+        language,
+        quote: quote.trim(),
+        topics,
+        mood,
+        durationSec: nextDurationSec,
+        posterUrl: nextPosterUrl,
+        mediaUrl: nextMediaUrl,
+        status: (status === "PUBLIE" ? "PUBLISHED" : "DRAFT") as
+          | "PUBLISHED"
+          | "DRAFT",
+      };
+
       if (media) {
         await updateAdminMedia(media.id, payload);
       } else {
@@ -417,12 +437,12 @@ export function NewContentForm({
                   id="poster"
                   type="file"
                   accept="image/*"
-                  onChange={(event) => void uploadFile(event, "poster")}
+                  onChange={(event) => selectFile(event, "poster")}
                   className={fileClass}
                 />
-                {uploading === "poster" ? (
-                  <p className="text-[11px] text-foreground/60">
-                    {t("content.uploading")}
+                {posterFile ? (
+                  <p className="truncate text-[11px] text-foreground/60">
+                    {posterFile.name}
                   </p>
                 ) : posterUrl ? (
                   <p className="truncate text-[11px] text-foreground/60">
@@ -442,12 +462,12 @@ export function NewContentForm({
                   id="video"
                   type="file"
                   accept="video/*,.m3u8"
-                  onChange={(event) => void uploadFile(event, "video")}
+                  onChange={(event) => selectFile(event, "video")}
                   className={fileClass}
                 />
-                {uploading === "video" ? (
-                  <p className="text-[11px] text-foreground/60">
-                    {t("content.uploading")}
+                {videoFile ? (
+                  <p className="truncate text-[11px] text-foreground/60">
+                    {videoFile.name}
                   </p>
                 ) : mediaUrl ? (
                   <p className="truncate text-[11px] text-foreground/60">
@@ -499,13 +519,22 @@ export function NewContentForm({
         <p className="eyebrow">{t("content.preview")}</p>
         <div className="mt-4 border border-[var(--rule)] p-3">
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep dark:bg-card">
-            {posterUrl ? (
+            {videoPreview ? (
+              <video
+                src={`${videoPreview}#t=1`}
+                muted
+                playsInline
+                preload="metadata"
+                className="absolute inset-0 size-full object-cover"
+              />
+            ) : posterPreview || posterUrl ? (
               <Image
-                src={posterUrl}
+                src={(posterPreview ?? posterUrl) as string}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 380px, 100vw"
                 className="object-cover"
+                unoptimized
               />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_20%_10%,oklch(0.729_0.07_126.4_/_0.55),transparent_60%)]" />
