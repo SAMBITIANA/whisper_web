@@ -99,7 +99,7 @@ export function NewContentForm({
   );
   const [sceneImages, setSceneImages] = useState<
     { sentence: string; url: string }[]
-  >([]);
+  >(() => (media?.images ?? []).map((url) => ({ sentence: "", url })));
   const [musicTrackUrl, setMusicTrackUrl] = useState<string | null>(
     media?.musicUrl ?? null,
   );
@@ -933,6 +933,15 @@ export function NewContentForm({
             {playing && frames.length > 0 ? (
               <Image
                 src={frames[frameIndex] ?? frames[0]}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 380px, 100vw"
+                className="object-cover"
+                unoptimized
+              />
+            ) : sceneImages.length > 0 ? (
+              <Image
+                src={sceneImages[0].url}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 380px, 100vw"

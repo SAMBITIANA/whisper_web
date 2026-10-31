@@ -626,6 +626,7 @@ export type ApiAdminMediaDetail = {
   musicUrl: string;
   voiceUrl: string;
   voiceLanguage: string;
+  images: string[];
 };
 
 export async function fetchAdminMediaItem(id: string) {
