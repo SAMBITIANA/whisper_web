@@ -509,6 +509,48 @@ export async function generateAdminMusic(input: {
   return data;
 }
 
+export async function generateAdminLocalize(input: {
+  text: string;
+  sourceLanguage: string;
+  targets?: string[];
+  styleGuide?: string;
+}) {
+  const { data } = await api.post<{
+    jobId: string;
+    sourceLanguage: string;
+    provider: string;
+    translations: { language: string; text: string }[];
+    audio: {
+      language: string;
+      text: string;
+      url: string | null;
+      durationSec: number;
+      cacheKey: string;
+    }[];
+  }>("/ai/localize", input);
+
+  return data;
+}
+
+export async function generateAdminSpeech(input: {
+  text: string;
+  language: string;
+  voice?: string;
+}) {
+  const { data } = await api.post<{
+    jobId: string;
+    provider: string;
+    model: string;
+    language: string;
+    cacheKey: string;
+    url: string | null;
+    durationSec: number;
+    costCents: number;
+  }>("/ai/speech", input);
+
+  return data;
+}
+
 export async function uploadAdminFile(file: File) {
   const form = new FormData();
   form.append("file", file);
