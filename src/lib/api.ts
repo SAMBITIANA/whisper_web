@@ -496,6 +496,26 @@ export async function generateAdminScenes(input: {
   return data;
 }
 
+export type ApiAdminMusic = {
+  id: string;
+  url: string;
+  durationMs: number;
+  provider: string | null;
+  createdAt: string;
+};
+
+export async function fetchAdminMusic() {
+  const { data } = await api.get<{ items: ApiAdminMusic[] }>("/admin/music");
+  return data.items;
+}
+
+export async function deleteAdminMusic(id: string) {
+  const { data } = await api.delete<{ deleted: boolean }>(
+    `/admin/music/${id}`,
+  );
+  return data;
+}
+
 export async function generateAdminMusic(input: {
   mood: string;
   durationSec: number;
@@ -599,6 +619,7 @@ export type ApiAdminMediaDetail = {
   durationSec: number;
   posterUrl: string;
   mediaUrl: string;
+  musicUrl: string;
 };
 
 export async function fetchAdminMediaItem(id: string) {

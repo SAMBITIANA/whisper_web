@@ -213,6 +213,17 @@ export default function AdminLayout({
                       >
                         {t("admin.formats")}
                       </Link>
+                      <Link
+                        href="/admin/parametres/musiques"
+                        className={cn(
+                          "py-1.5 text-[11px] transition-colors",
+                          pathname === "/admin/parametres/musiques"
+                            ? "font-medium text-foreground"
+                            : "text-foreground/60 hover:text-foreground",
+                        )}
+                      >
+                        {t("admin.music")}
+                      </Link>
                     </div>
                   ) : null}
                 </Fragment>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Images, Music2, Sparkles } from "lucide-react";
+import { Images, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,13 +22,14 @@ import {
   createAdminMedia,
   errorMessage,
   fetchAdminSources,
-  generateAdminMusic,
+  fetchAdminMusic,
   generateAdminQuotes,
   generateAdminScenes,
   fetchTaxonomy,
   updateAdminMedia,
   uploadAdminFile,
   type ApiAdminMediaDetail,
+  type ApiAdminMusic,
   type ApiQuoteCandidate,
   type ApiSource,
   type ApiTaxonomy,
@@ -91,22 +92,26 @@ export function NewContentForm({
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [generatingImages, setGeneratingImages] = useState(false);
-  const [generatingMusic, setGeneratingMusic] = useState(false);
   const [promptQuote, setPromptQuote] = useState("");
   const [promptImages, setPromptImages] = useState(
     "90s retro anime style, lo-fi aesthetic, grainy vintage texture, muted dark color palette, atmospheric, cinematic lighting, vertical format (9:16), masterpiece",
   );
-  const [promptMusic, setPromptMusic] = useState(
-    "melancholic lo-fi hip hop instrumental, nostalgic piano chords, soft vinyl crackle, slow tempo, instrumental only, no vocals, loopable",
-  );
-  const [musicDuration, setMusicDuration] = useState(30);
   const [sceneImages, setSceneImages] = useState<
     { sentence: string; url: string }[]
   >([]);
-  const [musicTrackUrl, setMusicTrackUrl] = useState<string | null>(null);
+  const [musicTrackUrl, setMusicTrackUrl] = useState<string | null>(
+    media?.musicUrl ?? null,
+  );
+  const [musicTracks, setMusicTracks] = useState<ApiAdminMusic[]>([]);
   const [candidates, setCandidates] = useState<ApiQuoteCandidate[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    void fetchAdminMusic()
+      .then(setMusicTracks)
+      .catch(() => setMusicTracks([]));
+  }, []);
 
   useEffect(() => {
     void Promise.all([fetchAdminSources(), fetchTaxonomy()]).then(
@@ -227,23 +232,6 @@ export function NewContentForm({
       toast(errorMessage(error, t("content.generateError")));
     } finally {
       setGeneratingImages(false);
-    }
-  }
-
-  async function generateMusic() {
-    setGeneratingMusic(true);
-
-    try {
-      const result = await generateAdminMusic({
-        mood: mood || "Mélancolique",
-        durationSec: musicDuration,
-        instructions: promptMusic,
-      });
-      setMusicTrackUrl(result.url);
-    } catch (error) {
-      toast(errorMessage(error, t("content.generateError")));
-    } finally {
-      setGeneratingMusic(false);
     }
   }
 
@@ -419,7 +407,6 @@ export function NewContentForm({
           <TabsList>
             <TabsTrigger value="citation">{t("content.tabQuote")}</TabsTrigger>
             <TabsTrigger value="images">{t("content.tabImages")}</TabsTrigger>
-            <TabsTrigger value="musique">{t("content.tabMusic")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="citation" className="space-y-6">
@@ -674,51 +661,6 @@ export function NewContentForm({
             ) : null}
           </TabsContent>
 
-          <TabsContent value="musique" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="music-prompt" className="eyebrow">
-                {t("content.prompt")}
-              </Label>
-              <textarea
-                id="music-prompt"
-                value={promptMusic}
-                onChange={(event) => setPromptMusic(event.target.value)}
-                rows={4}
-                className={textareaClass}
-              />
-            </div>
-
-            <div className="max-w-[9rem] space-y-2">
-              <Label htmlFor="music-duration" className="eyebrow">
-                {t("content.durationSec")}
-              </Label>
-              <input
-                id="music-duration"
-                type="number"
-                min={5}
-                max={180}
-                value={musicDuration}
-                onChange={(event) => setMusicDuration(Number(event.target.value))}
-                className={fieldClass}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => void generateMusic()}
-              disabled={generatingMusic}
-              className={generateButtonClass}
-            >
-              <Music2 aria-hidden className="size-3.5" />
-              {generatingMusic
-                ? t("content.generating")
-                : t("content.generateMusic")}
-            </button>
-
-            {musicTrackUrl ? (
-              <audio controls src={musicTrackUrl} className="w-full" />
-            ) : null}
-          </TabsContent>
         </Tabs>
 
         <fieldset className="space-y-6">
@@ -791,6 +733,29 @@ export function NewContentForm({
             ) : null}
 
 
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="music-library" className="eyebrow">
+              {t("admin.music")}
+            </Label>
+            <select
+              id="music-library"
+              value={musicTrackUrl ?? ""}
+              onChange={(event) => setMusicTrackUrl(event.target.value || null)}
+              className="h-10 w-full border-0 border-b border-[var(--rule)] bg-transparent text-[13.5px] focus:border-sage-300 focus:outline-none"
+            >
+              <option value="">{t("admin.noMusic")}</option>
+              {musicTracks.map((track) => (
+                <option key={track.id} value={track.url}>
+                  {track.url.split("/").pop()} ·{" "}
+                  {Math.round(track.durationMs / 1000)} s
+                </option>
+              ))}
+            </select>
+            {musicTrackUrl ? (
+              <audio controls src={musicTrackUrl} className="mt-2 w-full" />
+            ) : null}
           </div>
 
           <div className="flex items-center justify-between gap-6 border-t border-[var(--rule)] pt-5">
