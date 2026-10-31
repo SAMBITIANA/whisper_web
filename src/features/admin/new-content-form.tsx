@@ -205,9 +205,24 @@ export function NewContentForm({
         mood: mood || undefined,
         instructions: promptImages,
       });
-      setSceneImages(
-        result.items.map((item) => ({ sentence: item.sentence, url: item.url })),
-      );
+      setSceneImages((current) => {
+        const merged = [
+          ...current,
+          ...result.items.map((item) => ({
+            sentence: item.sentence,
+            url: item.url,
+          })),
+        ];
+        const seen = new Set<string>();
+
+        return merged.filter((image) => {
+          if (seen.has(image.url)) {
+            return false;
+          }
+          seen.add(image.url);
+          return true;
+        });
+      });
     } catch (error) {
       toast(errorMessage(error, t("content.generateError")));
     } finally {
@@ -628,14 +643,28 @@ export function NewContentForm({
               <div className="grid gap-3 sm:grid-cols-2">
                 {sceneImages.map((image, index) => (
                   <figure key={`${index}-${image.url}`} className="space-y-1">
-                    <Image
-                      src={image.url}
-                      alt=""
-                      width={1080}
-                      height={1920}
-                      unoptimized
-                      className="aspect-[9/16] w-full object-cover"
-                    />
+                    <div className="relative">
+                      <Image
+                        src={image.url}
+                        alt=""
+                        width={1080}
+                        height={1920}
+                        unoptimized
+                        className="aspect-[9/16] w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSceneImages((current) =>
+                            current.filter((item) => item.url !== image.url),
+                          )
+                        }
+                        aria-label={t("common.remove")}
+                        className="absolute top-1 right-1 inline-flex size-6 items-center justify-center rounded-full bg-black/60 text-[11px] text-white transition-colors hover:bg-black/80"
+                      >
+                        ×
+                      </button>
+                    </div>
                     <figcaption className="text-[10.5px] leading-snug text-foreground/50">
                       {image.sentence}
                     </figcaption>

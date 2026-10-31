@@ -506,5 +506,6 @@
   "admin.formatUpdated": "格式已更新。",
   "admin.settingsHubNote": "选择要修改的设置。",
   "admin.openSetting": "打开",
-  "admin.toggleSettings": "显示或隐藏设置"
+  "admin.toggleSettings": "显示或隐藏设置",
+  "common.remove": "移除"
 }

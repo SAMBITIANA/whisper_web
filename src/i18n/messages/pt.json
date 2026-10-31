@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Formato atualizado.",
   "admin.settingsHubNote": "Escolha a definição a alterar.",
   "admin.openSetting": "Abrir",
-  "admin.toggleSettings": "Mostrar ou ocultar as definições"
+  "admin.toggleSettings": "Mostrar ou ocultar as definições",
+  "common.remove": "Remover"
 }

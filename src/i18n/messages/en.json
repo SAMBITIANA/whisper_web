@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Format updated.",
   "admin.settingsHubNote": "Choose the setting to edit.",
   "admin.openSetting": "Open",
-  "admin.toggleSettings": "Show or hide settings"
+  "admin.toggleSettings": "Show or hide settings",
+  "common.remove": "Remove"
 }

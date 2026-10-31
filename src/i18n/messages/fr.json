@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Format mis à jour.",
   "admin.settingsHubNote": "Choisissez le paramétrage à modifier.",
   "admin.openSetting": "Ouvrir",
-  "admin.toggleSettings": "Afficher ou masquer les paramètres"
+  "admin.toggleSettings": "Afficher ou masquer les paramètres",
+  "common.remove": "Retirer"
 }

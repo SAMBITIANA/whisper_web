@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Format güncellendi.",
   "admin.settingsHubNote": "Düzenlemek istediğiniz ayarı seçin.",
   "admin.openSetting": "Aç",
-  "admin.toggleSettings": "Ayarları göster veya gizle"
+  "admin.toggleSettings": "Ayarları göster veya gizle",
+  "common.remove": "Kaldır"
 }

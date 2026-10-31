@@ -506,5 +506,6 @@
   "admin.formatUpdated": "फ़ॉर्मैट अपडेट किया गया।",
   "admin.settingsHubNote": "जिस सेटिंग को संपादित करना है उसे चुनें।",
   "admin.openSetting": "खोलें",
-  "admin.toggleSettings": "सेटिंग दिखाएँ या छिपाएँ"
+  "admin.toggleSettings": "सेटिंग दिखाएँ या छिपाएँ",
+  "common.remove": "हटाएँ"
 }

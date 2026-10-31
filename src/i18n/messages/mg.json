@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Nohavaozina ny endrika.",
   "admin.settingsHubNote": "Safidio ny parametatra hovaina.",
   "admin.openSetting": "Sokafy",
-  "admin.toggleSettings": "Aseho na afeno ny parametatra"
+  "admin.toggleSettings": "Aseho na afeno ny parametatra",
+  "common.remove": "Esory"
 }

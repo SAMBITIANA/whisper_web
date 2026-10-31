@@ -506,5 +506,6 @@
   "admin.formatUpdated": "フォーマットを更新しました。",
   "admin.settingsHubNote": "編集する設定を選択してください。",
   "admin.openSetting": "開く",
-  "admin.toggleSettings": "設定の表示/非表示"
+  "admin.toggleSettings": "設定の表示/非表示",
+  "common.remove": "削除"
 }

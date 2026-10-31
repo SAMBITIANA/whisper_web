@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Formato actualizado.",
   "admin.settingsHubNote": "Elige el ajuste que quieres modificar.",
   "admin.openSetting": "Abrir",
-  "admin.toggleSettings": "Mostrar u ocultar los ajustes"
+  "admin.toggleSettings": "Mostrar u ocultar los ajustes",
+  "common.remove": "Quitar"
 }

@@ -506,5 +506,6 @@
   "admin.formatUpdated": "Формат обновлён.",
   "admin.settingsHubNote": "Выберите настройку, которую нужно изменить.",
   "admin.openSetting": "Открыть",
-  "admin.toggleSettings": "Показать или скрыть настройки"
+  "admin.toggleSettings": "Показать или скрыть настройки",
+  "common.remove": "Удалить"
 }

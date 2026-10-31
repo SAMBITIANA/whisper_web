@@ -506,5 +506,6 @@
   "admin.formatUpdated": "تم تحديث التنسيق.",
   "admin.settingsHubNote": "اختر الإعداد الذي تريد تعديله.",
   "admin.openSetting": "فتح",
-  "admin.toggleSettings": "إظهار أو إخفاء الإعدادات"
+  "admin.toggleSettings": "إظهار أو إخفاء الإعدادات",
+  "common.remove": "إزالة"
 }
