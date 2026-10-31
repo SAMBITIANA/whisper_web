@@ -62,7 +62,7 @@ function MusicContent() {
   const [open, setOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [mood, setMood] = useState("Calme");
+  const [selectedMoods, setSelectedMoods] = useState<string[]>(["Calme"]);
   const [duration, setDuration] = useState(30);
   const [prompt, setPrompt] = useState(
     "melancholic lo-fi hip hop instrumental, nostalgic piano chords, soft vinyl crackle, slow tempo, instrumental only, no vocals, loopable",
@@ -91,7 +91,7 @@ function MusicContent() {
 
     try {
       await generateAdminMusic({
-        mood,
+        moods: selectedMoods,
         durationSec: duration,
         instructions: prompt.trim() || undefined,
       });
@@ -165,7 +165,7 @@ function MusicContent() {
                   className="h-9 min-w-[16rem] flex-1"
                 />
                 <span className="text-[11px] text-muted-foreground">
-                  {track.provider ?? "—"} ·{" "}
+                  {track.moodTags ?? track.provider ?? "—"} ·{" "}
                   {Math.round(track.durationMs / 1000)} s
                 </span>
                 <button
@@ -204,21 +204,36 @@ function MusicContent() {
           <form onSubmit={generate} className="flex min-h-0 flex-1 flex-col">
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
               <div className="space-y-2">
-                <Label htmlFor="music-mood" className="eyebrow">
-                  {t("content.mood")}
-                </Label>
-                <select
-                  id="music-mood"
-                  value={mood}
-                  onChange={(event) => setMood(event.target.value)}
-                  className={fieldClass}
-                >
-                  {moods.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
+                <span className="eyebrow">{t("content.mood")}</span>
+                <div className="flex flex-wrap gap-2">
+                  {moods.map((item) => {
+                    const active = selectedMoods.includes(item);
+
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() =>
+                          setSelectedMoods((current) =>
+                            current.includes(item)
+                              ? current.length > 1
+                                ? current.filter((value) => value !== item)
+                                : current
+                              : [...current, item],
+                          )
+                        }
+                        aria-pressed={active}
+                        className={
+                          active
+                            ? "border border-sage-600 bg-sage-600/10 px-2.5 py-1 text-[11px] text-foreground dark:border-sage-300 dark:bg-sage-300/15"
+                            : "border border-[var(--rule-strong)] px-2.5 py-1 text-[11px] text-foreground/60 transition-colors hover:border-sage-600 hover:text-foreground dark:hover:border-sage-300"
+                        }
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="space-y-2">

@@ -501,6 +501,7 @@ export type ApiAdminMusic = {
   url: string;
   durationMs: number;
   provider: string | null;
+  moodTags: string | null;
   createdAt: string;
 };
 
@@ -517,7 +518,8 @@ export async function deleteAdminMusic(id: string) {
 }
 
 export async function generateAdminMusic(input: {
-  mood: string;
+  mood?: string;
+  moods?: string[];
   durationSec: number;
   instructions?: string;
 }) {

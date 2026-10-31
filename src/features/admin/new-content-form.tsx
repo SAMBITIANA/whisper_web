@@ -820,7 +820,7 @@ export function NewContentForm({
               <option value="">{t("admin.noMusic")}</option>
               {musicTracks.map((track) => (
                 <option key={track.id} value={track.url}>
-                  {track.url.split("/").pop()} ·{" "}
+                  {track.moodTags ?? track.url.split("/").pop()} ·{" "}
                   {Math.round(track.durationMs / 1000)} s
                 </option>
               ))}
