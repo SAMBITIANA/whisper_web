@@ -59,6 +59,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: oklch(0.962 0.015 91);
   --foreground: oklch(0.312 0.018 225.2);
   --card: oklch(0.983 0.008 92);
@@ -96,6 +97,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.245 0.012 220);
   --foreground: oklch(0.94 0.018 90);
   --card: oklch(0.278 0.014 222);
@@ -262,4 +264,9 @@
   border-bottom-width: 2px;
   box-shadow: inset -4px 0 0 var(--field-focus);
   outline: none;
+}
+
+select option {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { LayoutGrid, Pencil, Plus } from "lucide-react";
 import { Switch as SwitchPrimitive } from "radix-ui";
@@ -8,6 +8,14 @@ import { toast } from "sonner";
 import { useI18n } from "@/i18n/provider";
 import type { MessageKey } from "@/i18n/config";
 import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   createAdminMediaFormat,
   errorMessage,
@@ -19,6 +27,15 @@ import { useRequiredSession } from "@/lib/use-required-session";
 
 const fieldClassName =
   "h-10 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
+
+const selectClassName =
+  "h-9 rounded-md border border-[var(--rule)] bg-background px-2.5 text-xs text-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
+
+const searchClassName =
+  "h-9 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none sm:w-56 dark:focus:border-sage-300";
+
+type StatusFilter = "all" | "active" | "inactive";
+type SortKey = "order" | "code" | "label";
 
 function StatusSwitch({
   active,
@@ -86,30 +103,7 @@ export default function AdminFormatsPage() {
     );
   }
 
-  return (
-    <div className="space-y-5">
-      <Link
-        href="/admin/parametres"
-        className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
-      >
-        {t("common.back")}
-      </Link>
-
-      <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-          {t("common.admin")}
-        </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
-          {t("admin.formats")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("admin.formatIntro")}
-        </p>
-      </header>
-
-      <FormatsContent />
-    </div>
-  );
+  return <FormatsContent />;
 }
 
 function FormatsContent() {
@@ -123,6 +117,10 @@ function FormatsContent() {
   const [icon, setIcon] = useState("");
   const [sortOrder, setSortOrder] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [sort, setSort] = useState<SortKey>("order");
 
   useEffect(() => {
     void fetchAdminMediaFormats()
@@ -130,6 +128,38 @@ function FormatsContent() {
       .catch(() => toast(t("admin.loadFormatsError")))
       .finally(() => setLoading(false));
   }, [t]);
+
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const labelOf = (format: ApiAdminMediaFormat) =>
+      t(format.labelKey as MessageKey).toLowerCase();
+
+    return formats
+      .filter((format) =>
+        status === "all"
+          ? true
+          : status === "active"
+            ? format.isActive
+            : !format.isActive,
+      )
+      .filter(
+        (format) =>
+          !needle ||
+          format.code.toLowerCase().includes(needle) ||
+          labelOf(format).includes(needle),
+      )
+      .sort((a, b) => {
+        if (sort === "code") {
+          return a.code.localeCompare(b.code);
+        }
+
+        if (sort === "label") {
+          return labelOf(a).localeCompare(labelOf(b));
+        }
+
+        return a.sortOrder - b.sortOrder;
+      });
+  }, [formats, query, status, sort, t]);
 
   function resetForm() {
     setEditingId(null);
@@ -139,12 +169,26 @@ function FormatsContent() {
     setSortOrder("");
   }
 
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+
+    if (!next) {
+      resetForm();
+    }
+  }
+
+  function openCreate() {
+    resetForm();
+    setOpen(true);
+  }
+
   function startEdit(format: ApiAdminMediaFormat) {
     setEditingId(format.id);
     setCode(format.code);
     setLabelKey(format.labelKey);
     setIcon(format.icon ?? "");
     setSortOrder(String(format.sortOrder));
+    setOpen(true);
   }
 
   async function saveFormat(event: React.FormEvent<HTMLFormElement>) {
@@ -176,6 +220,7 @@ function FormatsContent() {
           : [...current, format]
         ).sort((a, b) => a.sortOrder - b.sortOrder),
       );
+      setOpen(false);
       resetForm();
       toast(editingId ? t("admin.formatUpdated") : t("admin.formatAdded"));
     } catch (error) {
@@ -210,116 +255,58 @@ function FormatsContent() {
 
   return (
     <div className="space-y-5">
-      <form
-        onSubmit={saveFormat}
-        className="rounded-lg border border-[var(--rule)] bg-card p-4"
-      >
-        <div className="flex items-center gap-2">
-          <LayoutGrid
-            aria-hidden
-            className="size-4 text-sage-600 dark:text-sage-100"
-          />
-          <h2 className="text-sm font-semibold text-foreground">
-            {editingId ? t("admin.editFormat") : t("admin.addFormat")}
-          </h2>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {t("admin.addFormatNote")}
-        </p>
-        <div className="mt-4 grid items-end gap-3 sm:grid-cols-[7rem_minmax(0,1.2fr)_7rem_6rem_auto]">
-          <div className="space-y-2">
-            <Label htmlFor="format-code" className="eyebrow">
-              {t("admin.formatCode")}
-            </Label>
-            <input
-              id="format-code"
-              value={code}
-              onChange={(event) => setCode(event.target.value.toUpperCase())}
-              placeholder={t("admin.formatCodePlaceholder")}
-              className={fieldClassName}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="format-label-key" className="eyebrow">
-              {t("admin.formatLabelKey")}
-            </Label>
-            <input
-              id="format-label-key"
-              value={labelKey}
-              onChange={(event) => setLabelKey(event.target.value)}
-              placeholder={t("admin.formatLabelKeyPlaceholder")}
-              className={fieldClassName}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="format-icon" className="eyebrow">
-              {t("admin.formatIcon")}
-            </Label>
-            <input
-              id="format-icon"
-              value={icon}
-              onChange={(event) => setIcon(event.target.value)}
-              placeholder={t("admin.formatIconPlaceholder")}
-              className={fieldClassName}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="format-sort-order" className="eyebrow">
-              {t("admin.formatSortOrder")}
-            </Label>
-            <input
-              id="format-sort-order"
-              value={sortOrder}
-              onChange={(event) => setSortOrder(event.target.value)}
-              placeholder={t("admin.formatSortOrderPlaceholder")}
-              inputMode="numeric"
-              className={fieldClassName}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-md bg-sage-600 px-4 text-xs font-medium text-white transition-colors hover:bg-sage-900 disabled:opacity-50 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
-            >
-              <Plus aria-hidden className="size-3.5" />
-              {saving
-                ? t("admin.addingFormat")
-                : editingId
-                  ? t("common.save")
-                  : t("admin.addFormatAction")}
-            </button>
-            {editingId ? (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="h-10 rounded-md border border-[var(--rule-strong)] px-3 text-xs text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
-              >
-                {t("common.cancel")}
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </form>
-
       <section className="rounded-lg border border-[var(--rule)] bg-card">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--rule)] p-4">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground">
-              {t("admin.formats")}
-            </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("admin.formatsDescription")}
-            </p>
+        <div className="flex flex-col gap-3 rounded-t-lg border-b border-[var(--rule)] bg-muted/60 p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("admin.searchFormats")}
+              aria-label={t("admin.searchFormats")}
+              className={searchClassName}
+            />
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(event.target.value as StatusFilter)
+              }
+              aria-label={t("admin.statusColumn")}
+              className={selectClassName}
+            >
+              <option value="all">{t("admin.filterAll")}</option>
+              <option value="active">{t("admin.filterActive")}</option>
+              <option value="inactive">{t("admin.filterInactive")}</option>
+            </select>
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as SortKey)}
+              aria-label={t("admin.sortBy")}
+              className={selectClassName}
+            >
+              <option value="order">{t("admin.sortOrder")}</option>
+              <option value="code">{t("admin.sortCode")}</option>
+              <option value="label">{t("admin.sortLabel")}</option>
+            </select>
           </div>
-          <span className="text-xs tabular-nums text-muted-foreground">
-            {t(
-              formats.length === 1
-                ? "admin.formatsCount"
-                : "admin.formatsCountPlural",
-              { count: formats.length },
-            )}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {t(
+                visible.length === 1
+                  ? "admin.formatsCount"
+                  : "admin.formatsCountPlural",
+                { count: visible.length },
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={openCreate}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-sage-600 px-3 text-[11px] font-medium text-white transition-colors hover:bg-sage-900 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
+            >
+              <Plus aria-hidden className="size-3" />
+              {t("admin.addFormat")}
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -330,9 +317,13 @@ function FormatsContent() {
           <p className="p-6 text-center text-sm text-muted-foreground">
             {t("admin.noFormats")}
           </p>
+        ) : visible.length === 0 ? (
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            {t("admin.noFormatMatch")}
+          </p>
         ) : (
           <ul className="divide-y divide-[var(--rule)]">
-            {formats.map((format) => (
+            {visible.map((format) => (
               <li
                 key={format.id}
                 className="flex flex-wrap items-center gap-3 p-4"
@@ -379,6 +370,108 @@ function FormatsContent() {
       <p className="text-xs leading-relaxed text-muted-foreground">
         {t("admin.formatNote")}
       </p>
+
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetContent
+          side="right"
+          className="gap-0 data-[side=right]:w-full! sm:max-w-lg!"
+        >
+          <SheetHeader className="border-b border-[var(--rule)]">
+            <div className="flex items-center gap-2">
+              <LayoutGrid
+                aria-hidden
+                className="size-4 text-sage-600 dark:text-sage-100"
+              />
+              <SheetTitle>
+                {editingId ? t("admin.editFormat") : t("admin.addFormat")}
+              </SheetTitle>
+            </div>
+            <SheetDescription className="text-xs">
+              {t("admin.addFormatNote")}
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={saveFormat} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              <div className="space-y-2">
+                <Label htmlFor="format-code" className="eyebrow">
+                  {t("admin.formatCode")}
+                </Label>
+                <input
+                  id="format-code"
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.toUpperCase())}
+                  placeholder={t("admin.formatCodePlaceholder")}
+                  aria-label={t("admin.formatCodeA11y")}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="format-label-key" className="eyebrow">
+                  {t("admin.formatLabelKey")}
+                </Label>
+                <input
+                  id="format-label-key"
+                  value={labelKey}
+                  onChange={(event) => setLabelKey(event.target.value)}
+                  placeholder={t("admin.formatLabelKeyPlaceholder")}
+                  aria-label={t("admin.formatLabelKeyA11y")}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="format-icon" className="eyebrow">
+                  {t("admin.formatIcon")}
+                </Label>
+                <input
+                  id="format-icon"
+                  value={icon}
+                  onChange={(event) => setIcon(event.target.value)}
+                  placeholder={t("admin.formatIconPlaceholder")}
+                  aria-label={t("admin.formatIconA11y")}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="format-sort-order" className="eyebrow">
+                  {t("admin.formatSortOrder")}
+                </Label>
+                <input
+                  id="format-sort-order"
+                  value={sortOrder}
+                  onChange={(event) => setSortOrder(event.target.value)}
+                  placeholder={t("admin.formatSortOrderPlaceholder")}
+                  aria-label={t("admin.formatSortOrderA11y")}
+                  inputMode="numeric"
+                  className={fieldClassName}
+                />
+              </div>
+            </div>
+
+            <SheetFooter className="border-t border-[var(--rule)]">
+              <button
+                type="submit"
+                disabled={saving}
+                className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-sage-600 px-4 text-xs font-medium text-white transition-colors hover:bg-sage-900 disabled:opacity-50 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
+              >
+                <Plus aria-hidden className="size-3.5" />
+                {saving
+                  ? t("admin.addingFormat")
+                  : editingId
+                    ? t("common.save")
+                    : t("admin.addFormatAction")}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenChange(false)}
+                className="h-10 w-full rounded-md border border-[var(--rule-strong)] px-3 text-xs text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {t("common.cancel")}
+              </button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -8,6 +8,13 @@ import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
 import { useI18n } from "@/i18n/provider";
 import { formatDate } from "@/lib/format";
 import { fetchAdminMedia, type ApiAdminMedia } from "@/lib/api";
+import { NewContentForm } from "@/features/admin/new-content-form";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const kinds = Object.keys(mediaKindKeys) as MediaKind[];
 
@@ -17,6 +24,11 @@ export default function AdminContenusPage() {
   const [loading, setLoading] = useState(true);
   const [kind, setKind] = useState<MediaKind | null>(null);
   const [query, setQuery] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  function reload() {
+    void fetchAdminMedia().then(setItems);
+  }
 
   useEffect(() => {
     void fetchAdminMedia()
@@ -51,13 +63,14 @@ export default function AdminContenusPage() {
           </p>
         </div>
 
-        <Link
-          href="/admin/contenus/nouveau"
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
           className="group inline-flex h-10 items-center gap-2 bg-primary px-4 text-[11px] uppercase tracking-[0.16em] text-primary-foreground"
         >
           <Plus className="size-3.5" />
           {t("admin.newContent")}
-        </Link>
+        </button>
       </header>
 
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -186,6 +199,27 @@ export default function AdminContenusPage() {
         <ArrowRight className="size-3.5" />
         {t("admin.draftsLocalNote")}
       </p>
+
+      <Sheet open={creating} onOpenChange={setCreating}>
+        <SheetContent
+          side="right"
+          aria-describedby={undefined}
+          className="gap-0 data-[side=right]:w-full! sm:max-w-5xl!"
+        >
+          <SheetHeader className="border-b border-[var(--rule)]">
+            <SheetTitle>{t("admin.newContent")}</SheetTitle>
+          </SheetHeader>
+
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <NewContentForm
+              onCreated={() => {
+                setCreating(false);
+                reload();
+              }}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

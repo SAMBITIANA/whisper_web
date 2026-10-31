@@ -1,11 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Globe2, Plus } from "lucide-react";
+import { Globe2, Pencil, Plus } from "lucide-react";
 import { Switch as SwitchPrimitive } from "radix-ui";
 import { toast } from "sonner";
 import { useI18n } from "@/i18n/provider";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   createAdminLanguage,
   errorMessage,
@@ -16,7 +25,16 @@ import {
 import { useRequiredSession } from "@/lib/use-required-session";
 
 const fieldClassName =
-  "h-10 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
+  "h-10 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:focus:border-sage-300";
+
+const selectClassName =
+  "h-9 rounded-md border border-[var(--rule)] bg-background px-2.5 text-xs text-foreground focus:border-sage-600 focus:outline-none dark:focus:border-sage-300";
+
+const searchClassName =
+  "h-9 w-full rounded-md border border-[var(--rule)] bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-sage-600 focus:outline-none sm:w-56 dark:focus:border-sage-300";
+
+type StatusFilter = "all" | "active" | "inactive";
+type SortKey = "order" | "code" | "name";
 
 function LanguageSwitch({
   active,
@@ -63,19 +81,6 @@ function LanguageSwitch({
 export default function AdminLanguagesPage() {
   const { t } = useI18n();
   const { user, ready } = useRequiredSession(["EDITOR", "ADMIN"]);
-  const [languages, setLanguages] = useState<ApiAdminLanguage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [updating, setUpdating] = useState<string | null>(null);
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [nativeName, setNativeName] = useState("");
-
-  useEffect(() => {
-    void fetchAdminLanguages()
-      .then(setLanguages)
-      .finally(() => setLoading(false));
-  }, []);
 
   if (!ready || !user) {
     return <div className="h-32 animate-pulse rounded-lg bg-foreground/5" />;
@@ -97,32 +102,138 @@ export default function AdminLanguagesPage() {
     );
   }
 
-  async function addLanguage(event: React.FormEvent<HTMLFormElement>) {
+  return <LanguagesContent />;
+}
+
+function LanguagesContent() {
+  const { t } = useI18n();
+  const [languages, setLanguages] = useState<ApiAdminLanguage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [nativeName, setNativeName] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
+  const [editingCode, setEditingCode] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [sort, setSort] = useState<SortKey>("order");
+
+  useEffect(() => {
+    void fetchAdminLanguages()
+      .then(setLanguages)
+      .catch(() => toast(t("admin.loadLanguagesError")))
+      .finally(() => setLoading(false));
+  }, [t]);
+
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+
+    return languages
+      .filter((language) =>
+        status === "all"
+          ? true
+          : status === "active"
+            ? language.isActive
+            : !language.isActive,
+      )
+      .filter(
+        (language) =>
+          !needle ||
+          language.code.toLowerCase().includes(needle) ||
+          language.name.toLowerCase().includes(needle) ||
+          language.nativeName.toLowerCase().includes(needle),
+      )
+      .sort((a, b) => {
+        if (sort === "code") {
+          return a.code.localeCompare(b.code);
+        }
+
+        if (sort === "name") {
+          return a.name.localeCompare(b.name);
+        }
+
+        return a.sortOrder - b.sortOrder;
+      });
+  }, [languages, query, status, sort]);
+
+  function resetForm() {
+    setEditingCode(null);
+    setCode("");
+    setName("");
+    setNativeName("");
+    setSortOrder("");
+  }
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+
+    if (!next) {
+      resetForm();
+    }
+  }
+
+  function openCreate() {
+    resetForm();
+    setOpen(true);
+  }
+
+  function startEdit(language: ApiAdminLanguage) {
+    setEditingCode(language.code);
+    setCode(language.code);
+    setName(language.name);
+    setNativeName(language.nativeName);
+    setSortOrder(String(language.sortOrder));
+    setOpen(true);
+  }
+
+  async function saveLanguage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedCode = code.trim();
+    const trimmedName = name.trim();
+    const trimmedNativeName = nativeName.trim();
 
-    if (!trimmedCode || !name.trim() || !nativeName.trim()) {
+    if (!trimmedCode || !trimmedName || !trimmedNativeName) {
       toast(t("admin.languageFieldsRequired"));
       return;
     }
 
     setSaving(true);
+    const input = {
+      name: trimmedName,
+      nativeName: trimmedNativeName,
+      sortOrder: sortOrder.trim() ? Number(sortOrder) : undefined,
+    };
 
     try {
-      const language = await createAdminLanguage({
-        code: trimmedCode,
-        name: name.trim(),
-        nativeName: nativeName.trim(),
-      });
+      const language = editingCode
+        ? await updateAdminLanguage(editingCode, input)
+        : await createAdminLanguage({ ...input, code: trimmedCode });
+
       setLanguages((current) =>
-        [...current, language].sort((a, b) => a.sortOrder - b.sortOrder),
+        (editingCode
+          ? current.map((item) =>
+              item.code === language.code ? language : item,
+            )
+          : [...current, language]
+        ).sort((a, b) => a.sortOrder - b.sortOrder),
       );
-      setCode("");
-      setName("");
-      setNativeName("");
-      toast(t("admin.languageAdded"));
+      setOpen(false);
+      resetForm();
+      toast(
+        editingCode ? t("admin.languageUpdated") : t("admin.languageAdded"),
+      );
     } catch (error) {
-      toast(errorMessage(error, t("admin.languageAddFailed")));
+      toast(
+        errorMessage(
+          error,
+          editingCode
+            ? t("common.updateFailed")
+            : t("admin.languageAddFailed"),
+        ),
+      );
     } finally {
       setSaving(false);
     }
@@ -148,86 +259,56 @@ export default function AdminLanguagesPage() {
 
   return (
     <div className="space-y-5">
-      <Link
-        href="/admin/parametres"
-        className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
-      >
-        {t("common.back")}
-      </Link>
-
-      <header>
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-          {t("common.admin")}
-        </p>
-        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">
-          {t("admin.settings")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("admin.languagesDescription")}
-        </p>
-      </header>
-
-      <form
-        onSubmit={addLanguage}
-        className="rounded-lg border border-[var(--rule)] bg-card p-4"
-      >
-        <div className="flex items-center gap-2">
-          <Globe2 aria-hidden className="size-4 text-sage-600 dark:text-sage-100" />
-          <h2 className="text-sm font-semibold text-foreground">
-            {t("admin.addLanguage")}
-          </h2>
-        </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_auto]">
-          <input
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            placeholder="es"
-            aria-label={t("admin.languageCodeLabel")}
-            className={fieldClassName}
-          />
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t("admin.languageNamePlaceholder")}
-            aria-label={t("admin.languageNameLabel")}
-            className={fieldClassName}
-          />
-          <input
-            value={nativeName}
-            onChange={(event) => setNativeName(event.target.value)}
-            placeholder={t("admin.languageNativePlaceholder")}
-            aria-label={t("admin.languageNativeLabel")}
-            className={fieldClassName}
-          />
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-sage-600 px-4 text-xs font-medium text-white transition-colors hover:bg-sage-900 disabled:opacity-50 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
-          >
-            <Plus aria-hidden className="size-3.5" />
-            {t("admin.add")}
-          </button>
-        </div>
-      </form>
-
       <section className="rounded-lg border border-[var(--rule)] bg-card">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--rule)] p-4">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground">
-              {t("admin.languages")}
-            </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("admin.activeLanguagesNote")}
-            </p>
+        <div className="flex flex-col gap-3 rounded-t-lg border-b border-[var(--rule)] bg-muted/60 p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("admin.searchLanguages")}
+              aria-label={t("admin.searchLanguages")}
+              className={searchClassName}
+            />
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value as StatusFilter)}
+              aria-label={t("admin.statusColumn")}
+              className={selectClassName}
+            >
+              <option value="all">{t("admin.filterAll")}</option>
+              <option value="active">{t("admin.filterActive")}</option>
+              <option value="inactive">{t("admin.filterInactive")}</option>
+            </select>
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as SortKey)}
+              aria-label={t("admin.sortBy")}
+              className={selectClassName}
+            >
+              <option value="order">{t("admin.sortOrder")}</option>
+              <option value="code">{t("admin.sortCode")}</option>
+              <option value="name">{t("admin.sortName")}</option>
+            </select>
           </div>
-          <span className="text-xs tabular-nums text-muted-foreground">
-            {t(
-              languages.length === 1
-                ? "admin.languageCount"
-                : "admin.languageCountPlural",
-              { count: languages.length },
-            )}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {t(
+                visible.length === 1
+                  ? "admin.languageCount"
+                  : "admin.languageCountPlural",
+                { count: visible.length },
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={openCreate}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md bg-sage-600 px-3 text-[11px] font-medium text-white transition-colors hover:bg-sage-900 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
+            >
+              <Plus aria-hidden className="size-3" />
+              {t("admin.addLanguage")}
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -238,9 +319,13 @@ export default function AdminLanguagesPage() {
           <p className="p-6 text-center text-sm text-muted-foreground">
             {t("admin.noLanguages")}
           </p>
+        ) : visible.length === 0 ? (
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            {t("admin.noLanguageMatch")}
+          </p>
         ) : (
           <ul className="divide-y divide-[var(--rule)]">
-            {languages.map((language) => (
+            {visible.map((language) => (
               <li
                 key={language.code}
                 className="flex flex-wrap items-center gap-3 p-4"
@@ -261,6 +346,14 @@ export default function AdminLanguagesPage() {
                     })}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => startEdit(language)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  <Pencil aria-hidden className="size-3" />
+                  {t("common.edit")}
+                </button>
                 <LanguageSwitch
                   active={language.isActive}
                   disabled={updating === language.code}
@@ -276,6 +369,105 @@ export default function AdminLanguagesPage() {
       <p className="text-xs leading-relaxed text-muted-foreground">
         {t("admin.languagesFooter")}
       </p>
+
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetContent
+          side="right"
+          className="gap-0 data-[side=right]:w-full! sm:max-w-lg!"
+        >
+          <SheetHeader className="border-b border-[var(--rule)]">
+            <div className="flex items-center gap-2">
+              <Globe2
+                aria-hidden
+                className="size-4 text-sage-600 dark:text-sage-100"
+              />
+              <SheetTitle>
+                {editingCode ? t("admin.editLanguage") : t("admin.addLanguage")}
+              </SheetTitle>
+            </div>
+            <SheetDescription className="text-xs">
+              {t("admin.languagesDescription")}
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={saveLanguage} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              <div className="space-y-2">
+                <Label htmlFor="language-code" className="eyebrow">
+                  {t("admin.languageCodeLabel")}
+                </Label>
+                <input
+                  id="language-code"
+                  value={code}
+                  onChange={(event) => setCode(event.target.value)}
+                  placeholder="es"
+                  aria-label={t("admin.languageCodeLabel")}
+                  disabled={editingCode !== null}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="language-name" className="eyebrow">
+                  {t("admin.languageNameLabel")}
+                </Label>
+                <input
+                  id="language-name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder={t("admin.languageNamePlaceholder")}
+                  aria-label={t("admin.languageNameLabel")}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="language-native-name" className="eyebrow">
+                  {t("admin.languageNativeLabel")}
+                </Label>
+                <input
+                  id="language-native-name"
+                  value={nativeName}
+                  onChange={(event) => setNativeName(event.target.value)}
+                  placeholder={t("admin.languageNativePlaceholder")}
+                  aria-label={t("admin.languageNativeLabel")}
+                  className={fieldClassName}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="language-sort-order" className="eyebrow">
+                  {t("admin.sortOrder")}
+                </Label>
+                <input
+                  id="language-sort-order"
+                  value={sortOrder}
+                  onChange={(event) => setSortOrder(event.target.value)}
+                  placeholder="4"
+                  aria-label={t("admin.sortOrder")}
+                  inputMode="numeric"
+                  className={fieldClassName}
+                />
+              </div>
+            </div>
+
+            <SheetFooter className="border-t border-[var(--rule)]">
+              <button
+                type="submit"
+                disabled={saving}
+                className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-sage-600 px-4 text-xs font-medium text-white transition-colors hover:bg-sage-900 disabled:opacity-50 dark:bg-sage-300 dark:text-sage-900 dark:hover:bg-sage-100"
+              >
+                <Plus aria-hidden className="size-3.5" />
+                {editingCode ? t("common.save") : t("admin.add")}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOpenChange(false)}
+                className="h-10 w-full rounded-md border border-[var(--rule-strong)] px-3 text-xs text-foreground/75 transition-colors hover:bg-muted hover:text-foreground"
+              >
+                {t("common.cancel")}
+              </button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

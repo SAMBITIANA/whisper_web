@@ -69,6 +69,7 @@ export type ApiTaxonomy = {
   topics: { slug: string; name: string; count: number }[];
   moods: { slug: string; name: string; count: number }[];
   languages: { code: LanguageCode; label: string; name: string }[];
+  formats: { code: string; labelKey: string; icon: string | null }[];
 };
 
 export type ApiHome = {
@@ -441,6 +442,13 @@ export async function updateAdminMediaFormat(
   const { data } = await api.patch<ApiAdminMediaFormat>(
     `/admin/media-formats/${id}`,
     input,
+  );
+  return data;
+}
+
+export async function deleteAdminMediaFormat(id: string) {
+  const { data } = await api.delete<{ deleted: boolean }>(
+    `/admin/media-formats/${id}`,
   );
   return data;
 }
