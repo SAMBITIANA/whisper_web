@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Scegli l’impostazione da modificare.",
   "admin.openSetting": "Apri",
   "admin.toggleSettings": "Mostra o nascondi le impostazioni",
-  "common.remove": "Rimuovi"
+  "common.remove": "Rimuovi",
+  "common.play": "Riproduci"
 }

@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Escolha a definição a alterar.",
   "admin.openSetting": "Abrir",
   "admin.toggleSettings": "Mostrar ou ocultar as definições",
-  "common.remove": "Remover"
+  "common.remove": "Remover",
+  "common.play": "Reproduzir"
 }

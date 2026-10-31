@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Choose the setting to edit.",
   "admin.openSetting": "Open",
   "admin.toggleSettings": "Show or hide settings",
-  "common.remove": "Remove"
+  "common.remove": "Remove",
+  "common.play": "Play"
 }

@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Safidio ny parametatra hovaina.",
   "admin.openSetting": "Sokafy",
   "admin.toggleSettings": "Aseho na afeno ny parametatra",
-  "common.remove": "Esory"
+  "common.remove": "Esory",
+  "common.play": "Vakio"
 }

@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Düzenlemek istediğiniz ayarı seçin.",
   "admin.openSetting": "Aç",
   "admin.toggleSettings": "Ayarları göster veya gizle",
-  "common.remove": "Kaldır"
+  "common.remove": "Kaldır",
+  "common.play": "Oynat"
 }

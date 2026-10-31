@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "जिस सेटिंग को संपादित करना है उसे चुनें।",
   "admin.openSetting": "खोलें",
   "admin.toggleSettings": "सेटिंग दिखाएँ या छिपाएँ",
-  "common.remove": "हटाएँ"
+  "common.remove": "हटाएँ",
+  "common.play": "चलाएँ"
 }

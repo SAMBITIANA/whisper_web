@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Images, Sparkles } from "lucide-react";
+import { Images, Pause, Play, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -111,6 +111,11 @@ export function NewContentForm({
     media?.voiceLanguage || media?.language || "fr",
   );
   const [generatingVoice, setGeneratingVoice] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [voiceDuration, setVoiceDuration] = useState(0);
+  const voiceRef = useRef<HTMLAudioElement>(null);
+  const musicRef = useRef<HTMLAudioElement>(null);
   const [candidates, setCandidates] = useState<ApiQuoteCandidate[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -190,6 +195,62 @@ export function NewContentForm({
       }
     };
   }, [videoPreview]);
+
+  const frames = useMemo(() => {
+    if (sceneImages.length > 0) {
+      return sceneImages.map((image) => image.url);
+    }
+
+    if (posterPreview || posterUrl) {
+      return [(posterPreview ?? posterUrl) as string];
+    }
+
+    return [];
+  }, [sceneImages, posterPreview, posterUrl]);
+
+  useEffect(() => {
+    if (!playing) {
+      return;
+    }
+
+    if (frames.length <= 1) {
+      return;
+    }
+
+    const total = voiceDuration > 0 ? voiceDuration : 8;
+    const perFrame = (total * 1000) / frames.length;
+    const timer = setInterval(() => {
+      setFrameIndex((current) => (current + 1) % frames.length);
+    }, Math.max(1200, perFrame));
+
+    return () => clearInterval(timer);
+  }, [playing, frames.length, voiceDuration]);
+
+  function togglePlayback() {
+    const voice = voiceRef.current;
+    const music = musicRef.current;
+
+    if (playing) {
+      voice?.pause();
+      if (music) music.pause();
+      setPlaying(false);
+      return;
+    }
+
+    setFrameIndex(0);
+    setPlaying(true);
+
+    if (music) {
+      music.volume = 0.25;
+      void music.play().catch(() => {});
+    }
+
+    if (voice) {
+      voice.currentTime = 0;
+      void voice.play().catch(() => {});
+    }
+  }
+
 
   async function generateQuotes() {
     setGenerating(true);
@@ -853,8 +914,32 @@ export function NewContentForm({
       <aside className="lg:sticky lg:top-0 lg:self-start">
         <p className="eyebrow">{t("content.preview")}</p>
         <div className="mt-4 border border-[var(--rule)] p-3">
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep dark:bg-card">
-            {videoPreview ? (
+          <div
+            role={frames.length > 1 || voiceUrl || musicTrackUrl ? "button" : undefined}
+            tabIndex={frames.length > 1 || voiceUrl || musicTrackUrl ? 0 : undefined}
+            onClick={
+              frames.length > 1 || voiceUrl || musicTrackUrl
+                ? togglePlayback
+                : undefined
+            }
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                togglePlayback();
+              }
+            }}
+            className="relative aspect-[4/5] w-full overflow-hidden bg-paper-deep dark:bg-card"
+          >
+            {playing && frames.length > 0 ? (
+              <Image
+                src={frames[frameIndex] ?? frames[0]}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 380px, 100vw"
+                className="object-cover"
+                unoptimized
+              />
+            ) : videoPreview ? (
               <video
                 src={`${videoPreview}#t=1`}
                 muted
@@ -875,6 +960,21 @@ export function NewContentForm({
               <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_20%_10%,oklch(0.729_0.07_126.4_/_0.55),transparent_60%)]" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-ink/5" />
+
+            {frames.length > 1 || voiceUrl || musicTrackUrl ? (
+              <button
+                type="button"
+                onClick={togglePlayback}
+                aria-label={playing ? t("common.pause") : t("common.play")}
+                className="absolute top-3 left-3 inline-flex size-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur transition-colors hover:bg-black/75"
+              >
+                {playing ? (
+                  <Pause aria-hidden className="size-4" />
+                ) : (
+                  <Play aria-hidden className="size-4" />
+                )}
+              </button>
+            ) : null}
 
             <div className="absolute inset-0 flex flex-col justify-end p-5">
               <p className="text-[9.5px] uppercase tracking-[0.18em] text-paper/60">
@@ -908,6 +1008,25 @@ export function NewContentForm({
           <li>{t("content.ruleNoProtectedImage")}</li>
           <li>{t("content.ruleEnglishOptional")}</li>
         </ul>
+        {voiceUrl ? (
+          <audio
+            ref={voiceRef}
+            src={voiceUrl}
+            onLoadedMetadata={(event) =>
+              setVoiceDuration(event.currentTarget.duration)
+            }
+            onEnded={() => setPlaying(false)}
+            className="hidden"
+          />
+        ) : null}
+        {musicTrackUrl ? (
+          <audio
+            ref={musicRef}
+            src={musicTrackUrl}
+            loop
+            className="hidden"
+          />
+        ) : null}
       </aside>
         </form>
       </div>

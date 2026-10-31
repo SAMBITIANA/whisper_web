@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "Choisissez le paramétrage à modifier.",
   "admin.openSetting": "Ouvrir",
   "admin.toggleSettings": "Afficher ou masquer les paramètres",
-  "common.remove": "Retirer"
+  "common.remove": "Retirer",
+  "common.play": "Lire"
 }

@@ -517,5 +517,6 @@
   "admin.settingsHubNote": "اختر الإعداد الذي تريد تعديله.",
   "admin.openSetting": "فتح",
   "admin.toggleSettings": "إظهار أو إخفاء الإعدادات",
-  "common.remove": "إزالة"
+  "common.remove": "إزالة",
+  "common.play": "تشغيل"
 }
