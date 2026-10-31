@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -20,6 +21,26 @@ export function CitationView({
   item: ApiMedia;
   related: ApiMedia[];
 }) {
+  const [frame, setFrame] = useState(0);
+  const frames = item.images ?? [];
+
+  useEffect(() => {
+    if (frames.length <= 1) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setFrame((current) => (current + 1) % frames.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [frames.length]);
+
+  const heroImage =
+    frames[frame] ??
+    item.poster ??
+    item.source.poster ??
+    "/media/carnet-riviere.jpg";
   const { t } = useI18n();
 
   return (
@@ -75,11 +96,7 @@ export function CitationView({
               <div className="paper-frame">
                 <div className="relative aspect-[16/10] w-full overflow-hidden">
                   <Image
-                    src={
-                      item.poster ||
-                      item.source.poster ||
-                      "/media/carnet-riviere.jpg"
-                    }
+                    src={heroImage}
                     alt={t("citation.illustrationAlt", {
                       title: item.source.title,
                     })}
