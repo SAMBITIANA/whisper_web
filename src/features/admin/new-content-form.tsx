@@ -2,12 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import { Images, Music2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SheetTitle } from "@/components/ui/sheet";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { parseDuration } from "@/lib/fake-content";
 import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
 import { type MessageKey } from "@/i18n/config";
@@ -16,7 +22,9 @@ import {
   createAdminMedia,
   errorMessage,
   fetchAdminSources,
+  generateAdminMusic,
   generateAdminQuotes,
+  generateAdminScenes,
   fetchTaxonomy,
   updateAdminMedia,
   uploadAdminFile,
@@ -38,6 +46,9 @@ const fieldClass =
 
 const textareaClass =
   "w-full resize-none border border-[var(--rule-strong)] bg-transparent p-3 text-[13.5px] leading-relaxed placeholder:text-foreground/30 focus:border-sage-300 focus:outline-none";
+
+const generateButtonClass =
+  "inline-flex h-9 items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-3 text-[11px] uppercase tracking-[0.12em] text-foreground/75 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50";
 
 const fileClass =
   "w-full max-w-full text-[12px] text-transparent file:mr-3 file:cursor-pointer file:border file:border-[var(--rule-strong)] file:bg-transparent file:px-3 file:py-1.5 file:text-[11px] file:uppercase file:tracking-[0.12em] file:text-foreground/75";
@@ -79,6 +90,20 @@ export function NewContentForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [generatingImages, setGeneratingImages] = useState(false);
+  const [generatingMusic, setGeneratingMusic] = useState(false);
+  const [promptQuote, setPromptQuote] = useState("");
+  const [promptImages, setPromptImages] = useState(
+    "90s retro anime style, lo-fi aesthetic, grainy vintage texture, muted dark color palette, atmospheric, cinematic lighting, vertical format (9:16), masterpiece",
+  );
+  const [promptMusic, setPromptMusic] = useState(
+    "melancholic lo-fi hip hop instrumental, nostalgic piano chords, soft vinyl crackle, slow tempo, instrumental only, no vocals, loopable",
+  );
+  const [musicDuration, setMusicDuration] = useState(30);
+  const [sceneImages, setSceneImages] = useState<
+    { sentence: string; url: string }[]
+  >([]);
+  const [musicTrackUrl, setMusicTrackUrl] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<ApiQuoteCandidate[]>([]);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -119,6 +144,15 @@ export function NewContentForm({
 
   const source = sources.find((item) => item.slug === sourceSlug);
 
+  const sentences = useMemo(
+    () =>
+      quote
+        .split(/(?<=[.!?…])\s+/)
+        .map((sentence) => sentence.trim())
+        .filter(Boolean),
+    [quote],
+  );
+
   const posterPreview = useMemo(
     () => (posterFile ? URL.createObjectURL(posterFile) : null),
     [posterFile],
@@ -152,12 +186,49 @@ export function NewContentForm({
         theme: title.trim() || undefined,
         mood: mood || undefined,
         count: 5,
+        instructions: promptQuote.trim() || undefined,
       });
       setCandidates(result.candidates);
     } catch (error) {
       toast(errorMessage(error, t("content.generateError")));
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function generateScenes() {
+    setGeneratingImages(true);
+
+    try {
+      const result = await generateAdminScenes({
+        sentences,
+        mood: mood || undefined,
+        instructions: promptImages,
+      });
+      setSceneImages(
+        result.items.map((item) => ({ sentence: item.sentence, url: item.url })),
+      );
+    } catch (error) {
+      toast(errorMessage(error, t("content.generateError")));
+    } finally {
+      setGeneratingImages(false);
+    }
+  }
+
+  async function generateMusic() {
+    setGeneratingMusic(true);
+
+    try {
+      const result = await generateAdminMusic({
+        mood: mood || "Mélancolique",
+        durationSec: musicDuration,
+        instructions: promptMusic,
+      });
+      setMusicTrackUrl(result.url);
+    } catch (error) {
+      toast(errorMessage(error, t("content.generateError")));
+    } finally {
+      setGeneratingMusic(false);
     }
   }
 
@@ -241,6 +312,8 @@ export function NewContentForm({
         status: (status === "PUBLIE" ? "PUBLISHED" : "DRAFT") as
           | "PUBLISHED"
           | "DRAFT",
+        images: sceneImages.map((image) => image.url),
+        musicUrl: musicTrackUrl ?? "",
       };
 
       if (media) {
@@ -327,6 +400,14 @@ export function NewContentForm({
           </p>
         ) : null}
 
+        <Tabs defaultValue="citation" className="gap-6">
+          <TabsList>
+            <TabsTrigger value="citation">{t("content.tabQuote")}</TabsTrigger>
+            <TabsTrigger value="images">{t("content.tabImages")}</TabsTrigger>
+            <TabsTrigger value="musique">{t("content.tabMusic")}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="citation" className="space-y-6">
         <div className="grid gap-6 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="format" className="eyebrow">
@@ -431,6 +512,20 @@ export function NewContentForm({
               {t("content.quoteAutomaticNote")}
             </p>
 
+            <div className="space-y-2">
+              <Label htmlFor="quote-prompt" className="eyebrow">
+                {t("content.prompt")}
+              </Label>
+              <textarea
+                id="quote-prompt"
+                value={promptQuote}
+                onChange={(event) => setPromptQuote(event.target.value)}
+                rows={3}
+                placeholder={t("content.promptPlaceholder")}
+                className={textareaClass}
+              />
+            </div>
+
             <button
               type="button"
               onClick={() => void generateQuotes()}
@@ -491,6 +586,111 @@ export function NewContentForm({
             </select>
           </div>
         </div>
+
+          </TabsContent>
+
+          <TabsContent value="images" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="image-prompt" className="eyebrow">
+                {t("content.prompt")}
+              </Label>
+              <textarea
+                id="image-prompt"
+                value={promptImages}
+                onChange={(event) => setPromptImages(event.target.value)}
+                rows={4}
+                className={textareaClass}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <p className="eyebrow">{t("content.sentences")}</p>
+              <ul className="space-y-1 text-[12px] leading-relaxed text-foreground/70">
+                {sentences.map((sentence, index) => (
+                  <li key={`${index}-${sentence}`}>{sentence}</li>
+                ))}
+              </ul>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void generateScenes()}
+              disabled={generatingImages || sentences.length === 0}
+              className={generateButtonClass}
+            >
+              <Images aria-hidden className="size-3.5" />
+              {generatingImages
+                ? t("content.generating")
+                : t("content.generateImages")}
+            </button>
+
+            {sceneImages.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {sceneImages.map((image, index) => (
+                  <figure key={`${index}-${image.url}`} className="space-y-1">
+                    <Image
+                      src={image.url}
+                      alt=""
+                      width={1080}
+                      height={1920}
+                      unoptimized
+                      className="aspect-[9/16] w-full object-cover"
+                    />
+                    <figcaption className="text-[10.5px] leading-snug text-foreground/50">
+                      {image.sentence}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            ) : null}
+          </TabsContent>
+
+          <TabsContent value="musique" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="music-prompt" className="eyebrow">
+                {t("content.prompt")}
+              </Label>
+              <textarea
+                id="music-prompt"
+                value={promptMusic}
+                onChange={(event) => setPromptMusic(event.target.value)}
+                rows={4}
+                className={textareaClass}
+              />
+            </div>
+
+            <div className="max-w-[9rem] space-y-2">
+              <Label htmlFor="music-duration" className="eyebrow">
+                {t("content.durationSec")}
+              </Label>
+              <input
+                id="music-duration"
+                type="number"
+                min={5}
+                max={180}
+                value={musicDuration}
+                onChange={(event) => setMusicDuration(Number(event.target.value))}
+                className={fieldClass}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void generateMusic()}
+              disabled={generatingMusic}
+              className={generateButtonClass}
+            >
+              <Music2 aria-hidden className="size-3.5" />
+              {generatingMusic
+                ? t("content.generating")
+                : t("content.generateMusic")}
+            </button>
+
+            {musicTrackUrl ? (
+              <audio controls src={musicTrackUrl} className="w-full" />
+            ) : null}
+          </TabsContent>
+        </Tabs>
 
         <fieldset className="space-y-6">
           <legend className="eyebrow">{t("content.mediaAndText")}</legend>

@@ -464,6 +464,7 @@ export async function generateAdminQuotes(input: {
   theme?: string;
   mood?: string;
   count?: number;
+  instructions?: string;
 }) {
   const { data } = await api.post<{
     jobId: string;
@@ -482,6 +483,7 @@ export async function generateAdminScenes(input: {
   width?: number;
   height?: number;
   seed?: number;
+  instructions?: string;
 }) {
   const { data } = await api.post<{
     jobId: string;
@@ -497,6 +499,7 @@ export async function generateAdminScenes(input: {
 export async function generateAdminMusic(input: {
   mood: string;
   durationSec: number;
+  instructions?: string;
 }) {
   const { data } = await api.post<{
     jobId: string;
@@ -575,6 +578,8 @@ export async function createAdminMedia(input: {
   posterUrl?: string;
   mediaUrl?: string;
   status: "DRAFT" | "PUBLISHED";
+  images?: string[];
+  musicUrl?: string;
 }) {
   const { data } = await api.post("/admin/media", input);
   return data;
@@ -616,6 +621,8 @@ export async function updateAdminMedia(
     posterUrl?: string;
     mediaUrl?: string;
     status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+    images?: string[];
+    musicUrl?: string;
   },
 ) {
   const { data } = await api.patch(`/admin/media/${id}`, input);
