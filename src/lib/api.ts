@@ -453,13 +453,24 @@ export async function deleteAdminMediaFormat(id: string) {
   return data;
 }
 
+export async function uploadAdminFile(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await api.post<{
+    url: string;
+    posterUrl?: string;
+    durationSec?: number;
+  }>("/admin/uploads", form);
+  return data;
+}
+
 export async function createAdminMedia(input: {
   kind: MediaKind;
   title: string;
   sourceSlug: string;
   character?: string;
-  quoteFr: string;
-  quoteEn?: string;
+  language: string;
+  quote: string;
   topics?: string;
   mood?: string;
   durationSec?: number;
@@ -468,6 +479,55 @@ export async function createAdminMedia(input: {
   status: "DRAFT" | "PUBLISHED";
 }) {
   const { data } = await api.post("/admin/media", input);
+  return data;
+}
+
+export type ApiAdminMediaDetail = {
+  id: string;
+  kind: MediaKind;
+  title: string;
+  status: string;
+  sourceSlug: string;
+  character: string;
+  language: string;
+  quote: string;
+  topics: string;
+  mood: string;
+  durationSec: number;
+  posterUrl: string;
+  mediaUrl: string;
+};
+
+export async function fetchAdminMediaItem(id: string) {
+  const { data } = await api.get<ApiAdminMediaDetail>(`/admin/media/${id}`);
+  return data;
+}
+
+export async function updateAdminMedia(
+  id: string,
+  input: {
+    kind?: MediaKind;
+    title?: string;
+    sourceSlug?: string;
+    character?: string;
+    language?: string;
+    quote?: string;
+    topics?: string;
+    mood?: string;
+    durationSec?: number;
+    posterUrl?: string;
+    mediaUrl?: string;
+    status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  },
+) {
+  const { data } = await api.patch(`/admin/media/${id}`, input);
+  return data;
+}
+
+export async function archiveAdminMedia(id: string) {
+  const { data } = await api.post<{ archived: boolean }>(
+    `/admin/media/${id}/archive`,
+  );
   return data;
 }
 

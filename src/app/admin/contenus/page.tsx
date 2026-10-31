@@ -3,18 +3,21 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Plus } from "lucide-react";
+import { Archive, ArrowRight, Pencil, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { mediaKindKeys, type MediaKind } from "@/lib/catalogue";
 import { useI18n } from "@/i18n/provider";
 import { formatDate } from "@/lib/format";
-import { fetchAdminMedia, type ApiAdminMedia } from "@/lib/api";
-import { NewContentForm } from "@/features/admin/new-content-form";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  archiveAdminMedia,
+  errorMessage,
+  fetchAdminMedia,
+  fetchAdminMediaItem,
+  type ApiAdminMedia,
+  type ApiAdminMediaDetail,
+} from "@/lib/api";
+import { NewContentForm } from "@/features/admin/new-content-form";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const kinds = Object.keys(mediaKindKeys) as MediaKind[];
 
@@ -25,9 +28,48 @@ export default function AdminContenusPage() {
   const [kind, setKind] = useState<MediaKind | null>(null);
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<ApiAdminMediaDetail | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
 
   function reload() {
     void fetchAdminMedia().then(setItems);
+  }
+
+  function openCreate() {
+    setEditing(null);
+    setCreating(true);
+  }
+
+  async function openEdit(id: string) {
+    setBusy(id);
+
+    try {
+      const item = await fetchAdminMediaItem(id);
+      setEditing(item);
+      setCreating(true);
+    } catch (error) {
+      toast(errorMessage(error, t("common.updateFailed")));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function archiveRow(row: ApiAdminMedia) {
+    if (!window.confirm(t("admin.confirmArchive", { title: row.title }))) {
+      return;
+    }
+
+    setBusy(row.id);
+
+    try {
+      await archiveAdminMedia(row.id);
+      toast(t("admin.contentArchived"));
+      reload();
+    } catch (error) {
+      toast(errorMessage(error, t("common.updateFailed")));
+    } finally {
+      setBusy(null);
+    }
   }
 
   useEffect(() => {
@@ -65,7 +107,7 @@ export default function AdminContenusPage() {
 
         <button
           type="button"
-          onClick={() => setCreating(true)}
+          onClick={openCreate}
           className="group inline-flex h-10 items-center gap-2 bg-primary px-4 text-[11px] uppercase tracking-[0.16em] text-primary-foreground"
         >
           <Plus className="size-3.5" />
@@ -126,6 +168,9 @@ export default function AdminContenusPage() {
               <th className="py-2.5 pl-4 text-right text-[9.5px] font-normal uppercase tracking-[0.16em] text-foreground/40">
                 {t("admin.statusColumn")}
               </th>
+              <th className="py-2.5 pl-4">
+                <span className="sr-only">{t("common.edit")}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -178,8 +223,32 @@ export default function AdminContenusPage() {
                       ? t("admin.statusPublished")
                       : row.status === "DRAFT"
                         ? t("admin.statusDraft")
-                        : row.status}
+                        : row.status === "ARCHIVED"
+                          ? t("admin.statusArchived")
+                          : row.status}
                   </span>
+                </td>
+                <td className="py-3.5 pl-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void openEdit(row.id)}
+                      disabled={busy === row.id}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/75 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+                    >
+                      <Pencil aria-hidden className="size-3" />
+                      {t("common.edit")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void archiveRow(row)}
+                      disabled={busy === row.id || row.status === "ARCHIVED"}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--rule-strong)] px-2.5 text-[11px] text-foreground/60 transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
+                    >
+                      <Archive aria-hidden className="size-3" />
+                      {t("admin.archive")}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -200,24 +269,29 @@ export default function AdminContenusPage() {
         {t("admin.draftsLocalNote")}
       </p>
 
-      <Sheet open={creating} onOpenChange={setCreating}>
+      <Sheet
+        open={creating}
+        onOpenChange={(open) => {
+          setCreating(open);
+
+          if (!open) {
+            setEditing(null);
+          }
+        }}
+      >
         <SheetContent
           side="right"
           aria-describedby={undefined}
           className="gap-0 data-[side=right]:w-full! sm:max-w-5xl!"
         >
-          <SheetHeader className="border-b border-[var(--rule)]">
-            <SheetTitle>{t("admin.newContent")}</SheetTitle>
-          </SheetHeader>
-
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <NewContentForm
-              onCreated={() => {
-                setCreating(false);
-                reload();
-              }}
-            />
-          </div>
+          <NewContentForm
+            inDrawer
+            media={editing}
+            onCreated={() => {
+              setCreating(false);
+              reload();
+            }}
+          />
         </SheetContent>
       </Sheet>
     </div>

@@ -30,6 +30,7 @@ export type CatalogueMedia = {
   kind: MediaKind;
   title: string;
   quote: Partial<Record<LanguageCode, string>> & { fr: string };
+  originalLanguage?: string;
   source: CatalogueSource;
   topics: string[];
   mood: string;

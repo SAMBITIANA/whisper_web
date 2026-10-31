@@ -33,7 +33,13 @@ export function getQuote(
   item: CatalogueMedia,
   language: LanguageCode,
 ): string {
-  return typography(item.quote[language] ?? item.quote.fr);
+  return typography(
+    item.quote[language] ??
+      (item.originalLanguage
+        ? item.quote[item.originalLanguage as LanguageCode]
+        : undefined) ??
+      item.quote.fr,
+  );
 }
 
 export type {
